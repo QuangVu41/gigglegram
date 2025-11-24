@@ -3,7 +3,7 @@ kind: Ingress
 metadata:
   name: gigglegram-ingress
   annotations:
-    kubernetes.io/ingress.global-static-ip-name: gigglegram-static-ip
+    kubernetes.io/ingress.global-static-ip-name: gigglegram-app-ip
     kubernetes.io/ingress.class: "gce"
 spec:
   rules:
