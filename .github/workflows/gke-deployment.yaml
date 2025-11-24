@@ -9,10 +9,10 @@ on:
 env:
   GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
   GKE_CLUSTER_NAME: ${{ secrets.GKE_CLUSTER_NAME }}
-  GKE_ZONE: ${{ secrets.GKE_ZONE }}
+  GKE_LOCATION: ${{ secrets.GKE_LOCATION }}
   GAR_LOCATION: ${{ secrets.GAR_LOCATION }}
-  GAR_IMAGE_API_REPO: ${{ secrets.GAR_IMAGE_API_REPO }}
-  GAR_IMAGE_WEB_REPO: ${{ secrets.GAR_IMAGE_WEB_REPO }}
+  GAR_IMAGE_API_REPO: 'gigglegram-api'
+  GAR_IMAGE_WEB_REPO: 'gigglegram-web'
   IMAGE_API: "api"
   IMAGE_WEB: "web"
 
@@ -23,6 +23,7 @@ jobs:
 
     permissions:
       contents: 'read'
+      id-token: 'write'
 
     steps:
       - name: Checkout repository
@@ -31,13 +32,14 @@ jobs:
       - name: Authenticate to Google Cloud
         uses: 'google-github-actions/auth@v3'
         with:
-          credentials_json: '${{ secrets.GCP_SA_KEY }}'
+          workload_identity_provider: ${{ secrets.GCP_WI_PROVIDER }}
+          service_account: ${{ secrets.GCP_SA_EMAIL }}
 
       - name: Setup GKE credentials
         uses: 'google-github-actions/get-gke-credentials@v3'
         with:
           cluster_name: ${{ env.GKE_CLUSTER_NAME }}
-          location: ${{ env.GKE_ZONE }}
+          location: ${{ env.GKE_LOCATION }}
 
       - name: Configure Docker to use Google Cloud credentials
         run: gcloud auth configure-docker ${{ env.GAR_LOCATION }}-docker.pkg.dev
