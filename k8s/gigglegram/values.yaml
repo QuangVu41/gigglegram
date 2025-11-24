@@ -16,6 +16,13 @@ pg:
   storage:
     size: 5Gi
     storageClassName: 'standard'
+  resources:
+    requests:
+      memory: 2Gi
+      cpu: 500m
+    limits:
+      memory: 4Gi
+      cpu: 1
 # API
 api:
   name: api
@@ -27,6 +34,13 @@ api:
   service:
     type: ClusterIP
     port: 3001
+  resources:
+    requests:
+      memory: 2Gi
+      cpu: 500m
+    limits:
+      memory: 4Gi
+      cpu: 1
 # WEB
 web:
   name: web
@@ -38,3 +52,10 @@ web:
   service:
     type: ClusterIP
     port: 3000
+  resources:
+    requests:
+      memory: 2Gi
+      cpu: 500m
+    limits:
+      memory: 4Gi
+      cpu: 1

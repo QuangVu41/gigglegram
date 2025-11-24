@@ -23,5 +23,12 @@ spec:
           imagePullPolicy: {{ .image.pullPolicy }}
           ports:
             - containerPort: {{ .service.port }}
+          resources:
+            requests:
+              memory: {{ .resources.requests.memory }}
+              cpu: {{ .resources.requests.cpu }}
+            limits:
+              memory: {{ .resources.limits.memory }}
+              cpu: {{ .resources.limits.cpu }}
 {{- end }}
 {{- end }}
