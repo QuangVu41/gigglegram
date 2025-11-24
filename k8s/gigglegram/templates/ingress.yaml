@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: gigglegram-ingress
+  annotations:
+    kubernetes.io/ingress.global-static-ip-name: gigglegram-static-ip
+    kubernetes.io/ingress.class: "gce"
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /*
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: {{ .Values.web.name }}
+                port:
+                  number: {{ .Values.web.service.port }}
+          - path: /api/*
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: {{ .Values.api.name }}
+                port:
+                  number: {{ .Values.api.service.port }}
