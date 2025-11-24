@@ -72,4 +72,4 @@ jobs:
             --set api.image.tag=${{ github.sha }} \
             --set web.image.tag=${{ github.sha }} \
             --set pg.storage.storageClassName='standard-rwo' \
-            --wait
+            --wait --timeout 10m0s
