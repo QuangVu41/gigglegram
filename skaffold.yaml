@@ -1,0 +1,46 @@
+apiVersion: skaffold/v4beta5
+kind: Config
+metadata:
+  name: gigglegram
+
+build:
+  artifacts:
+    - image: quangvu41/gigglegram/api
+      context: .
+      docker:
+        dockerfile: apps/api/Dockerfile
+      sync:
+        manual:
+          - src: 'apps/api/src/**/*.ts'
+            dest: apps/api/src
+            strip: "apps/api/src/"
+    - image: quangvu41/gigglegram/web
+      context: .
+      docker:
+        dockerfile: apps/web/Dockerfile
+      sync:
+        manual:
+          - src: 'apps/web/**/*.ts'
+            dest: apps/web
+            strip: "apps/web/"
+
+manifests:
+  helm:
+    releases:
+      - name: gigglegram
+        chartPath: ./k8s/gigglegram
+        setValues:
+          api.image.repository: quangvu41/gigglegram/api
+          # web.image.repository: quangvu41/gigglegram/web
+
+portForward:
+  - resourceType: service
+    resourceName: web
+    namespace: default
+    port: 3000
+    localPort: 3000
+  - resourceType: service
+    resourceName: api
+    namespace: default
+    port: 3001
+    localPort: 3001
