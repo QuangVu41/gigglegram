@@ -1,5 +1,6 @@
 import Image, { type ImageProps } from "next/image";
 import styles from "./page.module.css";
+import ReactPlayer from 'react-player'
 
 type Props = Omit<ImageProps, "src"> & {
   srcLight: string;
@@ -16,6 +17,22 @@ const ThemeImage = (props: Props) => {
     </>
   );
 };
+
+function HlsPlayer(){
+  return (
+    <ReactPlayer
+      src="https://example.com/stream.m3u8"
+      controls
+      width="100%"
+      height="100%"
+      config={{
+        hls: {
+          maxBufferLength: 30
+        }
+      }}
+    />
+  )
+}
 
 export default function Home() {
   return (
@@ -37,7 +54,9 @@ export default function Home() {
           <li>Save and see your changes instantly.</li>
           <li>This is in the GKE.</li>
         </ol>
-
+        <div className="w-[300px] h-[300px]">
+          <HlsPlayer />
+        </div>
         <div className={styles.ctas}>
           <a
             className={styles.primary}
