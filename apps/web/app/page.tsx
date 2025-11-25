@@ -21,7 +21,7 @@ const ThemeImage = (props: Props) => {
 function HlsPlayer(){
   return (
     <ReactPlayer
-      src="https://example.com/stream.m3u8"
+      src="http://34.54.210.192/video/2e597a26-d781-45d6-822d-2247e521f967/master.m3u8"
       controls
       width="100%"
       height="100%"
