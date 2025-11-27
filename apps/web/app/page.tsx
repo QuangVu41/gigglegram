@@ -23,7 +23,7 @@ const ThemeImage = (props: Props) => {
 function HlsPlayer() {
   return (
     <ReactPlayer
-      src="/video/2e597a26-d781-45d6-822d-2247e521f967/master.m3u8"
+      src="/static/video/2e597a26-d781-45d6-822d-2247e521f967/master.m3u8"
       controls
       width="100%"
       height="100%"
