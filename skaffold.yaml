@@ -11,7 +11,7 @@ build:
         dockerfile: apps/api/Dockerfile
       sync:
         manual:
-          - src: 'apps/api/src/**/*.ts'
+          - src: "apps/api/src/**/*.ts"
             dest: apps/api/src
             strip: "apps/api/src/"
     - image: quangvu41/gigglegram/web
@@ -20,7 +20,7 @@ build:
         dockerfile: apps/web/Dockerfile
       sync:
         manual:
-          - src: 'apps/web/**/*.ts'
+          - src: "apps/web/**/*.ts"
             dest: apps/web
             strip: "apps/web/"
 
@@ -31,7 +31,7 @@ manifests:
         chartPath: ./k8s/gigglegram
         setValues:
           api.image.repository: quangvu41/gigglegram/api
-          # web.image.repository: quangvu41/gigglegram/web
+          web.image.repository: quangvu41/gigglegram/web
 
 portForward:
   - resourceType: service

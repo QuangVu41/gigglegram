@@ -2,6 +2,10 @@
 const nextConfig = {
   // reactCompiler: true,
   cacheComponents: true,
+  rewrites: {
+    source: "/static/video/:path*",
+    destination: "34.54.210.192/video/:path*",
+  },
 };
 
 export default nextConfig;

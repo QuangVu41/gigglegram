@@ -1,6 +1,8 @@
+"use client";
+
 import Image, { type ImageProps } from "next/image";
 import styles from "./page.module.css";
-import ReactPlayer from 'react-player'
+import ReactPlayer from "react-player";
 
 type Props = Omit<ImageProps, "src"> & {
   srcLight: string;
@@ -18,20 +20,20 @@ const ThemeImage = (props: Props) => {
   );
 };
 
-function HlsPlayer(){
+function HlsPlayer() {
   return (
     <ReactPlayer
-      src="http://34.54.210.192/video/2e597a26-d781-45d6-822d-2247e521f967/master.m3u8"
+      src="/video/2e597a26-d781-45d6-822d-2247e521f967/master.m3u8"
       controls
       width="100%"
       height="100%"
       config={{
         hls: {
-          maxBufferLength: 30
-        }
+          maxBufferLength: 30,
+        },
       }}
     />
-  )
+  );
 }
 
 export default function Home() {
