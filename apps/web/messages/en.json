@@ -1,0 +1,111 @@
+{
+  "LoginPage": {
+    "heading": "Login to your Gigglegram account",
+    "emailLabel": "Email",
+    "emailPlaceholder": "gigglegram@example.com",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "********",
+    "forgotPassword": "Forgot your password?",
+    "loginButton": "Login",
+    "orContinueWith": "Or continue with",
+    "loginWithGoogle": "Login with Google",
+    "noAccount": "Don't have an account?",
+    "signUp": "Sign up"
+  },
+  "Footer": {
+    "about": "About",
+    "help": "Help",
+    "termsOfService": "Terms",
+    "privacyPolicy": "Privacy",
+    "copyright": "© {year} Gigglegram. All rights reserved."
+  },
+  "SignupPage": {
+    "heading": "Create your Gigglegram account",
+    "emailLabel": "Email",
+    "emailPlaceholder": "gigglegram@example.com",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "********",
+    "nameLabel": "Full Name",
+    "namePlaceholder": "John Doe",
+    "usernameLabel": "Username",
+    "usernamePlaceholder": "johndoe",
+    "createAccountButton": "Create account",
+    "orContinueWith": "Or continue with",
+    "alreadyHaveAccount": "Already have an account?",
+    "login": "Log in"
+  },
+  "OTPForm": {
+    "heading": "Enter verification code",
+    "description": "We sent a 6-digit code to your email",
+    "label": "Verification code",
+    "fieldDescription": "Enter the 6-digit code sent to your email.",
+    "verifyButton": "Verify",
+    "backToLogin": "Back to Login",
+    "backToSignup": "Back to Signup",
+    "resendText": "Didn't receive the code?",
+    "resendLink": "Resend"
+  },
+  "ForgotPasswordForm": {
+    "heading": "Find your account",
+    "description": "Enter your email address and we'll send you a link to reset your password.",
+    "label": "Email",
+    "emailPlaceholder": "gigglegram@example.com",
+    "fieldDescription": "We'll send a password reset link to this email.",
+    "resetButton": "Send reset link",
+    "backToLoginButton": "Back to Login",
+    "successMessage": "Password reset link has been sent."
+  },
+  "PasswordResetForm": {
+    "heading": "Reset your password",
+    "description": "Enter your new password below.",
+    "label": "New Password",
+    "passwordPlaceholder": "Enter new password",
+    "resetButton": "Reset password",
+    "successMessage": "Password has been reset successfully.",
+    "errorHeading": "Invalid or expired reset link",
+    "errorDescription": "The password reset link is invalid or has expired. Please request a new one.",
+    "goToForgotPassword": "Go to Forgot Password"
+  },
+  "EmailVerification": {
+    "heading": "Verify your email address",
+    "description": "We've sent a verification link to your email. Please check your inbox and click the link to verify your account.",
+    "resendButton": "Resend verification email"
+  },
+  "ValidationErrors": {
+    "emailInvalid": "Invalid email address.",
+    "passwordRequired": "Password is required.",
+    "passwordInvalid": "Password must be 8-50 characters.",
+    "nameInvalid": "Full name must be 2-100 characters.",
+    "usernameInvalid": "Username must be 3-30 characters and contain no spaces.",
+    "otpInvalid": "Verification code must be a 6-digit number."
+  },
+  "BetterAuthErrorCodes": {
+    "GENERAL_ERROR": "An error occurred. Please try again.",
+    "USER_NOT_FOUND": "User not found",
+    "FAILED_TO_CREATE_USER": "Failed to create user",
+    "FAILED_TO_CREATE_SESSION": "Failed to create session",
+    "FAILED_TO_UPDATE_USER": "Failed to update user",
+    "FAILED_TO_GET_SESSION": "Failed to get session",
+    "INVALID_PASSWORD": "Invalid password",
+    "INVALID_EMAIL": "Invalid email",
+    "INVALID_EMAIL_OR_PASSWORD": "Invalid email or password",
+    "INVALID_ORIGIN": "Invalid origin",
+    "SOCIAL_ACCOUNT_ALREADY_LINKED": "Social account already linked",
+    "PROVIDER_NOT_FOUND": "Provider not found",
+    "INVALID_TOKEN": "Invalid token",
+    "ID_TOKEN_NOT_SUPPORTED": "id_token not supported",
+    "FAILED_TO_GET_USER_INFO": "Failed to get user info",
+    "USER_EMAIL_NOT_FOUND": "User email not found",
+    "EMAIL_NOT_VERIFIED": "Email not verified",
+    "PASSWORD_TOO_SHORT": "Password too short",
+    "PASSWORD_TOO_LONG": "Password too long",
+    "USER_ALREADY_EXISTS": "User already exists.",
+    "USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL": "User already exists. Use another email.",
+    "EMAIL_CAN_NOT_BE_UPDATED": "Email can not be updated",
+    "CREDENTIAL_ACCOUNT_NOT_FOUND": "Credential account not found",
+    "SESSION_EXPIRED": "Session expired. Re-authenticate to perform this action.",
+    "FAILED_TO_UNLINK_LAST_ACCOUNT": "You can't unlink your last account",
+    "ACCOUNT_NOT_FOUND": "Account not found",
+    "USER_ALREADY_HAS_PASSWORD": "User already has a password. Provide that to delete the account."
+  }
+}

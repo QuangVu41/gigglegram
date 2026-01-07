@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Email Verification</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f4f7fa;
+      }
+      .email-container {
+        max-width: 600px;
+        margin: 40px auto;
+        background-color: #ffffff;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+      .header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 40px 30px;
+        text-align: center;
+      }
+      .header h1 {
+        margin: 0;
+        color: #ffffff;
+        font-size: 28px;
+        font-weight: 600;
+      }
+      .welcome-icon {
+        font-size: 60px;
+        margin-bottom: 10px;
+      }
+      .content {
+        padding: 40px 30px;
+        color: #333333;
+        line-height: 1.6;
+      }
+      .content h2 {
+        color: #667eea;
+        font-size: 24px;
+        margin-top: 0;
+        margin-bottom: 20px;
+      }
+      .content p {
+        font-size: 16px;
+        margin-bottom: 20px;
+        color: #555555;
+      }
+      .verify-button {
+        display: inline-block;
+        padding: 14px 32px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: #ffffff !important;
+        text-decoration: none;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 16px;
+        margin: 20px 0;
+        transition: transform 0.2s;
+      }
+      .verify-button:hover {
+        transform: translateY(-2px);
+      }
+      .benefits {
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        padding: 20px;
+        margin: 30px 0;
+      }
+      .benefits h3 {
+        color: #667eea;
+        font-size: 18px;
+        margin-top: 0;
+        margin-bottom: 15px;
+      }
+      .benefits ul {
+        margin: 0;
+        padding-left: 20px;
+      }
+      .benefits li {
+        font-size: 14px;
+        color: #555555;
+        margin-bottom: 10px;
+      }
+      .info-box {
+        background-color: #e7f3ff;
+        border-left: 4px solid #2196f3;
+        padding: 16px 20px;
+        margin: 20px 0;
+        border-radius: 4px;
+      }
+      .info-box p {
+        margin: 0;
+        font-size: 14px;
+        color: #0c5aa6;
+      }
+      .footer {
+        background-color: #f8f9fa;
+        padding: 30px;
+        text-align: center;
+        font-size: 14px;
+        color: #888888;
+      }
+      .footer a {
+        color: #667eea;
+        text-decoration: none;
+      }
+      .divider {
+        height: 1px;
+        background-color: #e9ecef;
+        margin: 30px 0;
+      }
+      .highlight {
+        background-color: #fff3cd;
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-weight: 600;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="email-container">
+      <div class="header">
+        <div class="welcome-icon">✉️</div>
+        <h1>Gigglegram</h1>
+      </div>
+
+      <div class="content">
+        <h2>Email Verification</h2>
+
+        <p>Hello,</p>
+
+        <p>
+          Please verify your email address <strong><%= email %></strong> to
+          continue.
+        </p>
+
+        <div style="text-align: center">
+          <a href="<%= verificationUrl %>" class="verify-button"
+            >✓ Verify Email Address</a
+          >
+        </div>
+
+        <div class="info-box">
+          <p>
+            <strong>🔒 Security Note:</strong> Verifying your email helps us
+            keep your account secure and ensures you receive important updates.
+          </p>
+        </div>
+
+        <div class="divider"></div>
+
+        <p style="font-size: 14px; color: #888888">
+          If the button doesn't work, copy and paste this link into your
+          browser:<br />
+          <a
+            href="<%= verificationUrl %>"
+            style="color: #667eea; word-break: break-all"
+            ><%= verificationUrl %></a
+          >
+        </p>
+
+        <p style="font-size: 14px; color: #888888; margin-top: 30px">
+          <strong>Didn't request this verification?</strong><br />
+          If you didn't request this email verification, you can safely ignore
+          this email.
+        </p>
+      </div>
+
+      <div class="footer">
+        <p>This is an automated message from Gigglegram.</p>
+        <p>
+          © <%= new Date().getFullYear() %> Gigglegram. All rights reserved.
+        </p>
+        <p>
+          <a href="#">Privacy Policy</a> | <a href="#">Terms of Service</a> |
+          <a href="#">Contact Support</a>
+        </p>
+      </div>
+    </div>
+  </body>
+</html>

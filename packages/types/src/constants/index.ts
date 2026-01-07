@@ -1,0 +1,6 @@
+export const VIDEO_DURATION_LIMITS = {
+  REEL: 180,
+  POST: 90,
+  STORY: 60,
+};
+export const POST_VIDEO_DURATION_LIMIT_IF_MORE_THAN_1_VIDEOS = 60;

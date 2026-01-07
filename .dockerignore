@@ -1,5 +1,8 @@
-node_modules/
-dist/
-out/
+**/node_modules/
+**/dist/
+**/.next/
+**/out/
 .git
 .env
+*.log
+.DS_Store

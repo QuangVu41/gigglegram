@@ -1,16 +1,16 @@
-{{- range .Values }}
-{{- if and (ne .name "pg") .service }}
+{{- range .Values.apps }}
 ---
 apiVersion: v1
 kind: Service
 metadata:
+  namespace: {{ $.Values.namespace }}
   name: {{ .name }}
 spec:
   type: {{ .service.type }}
   ports:
     - port: {{ .service.port }}
       targetPort: {{ .service.port }}
+      name: http
   selector:
     app: {{ .name }}
-{{- end }}
 {{- end }}

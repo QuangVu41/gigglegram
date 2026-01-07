@@ -1,61 +1,57 @@
-# PostgreSQL configuration
-pg:
-  name: pg
-  replicaCount: 1
-  image:
-    repository: postgres
-    tag: '17-alpine'
-    pullPolicy: IfNotPresent
-  secretName: pg-secret
-  db:
-    user: 'admin'
-    name: 'gigglegram'
-  service:
-    port: 5432
-    name: pg-svc
-  storage:
-    size: 5Gi
-    storageClassName: 'standard'
-  resources:
-    requests:
-      memory: 2Gi
-      cpu: 500m
-    limits:
-      memory: 4Gi
-      cpu: 1
-# API
-api:
-  name: api
-  replicaCount: 1
-  image:
-    repository: asia-southeast1-docker.pkg.dev/mystic-subject-478902-i5/gigglegram-api/api
-    tag: latest
-    pullPolicy: IfNotPresent
-  service:
-    type: ClusterIP
-    port: 3001
-  resources:
-    requests:
-      memory: 2Gi
-      cpu: 500m
-    limits:
-      memory: 4Gi
-      cpu: 1
-# WEB
-web:
-  name: web
-  replicaCount: 1
-  image:
-    repository: asia-southeast1-docker.pkg.dev/mystic-subject-478902-i5/gigglegram-web/web
-    tag: latest
-    pullPolicy: IfNotPresent
-  service:
-    type: ClusterIP
-    port: 3000
-  resources:
-    requests:
-      memory: 2Gi
-      cpu: 500m
-    limits:
-      memory: 4Gi
-      cpu: 1
+ingress: true
+namespace: default
+apps:
+  # API GATEWAY
+  apiGateway:
+    name: api-gateway
+    replicaCount: 1
+    image:
+      repository: asia-southeast1-docker.pkg.dev/mystic-subject-478902-i5/api-gateway/prod
+      tag: latest
+      pullPolicy: IfNotPresent
+    service:
+      type: ClusterIP
+      port: 3001
+    resources:
+      requests:
+        memory: 2Gi
+        cpu: 500m
+      limits:
+        memory: 4Gi
+        cpu: 1
+  # AUTH
+  auth:
+    name: auth
+    replicaCount: 1
+    image:
+      repository: asia-southeast1-docker.pkg.dev/mystic-subject-478902-i5/auth/prod
+      tag: latest
+      pullPolicy: IfNotPresent
+    service:
+      type: ClusterIP
+      port: 3002
+    resources:
+      requests:
+        memory: 2Gi
+        cpu: 500m
+      limits:
+        memory: 4Gi
+        cpu: 1
+  # WEB
+  web:
+    name: web
+    replicaCount: 1
+    image:
+      repository: asia-southeast1-docker.pkg.dev/mystic-subject-478902-i5/web/prod
+      tag: latest
+      pullPolicy: IfNotPresent
+    service:
+      type: ClusterIP
+      port: 3000
+    resources:
+      requests:
+        memory: 2Gi
+        cpu: 500m
+      limits:
+        memory: 4Gi
+        cpu: 1

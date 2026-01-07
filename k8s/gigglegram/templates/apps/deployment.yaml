@@ -1,9 +1,9 @@
-{{- range .Values }}
-{{- if ne .name "pg" }}
+{{- range .Values.apps }}
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  namespace: {{ $.Values.namespace }}
   name: {{ .name }}
   labels:
     app: {{ .name }}
@@ -23,6 +23,14 @@ spec:
           imagePullPolicy: {{ .image.pullPolicy }}
           ports:
             - containerPort: {{ .service.port }}
+          volumeMounts:
+            - name: secret-volume
+              mountPath: "/app/apps/{{ .name }}/.env"
+              subPath: .env
+              readOnly: true
+          # envFrom:
+          #   - secretRef:
+          #       name: gigglegram-secrets
           resources:
             requests:
               memory: {{ .resources.requests.memory }}
@@ -30,5 +38,8 @@ spec:
             limits:
               memory: {{ .resources.limits.memory }}
               cpu: {{ .resources.limits.cpu }}
-{{- end }}
+      volumes:
+        - name: secret-volume
+          secret:
+            secretName: gigglegram-secrets
 {{- end }}

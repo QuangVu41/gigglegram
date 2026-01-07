@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "build": "tsc",
-    "dev": "tsc -w",
-    "lint": "eslint . --max-warnings 0"
+    "build": "nest build",
+    "dev": "nest start --watch",
+    "lint": "eslint . --max-warnings 0",
+    "proto:gen": "npx protoc --plugin=../../node_modules/.bin/protoc-gen-ts_proto --ts_proto_out=./ --ts_proto_opt=nestJs=true --ts_proto_opt=addGrpcMetadata=true --ts_proto_opt=addNestjsRestParameter=true ./src/proto/auth.proto"
   },
   "exports": {
     ".": {
@@ -19,9 +20,12 @@
   "devDependencies": {
     "@repo/eslint-config": "*",
     "@repo/typescript-config": "*",
-    "@types/node": "^22.8.2",
     "@types/eslint": "^9.6.1",
+    "@types/node": "^22.8.2",
     "eslint": "^9.13.0",
     "typescript": "^5.6.3"
+  },
+  "dependencies": {
+    "date-fns": "^4.1.0"
   }
 }

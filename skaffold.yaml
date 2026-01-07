@@ -5,22 +5,31 @@ metadata:
 
 build:
   artifacts:
-    - image: quangvu41/gigglegram/api
+    - image: quangvu41/gigglegram-api-gateway
       context: .
       docker:
-        dockerfile: apps/api/Dockerfile
+        dockerfile: apps/api/Dockerfile.dev
       sync:
         manual:
-          - src: "apps/api/src/**/*.ts"
-            dest: apps/api/src
-            strip: "apps/api/src/"
-    - image: quangvu41/gigglegram/web
+          - src: "apps/api-gateway/**/*"
+            dest: apps/api-gateway
+            strip: "apps/api-gateway/"
+    - image: quangvu41/gigglegram-auth
       context: .
       docker:
-        dockerfile: apps/web/Dockerfile
+        dockerfile: apps/auth/Dockerfile.dev
       sync:
         manual:
-          - src: "apps/web/**/*.ts"
+          - src: "apps/auth/**/*"
+            dest: apps/auth
+            strip: "apps/auth/"
+    - image: quangvu41/gigglegram-web
+      context: .
+      docker:
+        dockerfile: apps/web/Dockerfile.dev
+      sync:
+        manual:
+          - src: "apps/web/**/*"
             dest: apps/web
             strip: "apps/web/"
 
@@ -28,19 +37,28 @@ manifests:
   helm:
     releases:
       - name: gigglegram
+        namespace: dev
         chartPath: ./k8s/gigglegram
+        valuesFiles:
+          - ./k8s/gigglegram/values-dev.yaml
         setValues:
-          api.image.repository: quangvu41/gigglegram/api
-          web.image.repository: quangvu41/gigglegram/web
+          apps.apiGateway.image.repository: quangvu41/gigglegram-api-gateway
+          apps.web.image.repository: quangvu41/gigglegram-web
+          apps.auth.image.repository: quangvu41/gigglegram-auth
 
 portForward:
   - resourceType: service
     resourceName: web
-    namespace: default
+    namespace: dev
     port: 3000
     localPort: 3000
   - resourceType: service
-    resourceName: api
-    namespace: default
+    resourceName: api-gateway
+    namespace: dev
     port: 3001
     localPort: 3001
+  - resourceType: service
+    resourceName: auth
+    namespace: dev
+    port: 3002
+    localPort: 3002

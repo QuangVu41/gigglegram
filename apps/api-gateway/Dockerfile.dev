@@ -1,0 +1,17 @@
+FROM node:lts-alpine
+
+WORKDIR /app
+
+RUN npm install -g turbo
+
+COPY package*.json turbo.json ./
+
+COPY apps/api-gateway ./apps/api-gateway
+
+COPY packages ./packages
+
+RUN npm ci
+
+EXPOSE 3000
+
+CMD ["npm", "run", "dev"]

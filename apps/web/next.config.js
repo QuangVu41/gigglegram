@@ -1,4 +1,6 @@
 /** @type {import('next').NextConfig} */
+import createNextIntlPlugin from "next-intl/plugin";
+
 const nextConfig = {
   // reactCompiler: true,
   cacheComponents: true,
@@ -6,10 +8,15 @@ const nextConfig = {
     return [
       {
         source: "/static/video/:path*",
-        destination: "http://34.54.210.192/video/:path*",
+        destination: `${process.env.STATIC_ASSETS_URL}/video/:path*`,
+      },
+      {
+        source: "/api/:path*",
+        destination: `${process.env.API_GATEWAY_URL}/api/:path*`,
       },
     ];
   },
 };
 
-export default nextConfig;
+const withNextIntl = createNextIntlPlugin();
+export default withNextIntl(nextConfig);

@@ -1,0 +1,111 @@
+{
+  "LoginPage": {
+    "heading": "Đăng nhập vào tài khoản Gigglegram của bạn",
+    "emailLabel": "Email",
+    "emailPlaceholder": "gigglegram@example.com",
+    "passwordLabel": "Mật khẩu",
+    "passwordPlaceholder": "********",
+    "forgotPassword": "Quên mật khẩu?",
+    "loginButton": "Đăng nhập",
+    "orContinueWith": "Hoặc tiếp tục với",
+    "loginWithGoogle": "Đăng nhập bằng Google",
+    "noAccount": "Chưa có tài khoản?",
+    "signUp": "Đăng ký"
+  },
+  "Footer": {
+    "about": "Giới thiệu",
+    "help": "Trợ giúp",
+    "termsOfService": "Điều khoản",
+    "privacyPolicy": "Quyền riêng tư",
+    "copyright": "© {year} Gigglegram. Bảo lưu mọi quyền."
+  },
+  "SignupPage": {
+    "heading": "Tạo tài khoản Gigglegram của bạn",
+    "emailLabel": "Email",
+    "emailPlaceholder": "gigglegram@example.com",
+    "passwordLabel": "Mật khẩu",
+    "passwordPlaceholder": "********",
+    "nameLabel": "Họ và tên",
+    "namePlaceholder": "Nguyễn Văn A",
+    "usernameLabel": "Tên người dùng",
+    "usernamePlaceholder": "nguyenvana",
+    "createAccountButton": "Tạo tài khoản",
+    "orContinueWith": "Hoặc tiếp tục với",
+    "alreadyHaveAccount": "Đã có tài khoản?",
+    "login": "Đăng nhập"
+  },
+  "OTPForm": {
+    "heading": "Nhập mã xác minh",
+    "description": "Chúng tôi đã gửi mã 6 chữ số đến email của bạn",
+    "label": "Mã xác minh",
+    "fieldDescription": "Nhập mã 6 chữ số được gửi đến email của bạn.",
+    "verifyButton": "Xác minh",
+    "backToLogin": "Quay lại Đăng nhập",
+    "backToSignup": "Quay lại Đăng ký",
+    "resendText": "Không nhận được mã?",
+    "resendLink": "Gửi lại"
+  },
+  "ForgotPasswordForm": {
+    "heading": "Tìm tài khoản của bạn",
+    "description": "Nhập địa chỉ email của bạn và chúng tôi sẽ gửi cho bạn liên kết để đặt lại mật khẩu.",
+    "label": "Email",
+    "emailPlaceholder": "gigglegram@example.com",
+    "fieldDescription": "Chúng tôi sẽ gửi liên kết đặt lại mật khẩu đến email này.",
+    "resetButton": "Gửi liên kết đặt lại",
+    "backToLoginButton": "Quay lại Đăng nhập",
+    "successMessage": "Liên kết đặt lại mật khẩu đã được gửi."
+  },
+  "PasswordResetForm": {
+    "heading": "Đặt lại mật khẩu của bạn",
+    "description": "Nhập mật khẩu mới của bạn bên dưới.",
+    "label": "Mật khẩu mới",
+    "passwordPlaceholder": "Nhập mật khẩu mới",
+    "resetButton": "Đặt lại mật khẩu",
+    "successMessage": "Mật khẩu của bạn đã được đặt lại thành công.",
+    "errorHeading": "Liên kết đặt lại không hợp lệ hoặc đã hết hạn",
+    "errorDescription": "Liên kết đặt lại mật khẩu không hợp lệ hoặc đã hết hạn. Vui lòng yêu cầu liên kết mới.",
+    "goToForgotPassword": "Quay lại Quên mật khẩu"
+  },
+  "EmailVerification": {
+    "heading": "Xác minh địa chỉ email của bạn",
+    "description": "Chúng tôi đã gửi liên kết xác minh đến email của bạn. Vui lòng kiểm tra hộp thư đến và nhấp vào liên kết để xác minh tài khoản của bạn.",
+    "resendText": "Gửi lại email xác minh"
+  },
+  "ValidationErrors": {
+    "emailInvalid": "Địa chỉ email không hợp lệ.",
+    "passwordRequired": "Mật khẩu là bắt buộc.",
+    "passwordInvalid": "Mật khẩu phải có 8-50 ký tự.",
+    "nameInvalid": "Họ và tên phải có 2-100 ký tự.",
+    "usernameInvalid": "Tên người dùng phải có 3-30 ký tự và không chứa khoảng trắng.",
+    "otpInvalid": "Mã xác minh phải là số 6 chữ số."
+  },
+  "BetterAuthErrorCodes": {
+    "GENERAL_ERROR": "Đã xảy ra lỗi. Vui lòng thử lại.",
+    "USER_NOT_FOUND": "Không tìm thấy người dùng",
+    "FAILED_TO_CREATE_USER": "Không thể tạo người dùng",
+    "FAILED_TO_CREATE_SESSION": "Không thể tạo phiên",
+    "FAILED_TO_UPDATE_USER": "Không thể cập nhật người dùng",
+    "FAILED_TO_GET_SESSION": "Không thể lấy phiên",
+    "INVALID_PASSWORD": "Mật khẩu không hợp lệ",
+    "INVALID_EMAIL": "Email không hợp lệ",
+    "INVALID_EMAIL_OR_PASSWORD": "Email hoặc mật khẩu không hợp lệ",
+    "INVALID_ORIGIN": "Nguồn không hợp lệ",
+    "SOCIAL_ACCOUNT_ALREADY_LINKED": "Tài khoản mạng xã hội đã được liên kết",
+    "PROVIDER_NOT_FOUND": "Không tìm thấy nhà cung cấp",
+    "INVALID_TOKEN": "Mã xác thực không hợp lệ",
+    "ID_TOKEN_NOT_SUPPORTED": "id_token không được hỗ trợ",
+    "FAILED_TO_GET_USER_INFO": "Không thể lấy thông tin người dùng",
+    "USER_EMAIL_NOT_FOUND": "Không tìm thấy email người dùng",
+    "EMAIL_NOT_VERIFIED": "Email chưa được xác minh",
+    "PASSWORD_TOO_SHORT": "Mật khẩu quá ngắn",
+    "PASSWORD_TOO_LONG": "Mật khẩu quá dài",
+    "USER_ALREADY_EXISTS": "Người dùng đã tồn tại.",
+    "USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL": "Người dùng đã tồn tại. Sử dụng email khác.",
+    "EMAIL_CAN_NOT_BE_UPDATED": "Email không thể được cập nhật",
+    "CREDENTIAL_ACCOUNT_NOT_FOUND": "Không tìm thấy tài khoản thông tin đăng nhập",
+    "SESSION_EXPIRED": "Phiên đã hết hạn. Xác thực lại để thực hiện hành động này.",
+    "FAILED_TO_UNLINK_LAST_ACCOUNT": "Bạn không thể hủy liên kết tài khoản cuối cùng của mình",
+    "ACCOUNT_NOT_FOUND": "Không tìm thấy tài khoản",
+    "USER_ALREADY_HAS_PASSWORD": "Người dùng đã có mật khẩu. Cung cấp mật khẩu để xóa tài khoản."
+  }
+}

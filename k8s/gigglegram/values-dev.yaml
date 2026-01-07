@@ -1,0 +1,57 @@
+ingress: false
+namespace: dev
+apps:
+  # API GATEWAY
+  apiGateway:
+    name: api-gateway
+    replicaCount: 1
+    image:
+      repository: quangvu41/gigglegram-api-gateway
+      tag: latest
+      pullPolicy: IfNotPresent
+    service:
+      type: ClusterIP
+      port: 3001
+    resources:
+      requests:
+        memory: 1Gi
+        cpu: 250m
+      limits:
+        memory: 2Gi
+        cpu: 1
+  # AUTH
+  auth:
+    name: auth
+    replicaCount: 1
+    image:
+      repository: quangvu41/gigglegram-auth
+      tag: latest
+      pullPolicy: IfNotPresent
+    service:
+      type: ClusterIP
+      port: 3002
+    resources:
+      requests:
+        memory: 1Gi
+        cpu: 250m
+      limits:
+        memory: 2Gi
+        cpu: 1
+  # WEB
+  web:
+    name: web
+    replicaCount: 1
+    image:
+      repository: quangvu41/gigglegram-web
+      tag: latest
+      pullPolicy: IfNotPresent
+    service:
+      type: ClusterIP
+      port: 3000
+    resources:
+      requests:
+        memory: 1Gi
+        cpu: 250m
+      limits:
+        memory: 2Gi
+        cpu: 1
