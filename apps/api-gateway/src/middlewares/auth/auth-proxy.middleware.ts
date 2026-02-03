@@ -1,7 +1,7 @@
-import { sendInternalErrorRes } from '@/src/utils/send-internal-error-res.util';
+import { buildPathRewriteConfig } from '@/src/utils/build-path-rewrite-config';
+import { sendInternalErrorRes } from '@/src/utils/send-internal-error-res';
 import { Injectable, Logger, NestMiddleware } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { SystemWideErrorCodes, SystemWideErrorMessages } from '@repo/types';
 import { ClientRequest, IncomingMessage, ServerResponse } from 'http';
 import { createProxyMiddleware } from 'http-proxy-middleware';
 
@@ -18,9 +18,7 @@ export class AuthProxyMiddleware implements NestMiddleware {
       proxyReq: this.onProxyReq.bind(this),
       error: this.onError.bind(this),
     },
-    pathRewrite: {
-      '^/': '/api/auth/',
-    },
+    pathRewrite: buildPathRewriteConfig('authentication'),
   });
 
   onError(
@@ -28,7 +26,7 @@ export class AuthProxyMiddleware implements NestMiddleware {
     req: IncomingMessage,
     res: ServerResponse<IncomingMessage>,
   ) {
-    this.logger.error('Error connecting to Auth Service', error);
+    this.logger.error('Error connecting to Auth Service.', error);
     sendInternalErrorRes(res, error);
   }
 

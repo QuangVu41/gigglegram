@@ -1,9 +1,12 @@
 import dotenv from 'dotenv';
 dotenv.config();
-import { db } from '@repo/database';
+import { db, members, organizationRoles } from '@repo/database';
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
-import { commonModule, EmailService } from '@repo/common';
+import { bootstrapCommonModule, EmailService } from '@repo/common';
+import { organization } from 'better-auth/plugins';
+import { ac, owner } from '@repo/types';
+import { eq } from 'drizzle-orm';
 
 export const auth = betterAuth({
   appName: 'Gigglegram Auth Service',
@@ -15,7 +18,7 @@ export const auth = betterAuth({
     enabled: true,
     requireEmailVerification: true,
     sendResetPassword: async ({ user, url }) => {
-      await (await commonModule)
+      await (await bootstrapCommonModule())
         .get(EmailService)
         .sendPasswordResetEmail({ user, url });
     },
@@ -24,7 +27,7 @@ export const auth = betterAuth({
     autoSignInAfterVerification: true,
     sendOnSignUp: true,
     sendVerificationEmail: async ({ user, url }) => {
-      await (await commonModule)
+      await (await bootstrapCommonModule())
         .get(EmailService)
         .sendVerificationEmail({ user, url });
     },
@@ -39,7 +42,7 @@ export const auth = betterAuth({
       }),
     },
   },
-  trustedOrigins: [process.env.BETTER_AUTH_TRUSTED_ORIGINS!],
+  trustedOrigins: [...process.env.BETTER_AUTH_TRUSTED_ORIGINS!.split(',')],
   session: {
     cookieCache: {
       enabled: true,
@@ -87,4 +90,50 @@ export const auth = betterAuth({
     },
   },
   hooks: {},
+  databaseHooks: {
+    session: {
+      create: {
+        before: async (session) => {
+          const userOrgs = await db.query.members.findMany({
+            where: eq(members.userId, session.userId),
+            columns: {
+              role: true,
+              organizationId: true,
+            },
+          });
+          const activeOrganizationId = userOrgs.find(
+            (uo) => uo.role.includes('owner') || uo.role.includes('default'),
+          )?.organizationId;
+
+          return {
+            data: {
+              ...session,
+              activeOrganizationId,
+            },
+          };
+        },
+      },
+    },
+  },
+  plugins: [
+    organization({
+      ac,
+      roles: {
+        owner,
+      },
+      dynamicAccessControl: {
+        enabled: true,
+      },
+      organizationHooks: {
+        afterCreateOrganization: async ({ organization }) => {
+          await db.insert(organizationRoles).values({
+            id: crypto.randomUUID(),
+            organizationId: organization.id,
+            role: 'default',
+            permission: JSON.stringify({}),
+          });
+        },
+      },
+    }),
+  ],
 });

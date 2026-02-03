@@ -1,43 +1,37 @@
 import {
-  AuthenticatedSession,
+  AuthenticatedSessionResponse,
   AuthServiceController,
   AuthServiceControllerMethods,
-  SystemWideErrorCodes,
+  PermissionSet,
   type Empty,
 } from '@repo/types';
-import { Controller, Logger } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { Metadata } from '@grpc/grpc-js';
-import { AuthService } from '@thallesp/nestjs-better-auth';
-import { auth } from '@/src/lib/auth';
-import { fromNodeHeaders } from 'better-auth/node';
-import { IncomingHttpHeaders } from 'http';
-import { RpcException } from '@nestjs/microservices';
+import { AuthenticationService } from '@/src/authentication.service';
+import { AddMembersDto } from '@/src/dto/add-members.dto';
+import { PermGuard } from '@/src/guards/perm.guard';
+import { Perms } from '@repo/common';
 
+@UseGuards(PermGuard)
 @Controller()
 @AuthServiceControllerMethods()
 export class AuthenticationController implements AuthServiceController {
-  private readonly logger = new Logger(AuthenticationController.name);
-
-  constructor(private readonly authService: AuthService<typeof auth>) {}
+  constructor(private readonly authenticationService: AuthenticationService) {}
 
   async authenticate(
     request: Empty,
     metadata: Metadata,
-  ): Promise<AuthenticatedSession> {
-    const headers = JSON.parse(
-      metadata.get('headers')[0] as string,
-    ) as IncomingHttpHeaders;
-    try {
-      const session = await this.authService.api.getSession({
-        headers: fromNodeHeaders(headers),
-      });
-      if (!session)
-        throw new RpcException(SystemWideErrorCodes.AUTH_UNAUTHORIZED);
+  ): Promise<AuthenticatedSessionResponse> {
+    return await this.authenticationService.authenticate(request, metadata);
+  }
 
-      return session as unknown as AuthenticatedSession;
-    } catch (error) {
-      this.logger.error('Authentication failed.', error);
-      throw new RpcException(SystemWideErrorCodes.AUTH_UNAUTHORIZED);
-    }
+  async hasPermission(request: PermissionSet, metadata: Metadata) {
+    return await this.authenticationService.hasPermission(request, metadata);
+  }
+
+  @Perms({ member: ['create'] })
+  @Post('add-members')
+  async addMembers(@Body() addMembersDto: AddMembersDto) {
+    return await this.authenticationService.addMembers(addMembersDto);
   }
 }

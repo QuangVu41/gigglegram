@@ -1,5 +1,6 @@
-import { sendInternalErrorRes } from '@/src/utils/send-internal-error-res.util';
-import { setSessionHeader } from '@/src/utils/set-session-header.util';
+import { buildPathRewriteConfig } from '@/src/utils/build-path-rewrite-config';
+import { sendInternalErrorRes } from '@/src/utils/send-internal-error-res';
+import { setSessionHeader } from '@/src/utils/set-session-header';
 import { Injectable, Logger, NestMiddleware } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ClientRequest, IncomingMessage, ServerResponse } from 'http';
@@ -18,9 +19,7 @@ export class PostsProxyMiddleware implements NestMiddleware {
       proxyReq: this.onProxyReq.bind(this),
       error: this.onError.bind(this),
     },
-    pathRewrite: {
-      '^/': '/api/posts/',
-    },
+    pathRewrite: buildPathRewriteConfig('posts'),
   });
 
   onError(
@@ -28,7 +27,7 @@ export class PostsProxyMiddleware implements NestMiddleware {
     req: IncomingMessage,
     res: ServerResponse<IncomingMessage>,
   ) {
-    this.logger.error('Error connecting to Posts Service', error);
+    this.logger.error('Error connecting to Posts Service.', error);
     sendInternalErrorRes(res, error);
   }
 

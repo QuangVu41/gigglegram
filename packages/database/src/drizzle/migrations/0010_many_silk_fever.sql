@@ -1,0 +1,1 @@
+ALTER TABLE "post_media" ALTER COLUMN "original_raw_file_url" SET NOT NULL;

@@ -1,0 +1,2 @@
+ALTER TABLE "system_settings" DROP CONSTRAINT "system_settings_key_unique";--> statement-breakpoint
+ALTER TABLE "system_settings" ADD CONSTRAINT "system_settings_key_category_unique" UNIQUE("key","category");

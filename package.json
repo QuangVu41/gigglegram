@@ -3,11 +3,14 @@
   "private": true,
   "scripts": {
     "build": "turbo run build",
-    "dev": "turbo run dev",
+    "dev": "turbo run dev --ui=tui",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types",
-    "generate:auth": "npx @better-auth/cli generate --config=./apps/auth/src/lib/auth.ts --output=./packages/database/src/drizzle/schemas/auth-schemas.ts"
+    "generate:auth": "npx @better-auth/cli generate --config=./apps/auth/src/lib/auth.ts --output=./packages/database/src/drizzle/schemas/auth-schemas.ts",
+    "for:fe": "turbo run dev --filter=web --filter=api-gateway --filter=auth --filter=@repo/types --filter=@repo/database --filter=@repo/common",
+    "only:be": "turbo run dev --filter=api-gateway --filter=auth --filter=posts --filter=settings --filter=@repo/types --filter=@repo/database --filter=@repo/common",
+    "only:auth": "turbo run dev --filter=auth --filter=@repo/types --filter=@repo/database --filter=@repo/common"
   },
   "devDependencies": {
     "prettier": "^3.6.2",

@@ -1,21 +1,8 @@
-import { IsArray, IsOptional, IsString } from 'class-validator';
+import { OmitType } from '@nestjs/swagger';
+import { CreatePostDto } from '@/src/dto/create-post.dto';
 
-export class UpdatePostDto {
-  @IsString()
-  @IsOptional()
-  caption?: string;
-
-  @IsString()
-  @IsOptional()
-  locationId?: string;
-
-  @IsString({ each: true })
-  @IsOptional()
-  @IsArray()
-  hashtagIds?: string[];
-
-  @IsString({ each: true })
-  @IsOptional()
-  @IsArray()
-  newHashtags?: string[];
-}
+export class UpdatePostDto extends OmitType(CreatePostDto, [
+  'audioId',
+  'millisecondsToExtractThumbnail',
+  'audioOmitted',
+] as const) {}

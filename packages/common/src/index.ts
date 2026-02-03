@@ -7,3 +7,7 @@ export * from '@common/src/validators/max-size-based-on-mimetype.validator';
 export * from '@common/src/validators/file-type-based-on-mimetype-validator.validator';
 export * from '@common/src/decorators/current-user.decorator';
 export * from '@common/src/main';
+export * from '@common/src/interceptors/transform-response.interceptor';
+export * from '@common/src/utils';
+export * from '@common/src/decorators/perms.decorator';
+export * from '@common/src/guards/perm.guard';

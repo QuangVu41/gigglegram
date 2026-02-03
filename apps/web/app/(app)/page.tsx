@@ -1,5 +1,3 @@
-"use client";
-
 import BAActionButton from "@/components/common/ba-action-button";
 import { authClient } from "@/lib/auth/auth-client";
 

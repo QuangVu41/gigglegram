@@ -17,8 +17,7 @@ export class FileTypeBasedOnMimetypeValidator extends FileValidator<FileTypeBase
       return false;
     }
     const regexString = this.validationOptions.fileTypeRegexAsString;
-    const pattern = regexString.slice(1, -1);
-    const regex = new RegExp(pattern);
+    const regex = new RegExp(regexString);
 
     return regex.test(file.mimetype);
   }

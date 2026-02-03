@@ -1,0 +1,1 @@
+ALTER TABLE "stories" ADD COLUMN "thumbnail_url" varchar NOT NULL;

@@ -1,0 +1,1 @@
+ALTER TABLE "post_hashtags" ADD CONSTRAINT "postHashtags_postId_hashtagId_unique" UNIQUE("post_id","hashtag_id");

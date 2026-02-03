@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package systemSettings;
+
+service SystemSettingsService {
+  rpc findSettingByKey (SettingKey) returns (SettingValue) {}
+  rpc findSettingsByPrefix (SettingPrefix) returns (SystemSettingsResponse) {}
+}
+
+message SettingKey {
+  string key = 1;
+}
+
+message SettingPrefix {
+  repeated string prefixes = 1;
+}
+
+message SystemSettingsResponse {
+  map<string, SettingValue> settings = 1;
+}
+
+message SettingValue {
+  oneof type {
+    string stringValue = 1;
+    int32 intValue = 2;
+    float floatValue = 3;
+    bool boolValue = 4;
+    string jsonValue = 5;
+  }
+}

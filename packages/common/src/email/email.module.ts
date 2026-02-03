@@ -11,12 +11,12 @@ import { join } from 'path';
     MailerModule.forRootAsync({
       useFactory: (configService: ConfigService) => ({
         transport: {
-          host: configService.get<string>('GMAIL_HOST'),
-          port: configService.get<number>('GMAIL_PORT'),
+          host: configService.getOrThrow<string>('GMAIL_HOST'),
+          port: configService.getOrThrow<number>('GMAIL_PORT'),
           secure: false,
           auth: {
-            user: configService.get<string>('GMAIL_USER'),
-            pass: configService.get<string>('GMAIL_PASS'),
+            user: configService.getOrThrow<string>('GMAIL_USER'),
+            pass: configService.getOrThrow<string>('GMAIL_PASS'),
           },
         },
         defaults: {

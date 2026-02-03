@@ -8,6 +8,7 @@ import {
   pgTable,
   text,
   timestamp,
+  unique,
   uuid,
   varchar,
 } from 'drizzle-orm/pg-core';
@@ -19,7 +20,19 @@ export const postUserTagsStatusEnum = pgEnum('post_user_tags_status', [
   'rejected',
 ]);
 
+export const postCollaboratorsStatusEnum = pgEnum('post_collaborators_status', [
+  'pending',
+  'approved',
+  'rejected',
+]);
+
 export const postStatus = pgEnum('post_status', [
+  'pending',
+  'published',
+  'failed',
+]);
+
+export const storyStatus = pgEnum('story_status', [
   'pending',
   'published',
   'failed',
@@ -106,6 +119,10 @@ export const postHashtags = pgTable(
   (table) => [
     index('postHashtags_postId_idx').on(table.postId),
     index('postHashtags_hashtagId_idx').on(table.hashtagId),
+    unique('postHashtags_postId_hashtagId_unique').on(
+      table.postId,
+      table.hashtagId,
+    ),
   ],
 );
 
@@ -117,7 +134,7 @@ export const postMedia = pgTable(
       .notNull()
       .references(() => posts.id, { onDelete: 'cascade' }),
     mediaUrl: varchar('media_url').notNull(),
-    originalRawFileUrl: varchar('original_raw_file_url').unique(),
+    originalRawFileUrl: varchar('original_raw_file_url').unique().notNull(),
     mediaType: varchar('media_type').notNull(),
     thumbnailUrl: varchar('thumbnail_url').notNull(),
     displayOrder: integer('display_order').notNull(),
@@ -140,6 +157,72 @@ export const locations = pgTable('locations', {
   postsCount: integer('posts_count').default(0).notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
+
+export const stories = pgTable(
+  'stories',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    mediaUrl: varchar('media_url'),
+    originalRawFileUrl: varchar('original_raw_file_url').unique(),
+    mediaType: varchar('media_type'),
+    thumbnailUrl: varchar('thumbnail_url'),
+    duration: integer('duration'),
+    width: integer('width'),
+    height: integer('height'),
+    status: storyStatus('status').default('pending').notNull(),
+    transcoderJobName: varchar('transcoder_job_name').unique(),
+    viewsCount: integer('views_count').default(0).notNull(),
+    altText: text('alt_text'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    expiresAt: timestamp('expires_at'),
+  },
+  (table) => [index('stories_userId_idx').on(table.userId)],
+);
+
+export const storyHighlights = pgTable(
+  'story_highlights',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    title: varchar('title').notNull(),
+    coverStoryId: uuid('cover_story_id').references(() => stories.id, {
+      onDelete: 'set null',
+    }),
+    storiesCount: integer('stories_count').default(0).notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at')
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [index('storyHighlights_userId_idx').on(table.userId)],
+);
+
+export const storyHighlightItems = pgTable(
+  'story_highlight_items',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    highlightId: uuid('highlight_id')
+      .notNull()
+      .references(() => storyHighlights.id, { onDelete: 'cascade' }),
+    storyId: uuid('story_id')
+      .notNull()
+      .references(() => stories.id, { onDelete: 'cascade' }),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+  },
+  (table) => [
+    index('storyHighlightItems_highlightId_idx').on(table.highlightId),
+    index('storyHighlightItems_storyId_idx').on(table.storyId),
+    unique('storyHighlightItems_highlightId_storyId_unique').on(
+      table.highlightId,
+      table.storyId,
+    ),
+  ],
+);
 
 export const savedCollections = pgTable(
   'saved_collections',
@@ -180,6 +263,31 @@ export const savedPost = pgTable(
   ],
 );
 
+export const postCollaborators = pgTable(
+  'post_collaborators',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    postId: uuid('post_id')
+      .notNull()
+      .references(() => posts.id, { onDelete: 'cascade' }),
+    userId: text('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    status: postCollaboratorsStatusEnum('status').default('pending').notNull(),
+    isOriginalAuthor: boolean('is_original_author').default(false).notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    approvedAt: timestamp('approved_at'),
+  },
+  (table) => [
+    index('postCollaborators_postId_idx').on(table.postId),
+    index('postCollaborators_userId_idx').on(table.userId),
+    unique('postCollaborators_postId_userId_unique').on(
+      table.postId,
+      table.userId,
+    ),
+  ],
+);
+
 export const postUserTags = pgTable(
   'post_user_tags',
   {
@@ -203,6 +311,11 @@ export const postUserTags = pgTable(
     index('postUserTags_postId_idx').on(table.postId),
     index('postUserTags_userId_idx').on(table.userId),
     index('postUserTags_mediaId_idx').on(table.mediaId),
+    unique('postUserTags_postId_userId_mediaId_unique').on(
+      table.postId,
+      table.userId,
+      table.mediaId,
+    ),
   ],
 );
 
@@ -212,8 +325,59 @@ export const postsRelations = relations(posts, ({ one, many }) => ({
     fields: [posts.userId],
     references: [users.id],
   }),
+  location: one(locations, {
+    fields: [posts.locationId],
+    references: [locations.id],
+  }),
+  audioTrack: one(audioTracks, {
+    fields: [posts.audioId],
+    references: [audioTracks.id],
+  }),
+  postCollaborators: many(postCollaborators),
+  postUserTags: many(postUserTags),
   postHashtags: many(postHashtags),
   postMedia: many(postMedia),
+}));
+
+export const postUserTagsRelations = relations(postUserTags, ({ one }) => ({
+  post: one(posts, {
+    fields: [postUserTags.postId],
+    references: [posts.id],
+  }),
+  user: one(users, {
+    fields: [postUserTags.userId],
+    references: [users.id],
+  }),
+  media: one(postMedia, {
+    fields: [postUserTags.mediaId],
+    references: [postMedia.id],
+  }),
+}));
+
+export const postCollaboratorsRelations = relations(
+  postCollaborators,
+  ({ one }) => ({
+    post: one(posts, {
+      fields: [postCollaborators.postId],
+      references: [posts.id],
+    }),
+    user: one(users, {
+      fields: [postCollaborators.userId],
+      references: [users.id],
+    }),
+  }),
+);
+
+export const audioTracksRelations = relations(audioTracks, ({ one, many }) => ({
+  uploader: one(users, {
+    fields: [audioTracks.uploaderId],
+    references: [users.id],
+  }),
+  posts: many(posts),
+}));
+
+export const locationsRelations = relations(locations, ({ many }) => ({
+  posts: many(posts),
 }));
 
 export const postMediaRelations = relations(postMedia, ({ one }) => ({
@@ -237,3 +401,41 @@ export const postHashtagsRelations = relations(postHashtags, ({ one }) => ({
     references: [hashtags.id],
   }),
 }));
+
+export const storiesRelations = relations(stories, ({ one, many }) => ({
+  user: one(users, {
+    fields: [stories.userId],
+    references: [users.id],
+  }),
+  storyHighlightItems: many(storyHighlightItems),
+  storyHighlights: many(storyHighlights),
+}));
+
+export const storyHighlightsRelations = relations(
+  storyHighlights,
+  ({ one, many }) => ({
+    user: one(users, {
+      fields: [storyHighlights.userId],
+      references: [users.id],
+    }),
+    storyHighlightItems: many(storyHighlightItems),
+    story: one(stories, {
+      fields: [storyHighlights.coverStoryId],
+      references: [stories.id],
+    }),
+  }),
+);
+
+export const storyHighlightItemsRelations = relations(
+  storyHighlightItems,
+  ({ one }) => ({
+    highlight: one(storyHighlights, {
+      fields: [storyHighlightItems.highlightId],
+      references: [storyHighlights.id],
+    }),
+    story: one(stories, {
+      fields: [storyHighlightItems.storyId],
+      references: [stories.id],
+    }),
+  }),
+);

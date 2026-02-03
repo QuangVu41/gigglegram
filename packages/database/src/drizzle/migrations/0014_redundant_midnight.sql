@@ -1,0 +1,1 @@
+ALTER TYPE "public"."system_settings_category" ADD VALUE 'general';

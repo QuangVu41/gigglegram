@@ -9,7 +9,7 @@ import {
 import { ConfigService } from '@nestjs/config';
 import sharp from 'sharp';
 import ffmpeg from 'fluent-ffmpeg';
-import { Readable } from 'stream';
+import { Readable, PassThrough } from 'stream';
 import { SystemWideErrorCodes } from '@repo/types';
 import { randomUUID } from 'crypto';
 import { join } from 'path';
@@ -23,10 +23,10 @@ export class UploadService implements OnModuleInit {
 
   onModuleInit() {
     this.storage = new Storage({
-      projectId: this.configService.get('GOOGLE_PROJECT_ID'),
+      projectId: this.configService.getOrThrow('GOOGLE_PROJECT_ID'),
       keyFilename: join(
         __dirname,
-        this.configService.get('GOOGLE_CS_SA_KEY_FILE_NAME')!,
+        this.configService.getOrThrow('GOOGLE_CS_SA_KEY_FILE_NAME')!,
       ),
     });
   }
@@ -58,8 +58,17 @@ export class UploadService implements OnModuleInit {
   ) {
     return new Promise<Buffer>((resolve, reject) => {
       const bufferStream = Readable.from(buffer);
-
+      const passThrough = new PassThrough();
       const chunks: Buffer[] = [];
+
+      passThrough.on('data', (chunk: Buffer) => {
+        chunks.push(chunk);
+      });
+
+      passThrough.on('end', () => {
+        this.logger.log('Thumbnail extraction finished.');
+        resolve(Buffer.concat(chunks));
+      });
 
       const command = ffmpeg(bufferStream)
         .seekInput(timeInMilliseconds / 1000)
@@ -73,17 +82,10 @@ export class UploadService implements OnModuleInit {
 
       command
         .on('error', (err) => {
-          this.logger.error('Error extracting thumbnail', err);
+          this.logger.error('Error extracting thumbnail.', err);
           reject(err);
         })
-        .on('end', () => {
-          this.logger.log('Thumbnail extraction finished');
-          resolve(Buffer.concat(chunks));
-        })
-        .pipe()
-        .on('data', (chunk: Buffer) => {
-          chunks.push(chunk);
-        });
+        .pipe(passThrough, { end: true });
     });
   }
 
@@ -140,8 +142,17 @@ export class UploadService implements OnModuleInit {
   async preprocessVideoFile(buffer: Buffer<ArrayBufferLike>) {
     return await new Promise<Buffer>((resolve, reject) => {
       const bufferStream = Readable.from(buffer);
-
+      const passThrough = new PassThrough();
       const chunks: Buffer[] = [];
+
+      passThrough.on('data', (chunk: Buffer) => {
+        chunks.push(chunk);
+      });
+
+      passThrough.on('end', () => {
+        this.logger.log('Processing video finished.');
+        resolve(Buffer.concat(chunks));
+      });
 
       ffmpeg(bufferStream)
         .outputFormat('mp4')
@@ -164,14 +175,7 @@ export class UploadService implements OnModuleInit {
             }),
           );
         })
-        .on('end', () => {
-          this.logger.log('Processing video finished');
-          resolve(Buffer.concat(chunks));
-        })
-        .pipe()
-        .on('data', (chunk: Buffer) => {
-          chunks.push(chunk);
-        });
+        .pipe(passThrough, { end: true });
     });
   }
 
@@ -182,9 +186,11 @@ export class UploadService implements OnModuleInit {
   ) {
     let bucketName: string;
     if (file.mimetype.startsWith('image/'))
-      bucketName = this.configService.get<string>('GOOGLE_IMAGES_BUCKET_NAME')!;
+      bucketName = this.configService.getOrThrow<string>(
+        'GOOGLE_IMAGES_BUCKET_NAME',
+      )!;
     else if (file.mimetype.startsWith('video/'))
-      bucketName = this.configService.get<string>(
+      bucketName = this.configService.getOrThrow<string>(
         'GOOGLE_INPUT_VIDEO_BUCKET_NAME',
       )!;
     else
@@ -207,7 +213,7 @@ export class UploadService implements OnModuleInit {
       const resultUrlObj: { originalRawFileUrl: string; mediaUrl: string } = {
         originalRawFileUrl: fileName,
         mediaUrl: file.mimetype.startsWith('video/')
-          ? `${fileFolder}/${this.configService.get<string>('GOOGLE_HLS_OUTPUT_VIDEO_FILE_NAME')}`
+          ? `${fileFolder}/${this.configService.getOrThrow<string>('GOOGLE_HLS_OUTPUT_VIDEO_FILE_NAME')}`
           : fileName,
       };
 
@@ -221,11 +227,15 @@ export class UploadService implements OnModuleInit {
   }
 
   async deleteFile(fileName: string, mimetype: string) {
+    if (!fileName || !mimetype) return;
+
     let bucketName: string;
     if (mimetype.startsWith('image/'))
-      bucketName = this.configService.get<string>('GOOGLE_IMAGES_BUCKET_NAME')!;
+      bucketName = this.configService.getOrThrow<string>(
+        'GOOGLE_IMAGES_BUCKET_NAME',
+      )!;
     else if (mimetype.startsWith('video/'))
-      bucketName = this.configService.get<string>(
+      bucketName = this.configService.getOrThrow<string>(
         'GOOGLE_INPUT_VIDEO_BUCKET_NAME',
       )!;
     else
@@ -240,7 +250,7 @@ export class UploadService implements OnModuleInit {
       );
     } catch (error) {
       this.logger.error(
-        `ERROR deleting file gs://${bucketName}/${fileName}:`,
+        `ERROR deleting file gs://${bucketName}/${fileName}.`,
         error,
       );
       throw new InternalServerErrorException({

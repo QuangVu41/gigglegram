@@ -1,0 +1,2 @@
+ALTER TABLE "story_highlight_items" DROP COLUMN "display_order";--> statement-breakpoint
+ALTER TABLE "story_highlight_items" ADD CONSTRAINT "storyHighlightItems_highlightId_storyId_unique" UNIQUE("highlight_id","story_id");

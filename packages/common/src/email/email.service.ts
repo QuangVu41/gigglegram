@@ -18,7 +18,7 @@ export class EmailService {
       context: {
         email: user.email,
         name: user.name,
-        homeUrl: this.configService.get<string>('WEB_URL'),
+        homeUrl: this.configService.getOrThrow<string>('WEB_URL'),
       },
     });
   }

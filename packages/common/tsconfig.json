@@ -6,6 +6,7 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
+    "strictPropertyInitialization": false,
     "target": "ES2022",
     "sourceMap": true,
     "outDir": "./dist",
@@ -19,7 +20,8 @@
     "noFallthroughCasesInSwitch": false,
     "paths": {
       "@common/*": ["./*"],
-      "@ts/*": ["../types/*"]
+      "@ts/*": ["../types/*"],
+      "@db/*": ["../database/*"]
     }
   }
 }
