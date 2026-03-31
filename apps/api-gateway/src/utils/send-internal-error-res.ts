@@ -10,6 +10,7 @@ export const sendInternalErrorRes = (
   });
   res.end(
     JSON.stringify({
+      success: false,
       code: SystemWideErrorCodes.INTERNAL_SERVER_ERROR,
       message: SystemWideErrorMessages.INTERNAL_SERVER_ERROR,
       description: error.message,

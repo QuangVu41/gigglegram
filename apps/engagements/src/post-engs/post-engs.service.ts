@@ -7,12 +7,19 @@ import {
   postHashtags,
   postMedia,
   posts,
+  postUserTags,
+  savedCollections,
   schema,
+  userPrivacySettingsWhoCanMentionEnum,
+  userPrivacySettingsWhoCanTagEnum,
+  users,
 } from '@repo/database';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import {
   PostCreatedEvent,
   PostDeletedEvent,
+  PostSavedEvent,
+  PostUnsavedEvent,
   PostUpdatedEvent,
 } from '@repo/types';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
@@ -36,6 +43,11 @@ export class PostEngsService {
       const createdPost = await this.db.query.posts.findFirst({
         where: eq(posts.id, data.postId),
         with: {
+          user: {
+            with: {
+              following: true,
+            },
+          },
           postHashtags: {
             columns: {},
             with: {
@@ -50,15 +62,72 @@ export class PostEngsService {
           location: {
             columns: { id: true, postsCount: true },
           },
+          postCollaborators: {
+            columns: {
+              id: true,
+            },
+            with: {
+              user: {
+                with: {
+                  userPrivacySetting: true,
+                  userNotificationSetting: true,
+                },
+              },
+            },
+          },
+          postUserTags: {
+            columns: {
+              id: true,
+            },
+            with: {
+              user: {
+                with: {
+                  userPrivacySetting: true,
+                  userNotificationSetting: true,
+                },
+              },
+            },
+          },
         },
       });
+      let deletingPostCollaboratorsIds: string[] = [];
+      let deletingPostUserTagsIds: string[] = [];
 
       if (!createdPost)
         return this.logger.warn(`Post with ID ${data.postId} not found.`);
 
+      deletingPostCollaboratorsIds = createdPost.postCollaborators
+        .filter(
+          (pc) =>
+            pc.user.userPrivacySetting?.whoCanMention ===
+              userPrivacySettingsWhoCanMentionEnum.enumValues[2] ||
+            (pc.user.userPrivacySetting?.whoCanMention ===
+              userPrivacySettingsWhoCanMentionEnum.enumValues[1] &&
+              !createdPost.user.following.some(
+                (f) => f.followingId === pc.user.id,
+              )),
+        )
+        .map((pc) => pc.id);
+      deletingPostUserTagsIds = createdPost.postUserTags
+        .filter(
+          (put) =>
+            put.user.userPrivacySetting?.whoCanTag ===
+              userPrivacySettingsWhoCanTagEnum.enumValues[2] ||
+            (put.user.userPrivacySetting?.whoCanTag ===
+              userPrivacySettingsWhoCanTagEnum.enumValues[1] &&
+              !createdPost.user.following.some(
+                (f) => f.followingId === put.user.id,
+              )),
+        )
+        .map((put) => put.id);
+
       await this.db.transaction(async (tx) => {
         try {
           await Promise.all([
+            tx
+              .update(users)
+              .set({ postsCount: createdPost.user.postsCount + 1 })
+              .where(eq(users.id, createdPost.userId)),
             ...createdPost.postHashtags.map(async ({ hashtag }) => {
               await tx
                 .update(hashtags)
@@ -77,6 +146,16 @@ export class PostEngsService {
                   .set({ postsCount: createdPost.location.postsCount + 1 })
                   .where(eq(schema.locations.id, createdPost.location.id))
               : Promise.resolve(),
+            ...deletingPostCollaboratorsIds.map(async (postCollaboratorId) => {
+              await tx
+                .delete(postCollaborators)
+                .where(eq(postCollaborators.id, postCollaboratorId));
+            }),
+            ...deletingPostUserTagsIds.map(async (postUserTagId) => {
+              await tx
+                .delete(postUserTags)
+                .where(eq(postUserTags.id, postUserTagId));
+            }),
           ]);
         } catch (error) {
           this.logger.error(
@@ -104,7 +183,35 @@ export class PostEngsService {
       ] = await Promise.all([
         this.db.query.posts.findFirst({
           where: eq(posts.id, data.postId),
-          with: { location: { columns: { postsCount: true } } },
+          with: {
+            location: { columns: { postsCount: true } },
+            postCollaborators: {
+              columns: {
+                id: true,
+              },
+              with: {
+                user: {
+                  with: {
+                    userPrivacySetting: true,
+                    userNotificationSetting: true,
+                  },
+                },
+              },
+            },
+            postUserTags: {
+              columns: {
+                id: true,
+              },
+              with: {
+                user: {
+                  with: {
+                    userPrivacySetting: true,
+                    userNotificationSetting: true,
+                  },
+                },
+              },
+            },
+          },
         }),
         this.db.query.hashtags.findMany({
           where: inArray(hashtags.id, data.newHashtagIds),
@@ -127,9 +234,27 @@ export class PostEngsService {
           ),
         }),
       ]);
+      let deletingPostCollaboratorsIds: string[] = [];
+      let deletingPostUserTagsIds: string[] = [];
 
       if (!updatedPost)
         this.logger.warn(`Post with ID ${data.postId} not found.`);
+      else {
+        deletingPostCollaboratorsIds = updatedPost.postCollaborators
+          .filter(
+            (pc) =>
+              pc.user.userPrivacySetting?.whoCanMention ===
+              userPrivacySettingsWhoCanMentionEnum.enumValues[2],
+          )
+          .map((pc) => pc.id);
+        deletingPostUserTagsIds = updatedPost.postUserTags
+          .filter(
+            (put) =>
+              put.user.userPrivacySetting?.whoCanTag ===
+              userPrivacySettingsWhoCanTagEnum.enumValues[2],
+          )
+          .map((put) => put.id);
+      }
 
       if (!(newHashtags.length > 0))
         this.logger.warn(
@@ -171,6 +296,16 @@ export class PostEngsService {
                 .delete(postCollaborators)
                 .where(eq(postCollaborators.id, postCollaborator.id));
             }),
+            ...deletingPostCollaboratorsIds.map(async (postCollaboratorId) => {
+              await tx
+                .delete(postCollaborators)
+                .where(eq(postCollaborators.id, postCollaboratorId));
+            }),
+            ...deletingPostUserTagsIds.map(async (postUserTagId) => {
+              await tx
+                .delete(postUserTags)
+                .where(eq(postUserTags.id, postUserTagId));
+            }),
           ]);
         } catch (error) {
           this.logger.error(
@@ -194,22 +329,33 @@ export class PostEngsService {
     >,
   ) {
     try {
-      const [existingHashtags, existingLocation, existingAudio] =
-        await Promise.all([
-          this.db.query.hashtags.findMany({
-            where: inArray(hashtags.id, data.hashtagIds),
-          }),
-          data.locationId
-            ? this.db.query.locations.findFirst({
-                where: eq(locations.id, data.locationId),
-              })
-            : null,
-          data.audioId
-            ? this.db.query.audioTracks.findFirst({
-                where: eq(audioTracks.id, data.audioId),
-              })
-            : null,
-        ]);
+      const [
+        updatingUser,
+        existingHashtags,
+        existingLocation,
+        existingAudio,
+        existingCollections,
+      ] = await Promise.all([
+        this.db.query.users.findFirst({ where: eq(users.id, data.userId) }),
+        this.db.query.hashtags.findMany({
+          where: inArray(hashtags.id, data.hashtagIds),
+        }),
+        data.locationId
+          ? this.db.query.locations.findFirst({
+              where: eq(locations.id, data.locationId),
+            })
+          : null,
+        data.audioId
+          ? this.db.query.audioTracks.findFirst({
+              where: eq(audioTracks.id, data.audioId),
+            })
+          : null,
+        data.collectionIds
+          ? this.db.query.savedCollections.findMany({
+              where: inArray(savedCollections.id, data.collectionIds),
+            })
+          : [],
+      ]);
 
       if (!(existingHashtags.length > 0))
         this.logger.warn(
@@ -219,6 +365,11 @@ export class PostEngsService {
       await this.db.transaction(async (tx) => {
         try {
           await Promise.all([
+            updatingUser &&
+              tx
+                .update(users)
+                .set({ postsCount: Math.max(0, updatingUser.postsCount - 1) })
+                .where(eq(users.id, data.userId)),
             ...existingHashtags.map(async (hashtag) => {
               await tx
                 .update(hashtags)
@@ -247,6 +398,12 @@ export class PostEngsService {
                 media.mediaType,
               );
             }),
+            ...existingCollections.map(async (collec) => {
+              await tx
+                .update(savedCollections)
+                .set({ postsCount: Math.max(0, collec.postsCount - 1) })
+                .where(eq(savedCollections.id, collec.id));
+            }),
           ]);
         } catch (error) {
           this.logger.error(
@@ -261,6 +418,44 @@ export class PostEngsService {
       );
     } catch (error) {
       this.logger.error('Error handling post deleted event.', error);
+      throw error;
+    }
+  }
+
+  async handlePostSaved(data: PostSavedEvent) {
+    try {
+      const savedPost = await this.db.query.posts.findFirst({
+        where: eq(posts.id, data.postId),
+      });
+
+      if (!savedPost)
+        return this.logger.warn(`Post with ID ${data.postId} not found.`);
+
+      await this.db
+        .update(posts)
+        .set({ savesCount: savedPost.savesCount + 1 })
+        .where(eq(posts.id, data.postId));
+    } catch (error) {
+      this.logger.error('Error handling post saved event.', error);
+      throw error;
+    }
+  }
+
+  async handlePostUnsaved(data: PostUnsavedEvent) {
+    try {
+      const unsavedPost = await this.db.query.posts.findFirst({
+        where: eq(posts.id, data.postId),
+      });
+
+      if (!unsavedPost)
+        return this.logger.warn(`Post with ID ${data.postId} not found.`);
+
+      await this.db
+        .update(posts)
+        .set({ savesCount: Math.max(0, unsavedPost.savesCount - 1) })
+        .where(eq(posts.id, data.postId));
+    } catch (error) {
+      this.logger.error('Error handling post unsaved event.', error);
       throw error;
     }
   }

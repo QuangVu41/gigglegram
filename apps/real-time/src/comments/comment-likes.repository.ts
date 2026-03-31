@@ -1,0 +1,21 @@
+import { Inject, Injectable } from '@nestjs/common';
+import { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import {
+  schema,
+  AbstractRepository,
+  DATABASE_CONNECTION,
+  commentLikes,
+} from '@repo/database';
+
+@Injectable()
+export class CommentLikesRepository extends AbstractRepository<
+  typeof commentLikes,
+  'commentLikes'
+> {
+  constructor(
+    @Inject(DATABASE_CONNECTION)
+    protected readonly db: NodePgDatabase<typeof schema>,
+  ) {
+    super(db, commentLikes, 'commentLikes');
+  }
+}

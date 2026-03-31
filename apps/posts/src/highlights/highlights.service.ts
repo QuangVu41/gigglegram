@@ -5,9 +5,10 @@ import {
   Injectable,
   InternalServerErrorException,
   Logger,
+  NotFoundException,
 } from '@nestjs/common';
 import { HighlightsRepository } from '@/src/highlights/highlights.repository';
-import { FilterHighlightsDto } from '@/src/highlights/dto/filter-highlights.dto';
+import { FindManyHighlightsDto } from '@/src/highlights/dto/find-many-highlights.dto';
 import { CreateHighlightDto } from '@/src/highlights/dto/create-highlight.dto';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import {
@@ -32,8 +33,8 @@ export class HighlightsService {
     private readonly db: NodePgDatabase<typeof schema>,
   ) {}
 
-  async findManyHighlights(filterHighlightsDto: FilterHighlightsDto) {
-    return await this.highlightsRepository.findMany({}, filterHighlightsDto);
+  async findManyHighlights(findManyHighlightsDto: FindManyHighlightsDto) {
+    return await this.highlightsRepository.findMany({}, findManyHighlightsDto);
   }
 
   async createHighlight(
@@ -41,15 +42,16 @@ export class HighlightsService {
     user: typeof users.$inferSelect,
   ) {
     try {
-      await this.db.transaction(async (tx) => {
+      const createdHighlight = await this.db.transaction(async (tx) => {
         const [createdHighlight] = await tx
           .insert(storyHighlights)
           .values({
             title: createHighlightDto.title,
             coverStoryId: createHighlightDto.coverStoryId,
             userId: user.id,
+            storiesCount: createHighlightDto.storyIds.length,
           })
-          .returning({ id: storyHighlights.id });
+          .returning();
 
         await Promise.all([
           ...createHighlightDto.storyIds.map((storyId) => {
@@ -59,7 +61,11 @@ export class HighlightsService {
             });
           }),
         ]);
+
+        return createdHighlight;
       });
+
+      return createdHighlight;
     } catch (error) {
       this.logger.error('Error creating new highlight.', error);
       if (error instanceof HttpException) throw error;
@@ -88,7 +94,7 @@ export class HighlightsService {
       if (!existingHighlight)
         throw new BadRequestException({ code: SystemWideErrorCodes.NOT_FOUND });
 
-      await this.db.transaction(async (tx) => {
+      const updatedHighlight = await this.db.transaction(async (tx) => {
         const newStoryIds = (updateHighlightDto.storyIds || []).filter(
           (sId) =>
             !existingHighlight.storyHighlightItems.some(
@@ -99,14 +105,19 @@ export class HighlightsService {
           .map((item) => item.storyId)
           .filter((sId) => !(updateHighlightDto.storyIds || []).includes(sId));
 
-        await tx
+        const [updatedHighlight] = await tx
           .update(storyHighlights)
           .set({
             title: updateHighlightDto.title || existingHighlight.title,
             coverStoryId:
               updateHighlightDto.coverStoryId || existingHighlight.coverStoryId,
+            storiesCount:
+              existingHighlight.storiesCount +
+              newStoryIds.length -
+              deletingStoryIds.length,
           })
-          .where(eq(storyHighlights.id, highlightId));
+          .where(eq(storyHighlights.id, highlightId))
+          .returning();
 
         await Promise.all([
           ...newStoryIds.map((sId) => {
@@ -126,7 +137,11 @@ export class HighlightsService {
               );
           }),
         ]);
+
+        return updatedHighlight;
       });
+
+      return updatedHighlight;
     } catch (error) {
       this.logger.error('Error updating new highlight.', error);
       if (error instanceof HttpException) throw error;
@@ -143,9 +158,13 @@ export class HighlightsService {
       });
 
       if (!existingHighlight)
-        throw new BadRequestException({ code: SystemWideErrorCodes.NOT_FOUND });
+        throw new NotFoundException({ code: SystemWideErrorCodes.NOT_FOUND });
 
-      await this.highlightsRepository.delete(existingHighlight.id);
+      const deletedHighlight = await this.highlightsRepository.delete(
+        existingHighlight.id,
+      );
+
+      return deletedHighlight;
     } catch (error) {
       this.logger.error('Error deleting highlight.', error);
       if (error instanceof HttpException) throw error;

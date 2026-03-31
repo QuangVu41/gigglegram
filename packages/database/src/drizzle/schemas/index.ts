@@ -15,3 +15,5 @@ export {
 export * from '@db/src/drizzle/schemas/auth-relations';
 export * from '@db/src/drizzle/schemas/post-schemas';
 export * from '@db/src/drizzle/schemas/system-setting-schemas';
+export * from '@db/src/drizzle/schemas/user-schemas';
+export * from '@db/src/drizzle/schemas/real-time-schemas';

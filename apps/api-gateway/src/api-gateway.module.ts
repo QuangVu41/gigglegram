@@ -1,4 +1,9 @@
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  RequestMethod,
+} from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { BAAuthProxyMiddleware } from '@/src/middlewares/auth/ba-auth-proxy.middleware';
 import { ClientsModule, Transport } from '@nestjs/microservices';
@@ -9,11 +14,15 @@ import { PostsProxyMiddleware } from '@/src/middlewares/posts/posts-proxy.middle
 import { APIGatewayController } from '@/src/api-gateway.controller';
 import { SettingsProxyMiddleware } from '@/src/middlewares/settings/settings-proxy.middleware';
 import { AuthProxyMiddleware } from '@/src/middlewares/auth/auth-proxy.middleware';
+import { FeedProxyMiddleware } from '@/src/middlewares/feed/feed-proxy.middleware';
+import { UsersProxyMiddleware } from '@/src/middlewares/users/users-proxy.middleware';
+import { RealTimeProxyMiddleware } from '@/src/middlewares/real-time/real-time-proxy.middleware';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      envFilePath: join(process.cwd(), '../../.env'),
     }),
     ClientsModule.registerAsync([
       {
@@ -46,5 +55,14 @@ export class APIGatewayModule implements NestModule {
     consumer
       .apply(AuthProtectMiddleware, SettingsProxyMiddleware)
       .forRoutes('/settings');
+    consumer
+      .apply(AuthProtectMiddleware, FeedProxyMiddleware)
+      .forRoutes('/feed');
+    consumer
+      .apply(AuthProtectMiddleware, UsersProxyMiddleware)
+      .forRoutes('/users');
+    consumer
+      .apply(AuthProtectMiddleware, RealTimeProxyMiddleware)
+      .forRoutes('/real-time');
   }
 }

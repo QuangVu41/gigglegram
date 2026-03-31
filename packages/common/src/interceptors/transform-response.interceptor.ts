@@ -5,6 +5,7 @@ import { map, Observable } from 'rxjs';
 export interface Response<T extends { _totalCount?: number }> {
   data: T | T[];
   metadata?: ResponseMetadata;
+  success: boolean;
 }
 
 export interface ResponseMetadata {

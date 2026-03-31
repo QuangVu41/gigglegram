@@ -16,21 +16,34 @@ import { CreatePostDto } from '@/src/dto/create-post.dto';
 import { CurrentUser, Perms } from '@repo/common';
 import { users } from '@repo/database';
 import { UpdatePostDto } from '@/src/dto/update-post.dto';
-import { FilesValidatorInterceptor } from '@/src/interceptors/files-validator.interceptor';
-import { FilterPostsDto } from '@/src/dto/filter-posts.dto';
+import { FilesValidatorInterceptor } from '@repo/common';
+import { FindManyPostsDto } from '@/src/dto/find-many-posts.dto';
+import { SavePostDto } from '@/src/dto/save-post.dto';
+import { FindManySavedPostsDto } from '@/src/dto/find-many-saved-posts.dto';
+import { FindManyPostsByHashtagDto } from '@/src/dto/find-many-posts-by-hashtag.dto';
+import { FindManyQueryDto } from '@repo/types';
 
 @Controller()
 export class PostsController {
   constructor(private readonly postsService: PostsService) {}
 
-  @Get('{:postId}')
-  async findPostById(@Param('postId') postId: string) {
-    return await this.postsService.findPostById(postId);
+  @Get()
+  async findManyPosts(@Query() findManyPostsDto: FindManyPostsDto) {
+    return await this.postsService.findManyPosts(findManyPostsDto);
   }
 
-  @Get()
-  async findManyPosts(@Query() filterPostsDto: FilterPostsDto) {
-    return await this.postsService.findManyPosts(filterPostsDto);
+  @Get('post-hashtags')
+  async findManyPostsByHashtag(
+    @Query() findManyPostsByHashtagDto: FindManyPostsByHashtagDto,
+  ) {
+    return await this.postsService.findManyPostsByHashtag(
+      findManyPostsByHashtagDto,
+    );
+  }
+
+  @Get('hashtags')
+  async findManyHashtags(@Query() findManyHashtagsDto: FindManyQueryDto) {
+    return await this.postsService.findManyHashtags(findManyHashtagsDto);
   }
 
   @Post()
@@ -43,6 +56,57 @@ export class PostsController {
     @CurrentUser() user: typeof users.$inferSelect,
   ) {
     return await this.postsService.createPost(media, createPostDto, user);
+  }
+
+  @Get('tagged')
+  async findManyTaggedPosts(
+    @Query() findManyPostsDto: FindManyPostsDto,
+    @CurrentUser() user: typeof users.$inferSelect,
+  ) {
+    return await this.postsService.findManyTaggedPosts(findManyPostsDto, user);
+  }
+
+  @Get('user-posts')
+  async findManyUserPosts(
+    @Query() findManyPostsDto: FindManyPostsDto,
+    @CurrentUser() user: typeof users.$inferSelect,
+  ) {
+    return await this.postsService.findManyUserPosts(findManyPostsDto, user);
+  }
+
+  @Get('user-archive')
+  async findManyUserArchivedPosts(
+    @Query() findManyPostsDto: FindManyPostsDto,
+    @CurrentUser() user: typeof users.$inferSelect,
+  ) {
+    return await this.postsService.findManyUserArchivedPosts(
+      findManyPostsDto,
+      user,
+    );
+  }
+
+  @Get('user-save')
+  async findManyUserSavedPosts(
+    @Query() findManySavedPostsDto: FindManySavedPostsDto,
+    @CurrentUser() user: typeof users.$inferSelect,
+  ) {
+    return await this.postsService.findManyUserSavedPosts(
+      findManySavedPostsDto,
+      user,
+    );
+  }
+
+  @Post('save')
+  async savePost(
+    @Body() savePostDto: SavePostDto,
+    @CurrentUser() user: typeof users.$inferSelect,
+  ) {
+    return await this.postsService.savePost(savePostDto, user);
+  }
+
+  @Get('{:postId}')
+  async findPostById(@Param('postId') postId: string) {
+    return await this.postsService.findPostById(postId);
   }
 
   @Perms(
@@ -71,5 +135,13 @@ export class PostsController {
   @Delete('{:postId}')
   async deletePost(@Param('postId') postId: string) {
     return await this.postsService.deletePost(postId);
+  }
+
+  @Delete('unsave/{:postId}')
+  async unsavePost(
+    @Param('postId') postId: string,
+    @CurrentUser() user: typeof users.$inferSelect,
+  ) {
+    return await this.postsService.unsavePost(postId, user);
   }
 }

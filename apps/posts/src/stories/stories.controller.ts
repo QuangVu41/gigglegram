@@ -4,12 +4,13 @@ import {
   Get,
   Param,
   Post,
+  Query,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
 import { StoriesService } from '@/src/stories/stories.service';
-import { FilterStoriesDto } from '@/src/stories/dto/filter-stories.dto';
-import { FilesValidatorInterceptor } from '@/src/interceptors/files-validator.interceptor';
+import { FindManyStoriesDto } from '@/src/stories/dto/find-many-stories.dto';
+import { FilesValidatorInterceptor } from '@repo/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CurrentUser, Perms } from '@repo/common';
 import { users } from '@repo/database';
@@ -19,8 +20,8 @@ export class StoriesController {
   constructor(private readonly storiesService: StoriesService) {}
 
   @Get()
-  async findManyStories(filterStoriesDto: FilterStoriesDto) {
-    return await this.storiesService.findManyStories(filterStoriesDto);
+  async findManyStories(@Query() findManyStoriesDto: FindManyStoriesDto) {
+    return await this.storiesService.findManyStories(findManyStoriesDto);
   }
 
   @Post()

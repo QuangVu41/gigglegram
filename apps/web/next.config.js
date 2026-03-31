@@ -7,8 +7,12 @@ const nextConfig = {
   async rewrites() {
     return [
       {
-        source: "/static/video/:path*",
-        destination: `${process.env.STATIC_ASSETS_URL}/video/:path*`,
+        source: "/video/:path*",
+        destination: `${process.env.STATIC_VIDEO_ASSETS_URL}/:path*`,
+      },
+      {
+        source: "/images/:path*",
+        destination: `${process.env.STATIC_IMAGE_ASSETS_URL}/:path*`,
       },
       {
         source: "/api/:path*",

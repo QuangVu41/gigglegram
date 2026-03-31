@@ -1,4 +1,5 @@
 {{- range .Values.apps }}
+{{- if .service }}
 ---
 apiVersion: v1
 kind: Service
@@ -8,9 +9,12 @@ metadata:
 spec:
   type: {{ .service.type }}
   ports:
-    - port: {{ .service.port }}
-      targetPort: {{ .service.port }}
-      name: http
+    {{- range .service.ports }}
+    - port: {{ .port }}
+      targetPort: {{ .port }}
+      name: {{ .name }}
+    {{- end }}
   selector:
     app: {{ .name }}
+{{- end }}
 {{- end }}

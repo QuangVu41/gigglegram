@@ -10,13 +10,14 @@ import {
   Empty,
   PermissionSet,
   SystemWideErrorCodes,
+  UpdateUserRequest,
 } from '@repo/types';
 import { AuthService } from '@thallesp/nestjs-better-auth';
 import { auth } from '@/src/lib/auth';
 import { fromNodeHeaders } from 'better-auth/node';
 import { RpcException } from '@nestjs/microservices';
 import { AddMembersDto } from '@/src/dto/add-members.dto';
-import { extractHeadersFromMetadata } from '@/src/util/extractHeadersFromMetadata';
+import { extractHeadersFromMetadata } from '@repo/common';
 import { transformPermissionsObj } from '@repo/common';
 
 @Injectable()
@@ -65,6 +66,27 @@ export class AuthenticationService {
       return {
         success: false,
       };
+    }
+  }
+
+  async updateUser(request: UpdateUserRequest, metadata: Metadata) {
+    const headers = extractHeadersFromMetadata(metadata);
+    try {
+      const res = await this.baAuthService.api.updateUser({
+        headers: fromNodeHeaders(headers),
+        body: {
+          ...request,
+          gender: request.gender as any,
+          lastActiveAt: request.lastActiveAt
+            ? new Date(request.lastActiveAt)
+            : undefined,
+        },
+      });
+
+      return res;
+    } catch (error) {
+      this.logger.error('Failed to update user.', error);
+      throw new RpcException(SystemWideErrorCodes.UPDATE_FAILED);
     }
   }
 

@@ -12,7 +12,10 @@ import { join } from 'path';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: join(process.cwd(), '../../.env'),
+    }),
     DatabaseModule,
     ClientsModule.registerAsync([
       {

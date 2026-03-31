@@ -11,6 +11,8 @@ import {
   members,
   organizations,
   schema,
+  userNotificationSettings,
+  userPrivacySettings,
   users,
 } from '@repo/database';
 import { eq } from 'drizzle-orm';
@@ -45,13 +47,21 @@ export class SignUpHook {
         ]);
 
         if (organization && createdUser) {
-          await this.db.insert(members).values({
-            id: crypto.randomUUID(),
-            userId: createdUser.id,
-            organizationId: organization.id,
-            role: 'default',
-            createdAt: new Date(),
-          });
+          await Promise.all([
+            this.db.insert(userPrivacySettings).values({
+              userId: createdUser.id,
+            }),
+            this.db.insert(userNotificationSettings).values({
+              userId: createdUser.id,
+            }),
+            this.db.insert(members).values({
+              id: crypto.randomUUID(),
+              userId: createdUser.id,
+              organizationId: organization.id,
+              role: 'default',
+              createdAt: new Date(),
+            }),
+          ]);
         }
       }
     }

@@ -12,32 +12,36 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
 import {
   AUTH_PACKAGE_NAME,
   AUTH_SERVICE_NAME,
-  ENGAGEMENTS_POSTS_CLIENT_ID,
-  ENGAGEMENTS_SERVICE_NAME,
+  POSTS_CLIENT_ID,
+  KAFKA_SERVICE_NAME,
   SYSTEM_SETTINGS_PACKAGE_NAME,
   SYSTEM_SETTINGS_SERVICE_NAME,
 } from '@repo/types';
 import { join } from 'path';
-import { PostsRepository } from '@/src/posts.repository';
+import { PostsRepository } from '@repo/database';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { StoriesModule } from '@/src/stories/stories.module';
+import { CollectionsModule } from '@/src/collections/collections.module';
+import { PostReportsModule } from '@/src/post-reports/post-reports.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { PostsSyncService } from '@/src/posts-sync.service';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
-    DatabaseModule,
-    UploadModule,
-    StoriesModule,
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: join(process.cwd(), '../../.env'),
+    }),
     ClientsModule.registerAsync([
       {
-        name: ENGAGEMENTS_SERVICE_NAME,
+        name: KAFKA_SERVICE_NAME,
         useFactory: (configService: ConfigService) => ({
           transport: Transport.KAFKA,
           options: {
             client: {
-              clientId: ENGAGEMENTS_POSTS_CLIENT_ID,
+              clientId: POSTS_CLIENT_ID,
               brokers: [
-                configService.getOrThrow<string>('ENGAGEMENTS_BROKER_LISTENER'),
+                configService.getOrThrow<string>('KAFKA_BROKER_LISTENER'),
               ],
             },
           },
@@ -75,6 +79,12 @@ import { StoriesModule } from '@/src/stories/stories.module';
         inject: [ConfigService],
       },
     ]),
+    ScheduleModule.forRoot(),
+    DatabaseModule,
+    UploadModule,
+    StoriesModule,
+    CollectionsModule,
+    PostReportsModule,
   ],
   controllers: [PostsController],
   providers: [
@@ -88,6 +98,7 @@ import { StoriesModule } from '@/src/stories/stories.module';
     },
     PostsService,
     PostsRepository,
+    PostsSyncService,
   ],
 })
 export class PostsModule {}

@@ -16,6 +16,10 @@
     "./auth": {
       "types": "./src/auth/permissions.ts",
       "default": "./dist/auth/permissions.js"
+    },
+    "./common": {
+      "types": "./src/common/find-many-query.dto.ts",
+      "default": "./dist/common/find-many-query.dto.js"
     }
   },
   "author": "",

@@ -9,4 +9,7 @@ export default tseslint.config(...nextJsConfig, {
       tsconfigRootDir: import.meta.dirname,
     },
   },
+  rules: {
+    "turbo/no-undeclared-env-vars": "off",
+  },
 });

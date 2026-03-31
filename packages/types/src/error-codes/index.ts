@@ -1,3 +1,9 @@
+export interface SystemWideHttpExceptionResponse {
+  code: string;
+  description: string;
+  message: string;
+}
+
 export enum SystemWideErrorCodes {
   // GENERAL CLIENT ERROR CODES
   GENERAL_CLIENT_ERROR = "GENERAL_CLIENT_ERROR",
@@ -7,12 +13,23 @@ export enum SystemWideErrorCodes {
 
   // AUTH ERROR CODES
   AUTH_UNAUTHORIZED = "AUTH_UNAUTHORIZED",
+  BAD_REQUEST = "BAD_REQUEST",
+
+  // ACTIONS NOT ALLOWED ERROR CODES
+  NOT_ALLOWED = "NOT_ALLOWED",
 
   // RECORD ERROR CODES
   CREATION_FAILED = "CREATION_FAILED",
   NOT_FOUND = "NOT_FOUND",
   DELETION_FAILED = "DELETION_FAILED",
   UPDATE_FAILED = "UPDATE_FAILED",
+  FETCHING_FAILED = "FETCHING_FAILED",
+  IMPORT_FAILED = "IMPORT_FAILED",
+  FOLLOW_SELF = "FOLLOW_SELF",
+  UNFOLLOW_SELF = "UNFOLLOW_SELF",
+
+  // REPORT ERROR CODES
+  CANNOT_REPORT_OWN_POST = "CANNOT_REPORT_OWN_POST",
 
   // UPLOAD ERROR CODES
   UPLOAD_FILE_FAILED = "UPLOAD_FILE_FAILED",
@@ -36,12 +53,23 @@ export const SystemWideErrorMessages = {
 
   // AUTH ERROR MESSAGES
   [SystemWideErrorCodes.AUTH_UNAUTHORIZED]: "Unauthorized.",
+  [SystemWideErrorCodes.BAD_REQUEST]: "Bad request.",
+
+  // ACTIONS NOT ALLOWED ERROR CODES
+  [SystemWideErrorCodes.NOT_ALLOWED]: "You are not allowed to do this action.",
 
   // POST ERROR MESSAGES
   [SystemWideErrorCodes.CREATION_FAILED]: "Failed to create record.",
   [SystemWideErrorCodes.NOT_FOUND]: "Record not found.",
   [SystemWideErrorCodes.DELETION_FAILED]: "Failed to delete record.",
   [SystemWideErrorCodes.UPDATE_FAILED]: "Failed to update record.",
+  [SystemWideErrorCodes.FETCHING_FAILED]: "Failed to fetch records.",
+  [SystemWideErrorCodes.IMPORT_FAILED]: "Failed to import records.",
+  [SystemWideErrorCodes.FOLLOW_SELF]: "You cannot follow yourself.",
+  [SystemWideErrorCodes.UNFOLLOW_SELF]: "You cannot unfollow yourself.",
+
+  // REPORT ERROR MESSAGES
+  [SystemWideErrorCodes.CANNOT_REPORT_OWN_POST]: "You cannot report your own post.",
 
   // UPLOAD ERROR MESSAGES
   [SystemWideErrorCodes.UPLOAD_FILE_FAILED]: "Failed to upload file.",

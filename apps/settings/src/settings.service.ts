@@ -19,7 +19,7 @@ import { or } from 'drizzle-orm';
 import { SettingsRepository } from '@/src/settings.repository';
 import { CreateSettingDto } from '@/src/dto/create-setting.dto';
 import { UpdateSettingDto } from '@/src/dto/update-setting.dto';
-import { FilterSettingsDto } from '@/src/dto/filter-settings.dto';
+import { FindManySettingsDto } from '@/src/dto/find-many-settings.dto';
 import { SQL } from 'drizzle-orm';
 
 @Injectable()
@@ -95,15 +95,15 @@ export class SettingsService {
     });
   }
 
-  async findManySettings(filtersSettingDto: FilterSettingsDto) {
+  async findManySettings(findManySettingDto: FindManySettingsDto) {
     const conditions: SQL[] = [];
 
-    if (filtersSettingDto.key) {
-      conditions.push(eq(systemSettings.key, filtersSettingDto.key));
+    if (findManySettingDto.key) {
+      conditions.push(eq(systemSettings.key, findManySettingDto.key));
     }
-    if (filtersSettingDto.prefixes && filtersSettingDto.prefixes.length > 0) {
+    if (findManySettingDto.prefixes && findManySettingDto.prefixes.length > 0) {
       conditions.push(
-        ...filtersSettingDto.prefixes.map((prefix) =>
+        ...findManySettingDto.prefixes.map((prefix) =>
           like(systemSettings.key, `${prefix}%`),
         ),
       );
@@ -113,7 +113,7 @@ export class SettingsService {
       {
         where: conditions.length > 0 ? or(...conditions) : undefined,
       },
-      filtersSettingDto,
+      findManySettingDto,
     );
   }
 

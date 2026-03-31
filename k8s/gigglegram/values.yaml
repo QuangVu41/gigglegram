@@ -1,5 +1,23 @@
 ingress: true
 namespace: default
+# EXPOSING SERIVICES
+expose:
+  web:
+    path: /*
+    name: web
+    service:
+      port: 3000
+  apiGateway:
+    path: /api/*
+    name: api-gateway
+    service:
+      port: 3001
+  realTime:
+    path: /socket.io/*
+    name: real-time
+    service:
+      port: 3007
+# APP SERVICES
 apps:
   # API GATEWAY
   apiGateway:
@@ -11,7 +29,9 @@ apps:
       pullPolicy: IfNotPresent
     service:
       type: ClusterIP
-      port: 3001
+      ports:
+        - port: 3001
+          name: http
     resources:
       requests:
         memory: 2Gi
@@ -29,7 +49,128 @@ apps:
       pullPolicy: IfNotPresent
     service:
       type: ClusterIP
-      port: 3002
+      ports:
+        - port: 3002
+          name: http
+        - port: 5000
+          name: grpc
+    resources:
+      requests:
+        memory: 2Gi
+        cpu: 500m
+      limits:
+        memory: 4Gi
+        cpu: 1
+  # ENGAGEMENTS
+  engagements:
+    name: engagements
+    replicaCount: 1
+    image:
+      repository: asia-southeast1-docker.pkg.dev/mystic-subject-478902-i5/engagements/prod
+      tag: latest
+      pullPolicy: IfNotPresent
+    resources:
+      requests:
+        memory: 2Gi
+        cpu: 500m
+      limits:
+        memory: 4Gi
+        cpu: 1
+  # FEED
+  feed:
+    name: feed
+    replicaCount: 1
+    image:
+      repository: asia-southeast1-docker.pkg.dev/mystic-subject-478902-i5/feed/prod
+      tag: latest
+      pullPolicy: IfNotPresent
+    service:
+      type: ClusterIP
+      ports:
+        - port: 3005
+          name: http
+    resources:
+      requests:
+        memory: 2Gi
+        cpu: 500m
+      limits:
+        memory: 4Gi
+        cpu: 1
+  # POSTS
+  posts:
+    name: posts
+    replicaCount: 1
+    image:
+      repository: asia-southeast1-docker.pkg.dev/mystic-subject-478902-i5/posts/prod
+      tag: latest
+      pullPolicy: IfNotPresent
+    service:
+      type: ClusterIP
+      ports:
+        - port: 3003
+          name: http
+    resources:
+      requests:
+        memory: 2Gi
+        cpu: 500m
+      limits:
+        memory: 4Gi
+        cpu: 1
+  # REAL-TIME
+  realTime:
+    name: real-time
+    replicaCount: 1
+    image:
+      repository: asia-southeast1-docker.pkg.dev/mystic-subject-478902-i5/real-time/prod
+      tag: latest
+      pullPolicy: IfNotPresent
+    service:
+      type: ClusterIP
+      ports:
+        - port: 3007
+          name: http
+    resources:
+      requests:
+        memory: 2Gi
+        cpu: 500m
+      limits:
+        memory: 4Gi
+        cpu: 1
+  # SETTINGS
+  settings:
+    name: settings
+    replicaCount: 1
+    image:
+      repository: asia-southeast1-docker.pkg.dev/mystic-subject-478902-i5/settings/prod
+      tag: latest
+      pullPolicy: IfNotPresent
+    service:
+      type: ClusterIP
+      ports:
+        - port: 3004
+          name: http
+        - port: 5001
+          name: grpc
+    resources:
+      requests:
+        memory: 2Gi
+        cpu: 500m
+      limits:
+        memory: 4Gi
+        cpu: 1
+  # USERS
+  users:
+    name: users
+    replicaCount: 1
+    image:
+      repository: asia-southeast1-docker.pkg.dev/mystic-subject-478902-i5/users/prod
+      tag: latest
+      pullPolicy: IfNotPresent
+    service:
+      type: ClusterIP
+      ports:
+        - port: 3006
+          name: http
     resources:
       requests:
         memory: 2Gi
@@ -47,7 +188,9 @@ apps:
       pullPolicy: IfNotPresent
     service:
       type: ClusterIP
-      port: 3000
+      ports:
+        - port: 3000
+          name: http
     resources:
       requests:
         memory: 2Gi

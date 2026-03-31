@@ -1,14 +1,17 @@
 import dotenv from 'dotenv';
-dotenv.config();
-import { db, members, organizationRoles } from '@repo/database';
-import { betterAuth } from 'better-auth';
+import { join } from 'path';
+dotenv.config({
+  path: join(process.cwd(), '../../.env'),
+});
+import { db, members, organizationRoles, users } from '@repo/database';
+import { betterAuth, BetterAuthOptions } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { bootstrapCommonModule, EmailService } from '@repo/common';
-import { organization } from 'better-auth/plugins';
+import { customSession, organization, admin } from 'better-auth/plugins';
 import { ac, owner } from '@repo/types';
 import { eq } from 'drizzle-orm';
 
-export const auth = betterAuth({
+const betterAuthOptions = {
   appName: 'Gigglegram Auth Service',
   database: drizzleAdapter(db, {
     provider: 'pg',
@@ -54,6 +57,7 @@ export const auth = betterAuth({
       username: {
         type: 'string',
         required: true,
+        unique: true,
       },
       bio: {
         type: 'string',
@@ -63,29 +67,27 @@ export const auth = betterAuth({
         type: ['male', 'female'],
         defaultValue: null,
       },
-      isPrivate: {
-        type: 'boolean',
-        defaultValue: false,
-        fieldName: 'is_private',
-      },
       followersCount: {
         type: 'number',
         defaultValue: 0,
-        fieldName: 'followers_count',
+        fieldName: 'followersCount',
+        required: true,
       },
       followingCount: {
         type: 'number',
         defaultValue: 0,
-        fieldName: 'following_count',
+        fieldName: 'followingCount',
+        required: true,
       },
       postsCount: {
         type: 'number',
         defaultValue: 0,
-        fieldName: 'posts_count',
+        fieldName: 'postsCount',
+        required: true,
       },
       lastActiveAt: {
         type: 'date',
-        fieldName: 'last_active_at',
+        fieldName: 'lastActiveAt',
       },
     },
   },
@@ -101,6 +103,7 @@ export const auth = betterAuth({
               organizationId: true,
             },
           });
+
           const activeOrganizationId = userOrgs.find(
             (uo) => uo.role.includes('owner') || uo.role.includes('default'),
           )?.organizationId;
@@ -116,6 +119,7 @@ export const auth = betterAuth({
     },
   },
   plugins: [
+    admin(),
     organization({
       ac,
       roles: {
@@ -133,7 +137,40 @@ export const auth = betterAuth({
             permission: JSON.stringify({}),
           });
         },
+        afterAddMember: async ({ organization, user }) => {
+          if (organization.slug === 'admin-org') {
+            await db
+              .update(users)
+              .set({ role: 'admin' })
+              .where(eq(users.id, user.id));
+          }
+        },
       },
     }),
+  ],
+} satisfies BetterAuthOptions;
+
+export const auth = betterAuth({
+  ...betterAuthOptions,
+  plugins: [
+    ...betterAuthOptions.plugins,
+    customSession(async ({ user, session }) => {
+      const usr = await db.query.users.findFirst({
+        where: eq(users.id, session.userId),
+        with: {
+          userPrivacySetting: true,
+          userNotificationSetting: true,
+        },
+      });
+
+      return {
+        session,
+        user: {
+          ...user,
+          userPrivacySetting: usr?.userPrivacySetting,
+          userNotificationSetting: usr?.userNotificationSetting,
+        },
+      };
+    }, betterAuthOptions),
   ],
 });

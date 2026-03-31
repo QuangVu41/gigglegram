@@ -1,0 +1,1 @@
+ALTER TABLE "saved_posts" ADD CONSTRAINT "savedPosts_userId_postId_unique" UNIQUE("user_id","post_id");

@@ -11,9 +11,7 @@ async function bootstrap() {
     transport: Transport.KAFKA,
     options: {
       client: {
-        brokers: [
-          configService.getOrThrow<string>('ENGAGEMENTS_BROKER_LISTENER'),
-        ],
+        brokers: [configService.getOrThrow<string>('KAFKA_BROKER_LISTENER')],
       },
       consumer: {
         groupId: ENGAGEMENTS_SERVICE_GROUP_ID,

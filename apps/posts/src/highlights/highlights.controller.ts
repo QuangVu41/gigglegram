@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, Patch, Post } from '@nestjs/common';
 import { HighlightsService } from '@/src/highlights/highlights.service';
-import { FilterHighlightsDto } from '@/src/highlights/dto/filter-highlights.dto';
+import { FindManyHighlightsDto } from '@/src/highlights/dto/find-many-highlights.dto';
 import { CreateHighlightDto } from '@/src/highlights/dto/create-highlight.dto';
 import { users } from '@repo/database';
 import { CurrentUser, Perms } from '@repo/common';
@@ -11,8 +11,12 @@ export class HighlightsController {
   constructor(private readonly highlightsService: HighlightsService) {}
 
   @Get()
-  async findManyHighlights(@Body() filterHighlightsDto: FilterHighlightsDto) {
-    return await this.highlightsService.findManyHighlights(filterHighlightsDto);
+  async findManyHighlights(
+    @Body() findManyHighlightsDto: FindManyHighlightsDto,
+  ) {
+    return await this.highlightsService.findManyHighlights(
+      findManyHighlightsDto,
+    );
   }
 
   @Post()

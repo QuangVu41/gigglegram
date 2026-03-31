@@ -162,6 +162,167 @@
       "when": 1770147637371,
       "tag": "0022_married_jamie_braddock",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1770228256945,
+      "tag": "0023_flawless_silverclaw",
+      "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1770494893112,
+      "tag": "0024_dazzling_puma",
+      "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1770919923283,
+      "tag": "0025_fast_talkback",
+      "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1771010144714,
+      "tag": "0026_wooden_ikaris",
+      "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "7",
+      "when": 1771010178372,
+      "tag": "0027_yellow_lockheed",
+      "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "7",
+      "when": 1771011360726,
+      "tag": "0028_robust_vin_gonzales",
+      "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "7",
+      "when": 1771096632851,
+      "tag": "0029_cooing_sheva_callister",
+      "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "7",
+      "when": 1771097628098,
+      "tag": "0030_elite_william_stryker",
+      "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "7",
+      "when": 1771351520000,
+      "tag": "0031_fantastic_sasquatch",
+      "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "7",
+      "when": 1771535801698,
+      "tag": "0032_square_psylocke",
+      "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "7",
+      "when": 1771702870455,
+      "tag": "0033_flashy_imperial_guard",
+      "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "7",
+      "when": 1772392424198,
+      "tag": "0034_slippery_carnage",
+      "breakpoints": true
+    },
+    {
+      "idx": 35,
+      "version": "7",
+      "when": 1772568852897,
+      "tag": "0035_graceful_the_hood",
+      "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "7",
+      "when": 1772698507663,
+      "tag": "0036_right_goblin_queen",
+      "breakpoints": true
+    },
+    {
+      "idx": 37,
+      "version": "7",
+      "when": 1772741644403,
+      "tag": "0037_thick_bloodaxe",
+      "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "7",
+      "when": 1772915081067,
+      "tag": "0038_tricky_bill_hollister",
+      "breakpoints": true
+    },
+    {
+      "idx": 39,
+      "version": "7",
+      "when": 1773140911009,
+      "tag": "0039_wild_richard_fisk",
+      "breakpoints": true
+    },
+    {
+      "idx": 40,
+      "version": "7",
+      "when": 1773141301198,
+      "tag": "0040_nebulous_alice",
+      "breakpoints": true
+    },
+    {
+      "idx": 41,
+      "version": "7",
+      "when": 1773258887078,
+      "tag": "0041_overrated_dreadnoughts",
+      "breakpoints": true
+    },
+    {
+      "idx": 42,
+      "version": "7",
+      "when": 1773399930690,
+      "tag": "0042_mean_romulus",
+      "breakpoints": true
+    },
+    {
+      "idx": 43,
+      "version": "7",
+      "when": 1773432629324,
+      "tag": "0043_right_madame_masque",
+      "breakpoints": true
+    },
+    {
+      "idx": 44,
+      "version": "7",
+      "when": 1773688557167,
+      "tag": "0044_boring_warbound",
+      "breakpoints": true
+    },
+    {
+      "idx": 45,
+      "version": "7",
+      "when": 1774385231326,
+      "tag": "0045_nasty_skreet",
+      "breakpoints": true
     }
   ]
 }

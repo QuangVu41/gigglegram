@@ -5,15 +5,17 @@ import {
   Injectable,
   InternalServerErrorException,
   Logger,
+  NotFoundException,
   OnModuleInit,
 } from '@nestjs/common';
 import { CreatePostDto } from '@/src/dto/create-post.dto';
-import { UploadService } from '@repo/common';
+import { createTSQuery, UploadService } from '@repo/common';
 import {
   audioTracks,
   DATABASE_CONNECTION,
   hashtags,
   postCollaborators,
+  postCollaboratorsStatusEnum,
   postHashtags,
   postMedia,
   posts,
@@ -24,12 +26,19 @@ import {
 } from '@repo/database';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import {
-  ENGAGEMENTS_SERVICE_NAME,
+  FindManyQueryDto,
+  KAFKA_SERVICE_NAME,
+  PostCollaboratorAcceptedEvent,
   PostCreatedEvent,
   PostDeletedEvent,
+  POSTS_TOPIC_POST_COLLABORATOR_ACCEPTED,
   POSTS_TOPIC_POST_CREATED,
   POSTS_TOPIC_POST_DELETED,
+  POSTS_TOPIC_POST_SAVED,
+  POSTS_TOPIC_POST_UNSAVED,
   POSTS_TOPIC_POST_UPDATED,
+  PostSavedEvent,
+  PostUnsavedEvent,
   PostUpdatedEvent,
   SYSTEM_SETTINGS_SERVICE_NAME,
   SystemSettingsServiceClient,
@@ -43,10 +52,16 @@ import { type ClientGrpc, type ClientKafkaProxy } from '@nestjs/microservices';
 import { and } from 'drizzle-orm';
 import { Metadata } from '@grpc/grpc-js';
 import { firstValueFrom } from 'rxjs';
-import { PostsRepository } from '@/src/posts.repository';
+import { PostsRepository } from '@repo/database';
 import { formatDateWithLocale } from '@repo/common';
-import { FilterPostsDto } from '@/src/dto/filter-posts.dto';
+import { FindManyPostsDto } from '@/src/dto/find-many-posts.dto';
 import { inArray } from 'drizzle-orm';
+import { SavePostDto } from '@/src/dto/save-post.dto';
+import { FindManySavedPostsDto } from './dto/find-many-saved-posts.dto';
+import { or } from 'drizzle-orm';
+import { sql } from 'drizzle-orm';
+import { FindManyPostsByHashtagDto } from '@/src/dto/find-many-posts-by-hashtag.dto';
+import { UpdatePostCollaborationDto } from '@/src/dto/update-post-collaboration.dto';
 
 @Injectable()
 export class PostsService implements OnModuleInit {
@@ -58,8 +73,8 @@ export class PostsService implements OnModuleInit {
     @Inject(DATABASE_CONNECTION)
     private readonly db: NodePgDatabase<typeof schema>,
     private readonly configService: ConfigService,
-    @Inject(ENGAGEMENTS_SERVICE_NAME)
-    private readonly engagementsClient: ClientKafkaProxy,
+    @Inject(KAFKA_SERVICE_NAME)
+    private readonly kafkaClient: ClientKafkaProxy,
     @Inject(SYSTEM_SETTINGS_SERVICE_NAME)
     private readonly systemSettingsClient: ClientGrpc,
     private readonly postsRepository: PostsRepository,
@@ -90,10 +105,61 @@ export class PostsService implements OnModuleInit {
     });
   }
 
-  async findManyPosts(filterPostsDto: FilterPostsDto) {
+  async findManyPostsByHashtag(
+    findManyPostsByHashtagDto: FindManyPostsByHashtagDto,
+  ) {
+    return (
+      await this.db.query.hashtags.findMany({
+        where: findManyPostsByHashtagDto.hashtag
+          ? sql`${createTSQuery<typeof hashtags>(['name'], findManyPostsByHashtagDto.hashtag)}`
+          : undefined,
+        with: {
+          postHashtags: {
+            with: {
+              post: {
+                with: {
+                  postMedia: true,
+                },
+              },
+            },
+            limit: findManyPostsByHashtagDto.limit,
+          },
+        },
+        limit: findManyPostsByHashtagDto.limit,
+        offset:
+          (findManyPostsByHashtagDto.page - 1) *
+          findManyPostsByHashtagDto.limit,
+      })
+    )
+      .flatMap((hashtag) => hashtag.postHashtags.map((ph) => ph.post))
+      .filter((post) => !post.isArchived);
+  }
+
+  async findManyHashtags(findManyHashtagsDto: FindManyQueryDto) {
+    return await this.db.query.hashtags.findMany({
+      where: findManyHashtagsDto.keyword
+        ? sql`${createTSQuery<typeof hashtags>(['name'], findManyHashtagsDto.keyword)}`
+        : undefined,
+      limit: findManyHashtagsDto.limit,
+      offset: (findManyHashtagsDto.page - 1) * findManyHashtagsDto.limit,
+    });
+  }
+
+  async findManyUserArchivedPosts(
+    findManyPostsDto: FindManyPostsDto,
+    user: typeof users.$inferSelect,
+  ) {
     return await this.postsRepository.findMany(
       {
-        where: inArray(posts.id, filterPostsDto.ids),
+        where: and(
+          and(
+            findManyPostsDto.keyword
+              ? sql`${createTSQuery<typeof posts>(['caption'], findManyPostsDto.keyword)}`
+              : undefined,
+            eq(posts.userId, user.id),
+          ),
+          eq(posts.isArchived, true),
+        ),
         with: {
           postMedia: true,
           postCollaborators: true,
@@ -107,8 +173,45 @@ export class PostsService implements OnModuleInit {
           postUserTags: true,
         },
       },
-      filterPostsDto,
+      findManyPostsDto,
     );
+  }
+
+  async findManyPosts(findManyPostsDto: FindManyPostsDto, ownerId?: string) {
+    return await this.postsRepository.findMany(
+      {
+        where: and(
+          or(
+            inArray(posts.id, findManyPostsDto.ids),
+            findManyPostsDto.keyword
+              ? sql`${createTSQuery<typeof posts>(['caption'], findManyPostsDto.keyword)}`
+              : undefined,
+            ownerId ? eq(posts.userId, ownerId) : undefined,
+          ),
+          eq(posts.isArchived, false),
+        ),
+        with: {
+          postMedia: true,
+          postCollaborators: true,
+          postHashtags: {
+            with: {
+              hashtag: true,
+            },
+          },
+          audioTrack: true,
+          location: true,
+          postUserTags: true,
+        },
+      },
+      findManyPostsDto,
+    );
+  }
+
+  async findManyUserPosts(
+    findManyPostsDto: FindManyPostsDto,
+    user: typeof users.$inferSelect,
+  ) {
+    return await this.findManyPosts(findManyPostsDto, user.id);
   }
 
   async createPost(
@@ -143,7 +246,7 @@ export class PostsService implements OnModuleInit {
         'id' | 'displayOrder'
       >[] = [];
 
-      await this.db.transaction(async (tx) => {
+      const createdPost = await this.db.transaction(async (tx) => {
         try {
           const [newPost] = await tx
             .insert(posts)
@@ -158,7 +261,7 @@ export class PostsService implements OnModuleInit {
               locationId: createPostDto.locationId,
               isReel,
             })
-            .returning({ id: posts.id });
+            .returning();
 
           const postMediaInserts = await Promise.allSettled<
             Promise<typeof postMedia.$inferInsert>
@@ -166,7 +269,7 @@ export class PostsService implements OnModuleInit {
             media.map(async (file, idx) => {
               const isImage = file.mimetype.startsWith('image/');
               const isVideo = file.mimetype.startsWith('video/');
-              let width = isImage
+              const width = isImage
                 ? settings['image.post_width']?.intValue ||
                   parseInt(
                     this.configService.getOrThrow<string>(
@@ -179,7 +282,7 @@ export class PostsService implements OnModuleInit {
                       'DEFAULT_POST_VIDEO_WIDTH',
                     )!,
                   );
-              let height = isImage
+              const height = isImage
                 ? settings['image.post_height']?.intValue ||
                   parseInt(
                     this.configService.getOrThrow<string>(
@@ -255,9 +358,6 @@ export class PostsService implements OnModuleInit {
                   throw new BadRequestException({
                     code: SystemWideErrorCodes.UPLOAD_PROCESSING_FILE_FAILED,
                   });
-
-                width = inputVideoWidth;
-                height = inputVideoHeight;
 
                 file.buffer = await this.uploadService.preprocessVideoFile(
                   file.buffer,
@@ -486,10 +586,12 @@ export class PostsService implements OnModuleInit {
               .onConflictDoNothing();
           }
 
-          this.engagementsClient.emit(
+          this.kafkaClient.emit(
             POSTS_TOPIC_POST_CREATED,
             new PostCreatedEvent(newPost!.id),
           );
+
+          return newPost;
         } catch (error) {
           this.logger.error('Error during post creating transaction.', error);
           if (postMediaInsertUrls.length > 0)
@@ -504,6 +606,8 @@ export class PostsService implements OnModuleInit {
           throw error;
         }
       });
+
+      return createdPost;
     } catch (error) {
       this.logger.error('Error creating new post.', error);
       if (error instanceof HttpException) throw error;
@@ -554,7 +658,7 @@ export class PostsService implements OnModuleInit {
           code: SystemWideErrorCodes.NOT_FOUND,
         });
 
-      await this.db.transaction(async (tx) => {
+      const updatedPost = await this.db.transaction(async (tx) => {
         try {
           const hashtagIdsSet: string[] = [];
 
@@ -642,6 +746,7 @@ export class PostsService implements OnModuleInit {
           }
 
           let deletingPostUserTagsIds: string[] = [];
+          let newPostUserTagsIds: string[] = [];
           if (
             updatePostDto.taggedUsers &&
             updatePostDto.taggedUsers.length > 0
@@ -650,7 +755,7 @@ export class PostsService implements OnModuleInit {
               .filter(
                 (eput) =>
                   !updatePostDto.taggedUsers!.find(
-                    (tu) => tu.id !== undefined && tu.id === eput.id,
+                    (tu) => tu.id && tu.id === eput.id,
                   ),
               )
               .map((ptu) => ptu.id!);
@@ -664,6 +769,11 @@ export class PostsService implements OnModuleInit {
                 !tu.id ||
                 !existingPostUserTags.find((eput) => eput.id === tu.id),
             );
+
+            newPostUserTagsIds = newPostUserTags
+              .filter((tu) => tu.id)
+              .map((tu) => tu.id!) as string[];
+
             const taggedUsersInserts = newPostUserTags.map<
               typeof postUserTags.$inferInsert
             >((postUserTag) => ({
@@ -706,32 +816,48 @@ export class PostsService implements OnModuleInit {
             (id) => !hashtagIdsSet.includes(id),
           );
 
-          await tx
-            .update(posts)
-            .set({
-              caption: updatePostDto.caption,
-              locationId: updatePostDto.locationId,
-              likesHidden: updatePostDto.likesHidden,
-              commentsDisabled: updatePostDto.commentsDisabled,
-            })
-            .where(eq(posts.id, existingPost.id));
+          if (
+            updatePostDto.caption ||
+            updatePostDto.locationId !== undefined ||
+            updatePostDto.likesHidden ||
+            updatePostDto.commentsDisabled
+          ) {
+            const [updatedPost] = await tx
+              .update(posts)
+              .set({
+                caption: updatePostDto.caption,
+                locationId: updatePostDto.locationId,
+                likesHidden: updatePostDto.likesHidden,
+                commentsDisabled: updatePostDto.commentsDisabled,
+                sharesCount: updatePostDto.sharesCount,
+                viewsCount: updatePostDto.viewsCount,
+                playsCount: updatePostDto.playsCount,
+              })
+              .where(eq(posts.id, existingPost.id))
+              .returning();
 
-          this.engagementsClient.emit(
-            POSTS_TOPIC_POST_UPDATED,
-            new PostUpdatedEvent(
-              existingPost.id,
-              newHashtagIds,
-              deletingHashtagIds,
-              newCollaboratorIds,
-              deletingCollaboratorIds,
-              deletingPostUserTagsIds,
-            ),
-          );
+            this.kafkaClient.emit(
+              POSTS_TOPIC_POST_UPDATED,
+              new PostUpdatedEvent(
+                existingPost.id,
+                newHashtagIds,
+                deletingHashtagIds,
+                newCollaboratorIds,
+                deletingCollaboratorIds,
+                newPostUserTagsIds,
+                deletingPostUserTagsIds,
+              ),
+            );
+
+            return updatedPost;
+          }
         } catch (error) {
           this.logger.error('Error during post updating transaction.', error);
           throw error;
         }
       });
+
+      return updatedPost;
     } catch (error) {
       this.logger.error('Error updating post.', error);
       if (error instanceof HttpException) throw error;
@@ -746,6 +872,7 @@ export class PostsService implements OnModuleInit {
       const existingPost = await this.postsRepository.findFirst({
         where: eq(posts.id, postId),
         with: {
+          user: { columns: { id: true } },
           postMedia: { columns: { mediaType: true, originalRawFileUrl: true } },
           postHashtags: {
             columns: {},
@@ -757,30 +884,39 @@ export class PostsService implements OnModuleInit {
           },
           location: { columns: { id: true } },
           audioTrack: { columns: { id: true } },
+          savedPosts: { columns: { collectionId: true } },
         },
       });
       if (!existingPost)
-        throw new BadRequestException({
+        throw new NotFoundException({
           code: SystemWideErrorCodes.NOT_FOUND,
         });
 
-      await this.postsRepository.delete(existingPost.id);
+      const collectionIds = existingPost.savedPosts
+        .filter((sp) => sp.collectionId !== null)
+        .map((sp) => sp.collectionId) as string[];
+
+      const deletedPost = await this.postsRepository.delete(existingPost.id);
 
       const hashtagIds = existingPost.postHashtags.map(
         ({ hashtag }) => hashtag.id,
       );
       const postMediaData = existingPost.postMedia;
 
-      this.engagementsClient.emit(
+      this.kafkaClient.emit(
         POSTS_TOPIC_POST_DELETED,
         new PostDeletedEvent(
+          existingPost.user.id,
           existingPost.id,
           hashtagIds,
           postMediaData,
           existingPost.location?.id,
           existingPost.audioTrack?.id,
+          collectionIds,
         ),
       );
+
+      return deletedPost;
     } catch (error) {
       this.logger.error('Error deleting post.', error);
       if (error instanceof HttpException) throw error;
@@ -788,5 +924,160 @@ export class PostsService implements OnModuleInit {
         code: SystemWideErrorCodes.DELETION_FAILED,
       });
     }
+  }
+
+  async findManyTaggedPosts(
+    findManyPostsDto: FindManyPostsDto,
+    user: typeof users.$inferSelect,
+  ) {
+    return await this.postsRepository.findMany(
+      {
+        with: {
+          postUserTags: {
+            where: eq(schema.postUserTags.userId, user.id),
+          },
+          postCollaborators: {
+            where: eq(schema.postCollaborators.userId, user.id),
+          },
+        },
+      },
+      findManyPostsDto,
+    );
+  }
+
+  async findManyUserSavedPosts(
+    findManySavedPostsDto: FindManySavedPostsDto,
+    user: typeof users.$inferSelect,
+  ) {
+    try {
+      const savedPosts = await this.postsRepository.findMany(
+        {
+          with: {
+            savedPosts: {
+              where: eq(schema.savedPosts.userId, user.id),
+            },
+            postMedia: true,
+          },
+        },
+        findManySavedPostsDto,
+      );
+
+      return savedPosts;
+    } catch (error) {
+      this.logger.error('Error fetching saved posts.', error);
+      if (error instanceof HttpException) throw error;
+      throw new InternalServerErrorException({
+        code: SystemWideErrorCodes.FETCHING_FAILED,
+      });
+    }
+  }
+
+  async savePost(savePostDto: SavePostDto, user: typeof users.$inferSelect) {
+    try {
+      const existingPost = await this.postsRepository.findFirst({
+        where: eq(posts.id, savePostDto.postId),
+      });
+      if (!existingPost)
+        throw new BadRequestException({ code: SystemWideErrorCodes.NOT_FOUND });
+
+      const [createdSavedPost] = await this.db
+        .insert(schema.savedPosts)
+        .values({ postId: savePostDto.postId, userId: user.id })
+        .returning()
+        .onConflictDoNothing();
+
+      if (createdSavedPost)
+        this.kafkaClient.emit(
+          POSTS_TOPIC_POST_SAVED,
+          new PostSavedEvent(savePostDto.postId),
+        );
+
+      return createdSavedPost;
+    } catch (error) {
+      this.logger.error('Error saving post.', error);
+      if (error instanceof HttpException) throw error;
+      throw new InternalServerErrorException({
+        code: SystemWideErrorCodes.CREATION_FAILED,
+      });
+    }
+  }
+
+  async unsavePost(postId: string, user: typeof users.$inferSelect) {
+    try {
+      const existingSavedPost = await this.db.query.savedPosts.findFirst({
+        where: and(
+          eq(schema.savedPosts.postId, postId),
+          eq(schema.savedPosts.userId, user.id),
+        ),
+      });
+      if (!existingSavedPost)
+        throw new BadRequestException({ code: SystemWideErrorCodes.NOT_FOUND });
+
+      const [deletedSavedPost] = await this.db
+        .delete(schema.savedPosts)
+        .where(eq(schema.savedPosts.id, existingSavedPost.id))
+        .returning();
+
+      this.kafkaClient.emit(
+        POSTS_TOPIC_POST_UNSAVED,
+        new PostUnsavedEvent(postId),
+      );
+
+      return deletedSavedPost;
+    } catch (error) {
+      this.logger.error('Error unsaving post.', error);
+      if (error instanceof HttpException) throw error;
+      throw new InternalServerErrorException({
+        code: SystemWideErrorCodes.DELETION_FAILED,
+      });
+    }
+  }
+
+  async updatePostCollaboration(
+    updatePostCollaborationDto: UpdatePostCollaborationDto,
+    user: typeof users.$inferSelect,
+  ) {
+    const existingPost = await this.postsRepository.findFirst({
+      where: eq(posts.id, updatePostCollaborationDto.postId),
+    });
+
+    if (!existingPost)
+      throw new NotFoundException({
+        code: SystemWideErrorCodes.NOT_FOUND,
+        description: 'Post not found.',
+      });
+
+    if (
+      updatePostCollaborationDto.status ===
+      postCollaboratorsStatusEnum.enumValues[0]
+    )
+      throw new BadRequestException({
+        code: SystemWideErrorCodes.UPDATE_FAILED,
+        description: 'Cannot update collaboration with "pending" status.',
+      });
+
+    const [result] = await this.db
+      .update(schema.postCollaborators)
+      .set({
+        status: updatePostCollaborationDto.status,
+      })
+      .where(
+        and(
+          eq(
+            schema.postCollaborators.postId,
+            updatePostCollaborationDto.postId,
+          ),
+          eq(schema.postCollaborators.userId, user.id),
+        ),
+      )
+      .returning();
+
+    if (result)
+      this.kafkaClient.emit(
+        POSTS_TOPIC_POST_COLLABORATOR_ACCEPTED,
+        new PostCollaboratorAcceptedEvent(result?.id),
+      );
+
+    return result;
   }
 }

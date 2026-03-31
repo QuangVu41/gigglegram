@@ -1,0 +1,3 @@
+import { UserFollowedEvent } from "@ts/src/kafka/users/events/user-followed.event";
+
+export class UserUnfollowedEvent extends UserFollowedEvent {}

@@ -13,18 +13,19 @@ import {
   varchar,
 } from 'drizzle-orm/pg-core';
 import { users } from '@db/src/drizzle/schemas/auth-schemas';
+import { sql } from 'drizzle-orm';
+import { comments } from '@db/src/drizzle/schemas/real-time-schemas';
 
 export const postUserTagsStatusEnum = pgEnum('post_user_tags_status', [
   'pending',
-  'approved',
+  'accepted',
   'rejected',
 ]);
 
-export const postCollaboratorsStatusEnum = pgEnum('post_collaborators_status', [
-  'pending',
-  'approved',
-  'rejected',
-]);
+export const postCollaboratorsStatusEnum = pgEnum(
+  'post_collaborators_status',
+  postUserTagsStatusEnum.enumValues,
+);
 
 export const postStatus = pgEnum('post_status', [
   'pending',
@@ -32,10 +33,29 @@ export const postStatus = pgEnum('post_status', [
   'failed',
 ]);
 
-export const storyStatus = pgEnum('story_status', [
+export const storyStatus = pgEnum('story_status', postStatus.enumValues);
+
+export const reportReasonsCategoryEnum = pgEnum('report_reasons_category', [
+  'spam',
+  'harassment',
+  'violence',
+  'hate_speech',
+  'misinformation',
+  'copyright',
+]);
+
+export const postReportsStatusEnum = pgEnum('post_reports_status', [
   'pending',
-  'published',
-  'failed',
+  'under_review',
+  'resolved',
+  'dismissed',
+]);
+
+export const postReportsActionTakenEnum = pgEnum('post_reports_action_taken', [
+  'post_removed',
+  'account_warned',
+  'account_suspended',
+  'no_action',
 ]);
 
 export const posts = pgTable(
@@ -73,7 +93,32 @@ export const posts = pgTable(
     index('posts_userId_idx').on(table.userId),
     index('posts_locationId_idx').on(table.locationId),
     index('posts_audioId_idx').on(table.audioId),
+    index('posts_caption_search_idx').using(
+      'gin',
+      sql`to_tsvector('english', ${table.caption})`,
+    ),
   ],
+);
+
+export const postMedia = pgTable(
+  'post_media',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    postId: uuid('post_id')
+      .notNull()
+      .references(() => posts.id, { onDelete: 'cascade' }),
+    mediaUrl: varchar('media_url').notNull(),
+    originalRawFileUrl: varchar('original_raw_file_url').unique().notNull(),
+    mediaType: varchar('media_type').notNull(),
+    thumbnailUrl: varchar('thumbnail_url').notNull(),
+    displayOrder: integer('display_order').notNull(),
+    width: integer('width'),
+    height: integer('height'),
+    duration: integer('duration'),
+    altText: text('alt_text'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+  },
+  (table) => [index('postMedia_postId_idx').on(table.postId)],
 );
 
 export const audioTracks = pgTable(
@@ -124,27 +169,6 @@ export const postHashtags = pgTable(
       table.hashtagId,
     ),
   ],
-);
-
-export const postMedia = pgTable(
-  'post_media',
-  {
-    id: uuid('id').primaryKey().defaultRandom(),
-    postId: uuid('post_id')
-      .notNull()
-      .references(() => posts.id, { onDelete: 'cascade' }),
-    mediaUrl: varchar('media_url').notNull(),
-    originalRawFileUrl: varchar('original_raw_file_url').unique().notNull(),
-    mediaType: varchar('media_type').notNull(),
-    thumbnailUrl: varchar('thumbnail_url').notNull(),
-    displayOrder: integer('display_order').notNull(),
-    width: integer('width'),
-    height: integer('height'),
-    duration: integer('duration'),
-    altText: text('alt_text'),
-    createdAt: timestamp('created_at').defaultNow().notNull(),
-  },
-  (table) => [index('postMedia_postId_idx').on(table.postId)],
 );
 
 export const locations = pgTable('locations', {
@@ -241,7 +265,7 @@ export const savedCollections = pgTable(
   (table) => [index('savedCollections_userId_idx').on(table.userId)],
 );
 
-export const savedPost = pgTable(
+export const savedPosts = pgTable(
   'saved_posts',
   {
     id: uuid('id').primaryKey().defaultRandom(),
@@ -260,6 +284,7 @@ export const savedPost = pgTable(
     index('savedPosts_userId_idx').on(table.userId),
     index('savedPosts_postId_idx').on(table.postId),
     index('savedPosts_collectionId_idx').on(table.collectionId),
+    unique('savedPosts_userId_postId_unique').on(table.userId, table.postId),
   ],
 );
 
@@ -276,7 +301,7 @@ export const postCollaborators = pgTable(
     status: postCollaboratorsStatusEnum('status').default('pending').notNull(),
     isOriginalAuthor: boolean('is_original_author').default(false).notNull(),
     createdAt: timestamp('created_at').defaultNow().notNull(),
-    approvedAt: timestamp('approved_at'),
+    acceptedAt: timestamp('accepted_at'),
   },
   (table) => [
     index('postCollaborators_postId_idx').on(table.postId),
@@ -305,7 +330,7 @@ export const postUserTags = pgTable(
     yPosition: decimal('y_position').notNull(),
     status: postUserTagsStatusEnum('status').default('pending').notNull(),
     createdAt: timestamp('created_at').defaultNow().notNull(),
-    approvedAt: timestamp('approved_at'),
+    acceptedAt: timestamp('accepted_at'),
   },
   (table) => [
     index('postUserTags_postId_idx').on(table.postId),
@@ -316,6 +341,71 @@ export const postUserTags = pgTable(
       table.userId,
       table.mediaId,
     ),
+  ],
+);
+
+export const reportReasons = pgTable('report_reasons', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  reasonCode: varchar('reason_code').notNull().unique(),
+  description: text('description').notNull(),
+  displayOrder: decimal('display_order').notNull(),
+  category: reportReasonsCategoryEnum('category').notNull(),
+  isActive: boolean('is_active').default(true).notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
+export const postReports = pgTable(
+  'post_reports',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    reporterId: text('reporter_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    reportedUserId: text('reported_user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    postId: uuid('post_id')
+      .notNull()
+      .references(() => posts.id, { onDelete: 'cascade' }),
+    reasonId: uuid('reason_id')
+      .notNull()
+      .references(() => reportReasons.id, { onDelete: 'set null' }),
+    additionalInfo: text('additional_info'),
+    status: postReportsStatusEnum('status').default('pending').notNull(),
+    reviewedBy: text('reviewed_by').references(() => users.id, {
+      onDelete: 'set null',
+    }),
+    reviewerNotes: text('reviewer_notes'),
+    actionTaken: postReportsActionTakenEnum('action_taken'),
+    reportedAt: timestamp('reported_at').defaultNow().notNull(),
+    resolvedAt: timestamp('resolved_at'),
+    reviewedAt: timestamp('reviewed_at'),
+  },
+  (table) => [
+    index('postReports_reporterId_idx').on(table.reporterId),
+    index('postReports_reportedUserId_idx').on(table.reportedUserId),
+    index('postReports_postId_idx').on(table.postId),
+    index('postReports_reasonId_idx').on(table.reasonId),
+    index('postReports_status_idx').on(table.status),
+  ],
+);
+
+export const likes = pgTable(
+  'likes',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    postId: uuid('post_id')
+      .notNull()
+      .references(() => posts.id, { onDelete: 'cascade' }),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+  },
+  (table) => [
+    index('likes_userId_idx').on(table.userId),
+    index('likes_postId_idx').on(table.postId),
+    unique('likes_userId_postId_unique').on(table.userId, table.postId),
   ],
 );
 
@@ -337,6 +427,47 @@ export const postsRelations = relations(posts, ({ one, many }) => ({
   postUserTags: many(postUserTags),
   postHashtags: many(postHashtags),
   postMedia: many(postMedia),
+  savedPosts: many(savedPosts),
+  postReports: many(postReports),
+  likes: many(likes),
+  comments: many(comments),
+}));
+
+export const likesRelations = relations(likes, ({ one }) => ({
+  user: one(users, {
+    fields: [likes.userId],
+    references: [users.id],
+  }),
+  post: one(posts, {
+    fields: [likes.postId],
+    references: [posts.id],
+  }),
+}));
+
+export const savedCollectionsRelations = relations(
+  savedCollections,
+  ({ one, many }) => ({
+    user: one(users, {
+      fields: [savedCollections.userId],
+      references: [users.id],
+    }),
+    savedPosts: many(savedPosts),
+  }),
+);
+
+export const savedPostsRelations = relations(savedPosts, ({ one }) => ({
+  user: one(users, {
+    fields: [savedPosts.userId],
+    references: [users.id],
+  }),
+  post: one(posts, {
+    fields: [savedPosts.postId],
+    references: [posts.id],
+  }),
+  collection: one(savedCollections, {
+    fields: [savedPosts.collectionId],
+    references: [savedCollections.id],
+  }),
 }));
 
 export const postUserTagsRelations = relations(postUserTags, ({ one }) => ({
@@ -439,3 +570,26 @@ export const storyHighlightItemsRelations = relations(
     }),
   }),
 );
+
+export const postReportsRelations = relations(postReports, ({ one }) => ({
+  reporter: one(users, {
+    fields: [postReports.reporterId],
+    references: [users.id],
+  }),
+  reportedUser: one(users, {
+    fields: [postReports.reportedUserId],
+    references: [users.id],
+  }),
+  post: one(posts, {
+    fields: [postReports.postId],
+    references: [posts.id],
+  }),
+  reason: one(reportReasons, {
+    fields: [postReports.reasonId],
+    references: [reportReasons.id],
+  }),
+  reviewer: one(users, {
+    fields: [postReports.reviewedBy],
+    references: [users.id],
+  }),
+}));

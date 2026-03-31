@@ -54,21 +54,18 @@ export abstract class AbstractRepository<
       TConfig
     >[]
   > {
-    let offset: number | undefined;
-    let limit: number | undefined;
-    let orderBy: any;
+    findManyQueryDto = findManyQueryDto || new FindManyQueryDto();
 
-    if (findManyQueryDto) {
-      const { page, limit: queryLimit, sort } = findManyQueryDto;
-      offset = (page - 1) * queryLimit;
-      limit = queryLimit;
-      const [sortField, sortOrder] = sort.split(',');
-      if (sortField && sortOrder && sortField in this.table)
-        orderBy =
-          sortOrder === 'desc'
-            ? [desc(this.table[sortField])]
-            : [asc(this.table[sortField])];
-    }
+    let orderBy: any;
+    const { page, limit, sort } = findManyQueryDto;
+    const offset = (page - 1) * limit;
+    const [sortField, sortOrder] = sort.split(',');
+    if (sortField && sortOrder && sortField in this.table)
+      orderBy =
+        sortOrder === 'desc'
+          ? [desc(this.table[sortField])]
+          : [asc(this.table[sortField])];
+
     const [data, dataCount] = await Promise.all([
       (this.db.query[this.tableName as any] as any).findMany({
         offset,
@@ -139,6 +136,8 @@ export abstract class AbstractRepository<
     id: TSelect[keyof TSelect & 'id'],
     item: Partial<TInsert>,
   ): Promise<TSelect | undefined> {
+    if (!Object.values(item).some((value) => value !== undefined)) return;
+
     const [result] = await this.db
       .update(this.table)
       .set(item as any)
@@ -152,6 +151,13 @@ export abstract class AbstractRepository<
   async delete(
     id: TSelect[keyof TSelect & 'id'],
   ): Promise<TSelect | undefined> {
+    const existingRecord = await (
+      this.db.query[this.tableName as any] as any
+    ).findFirst({ where: eq((this.table as any).id, id) });
+
+    if (!existingRecord)
+      throw new NotFoundException({ code: SystemWideErrorCodes.NOT_FOUND });
+
     const [result] = await this.db
       .delete(this.table)
       // @ts-expect-error - Drizzle's internal table ID mapping can be strict;

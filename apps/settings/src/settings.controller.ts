@@ -19,7 +19,7 @@ import {
 import { SettingsService } from '@/src/settings.service';
 import { CreateSettingDto } from '@/src/dto/create-setting.dto';
 import { UpdateSettingDto } from '@/src/dto/update-setting.dto';
-import { FilterSettingsDto } from '@/src/dto/filter-settings.dto';
+import { FindManySettingsDto } from '@/src/dto/find-many-settings.dto';
 import { PermGuard, Perms } from '@repo/common';
 
 @UseGuards(PermGuard)
@@ -36,20 +36,20 @@ export class SettingsController implements SystemSettingsServiceController {
     return this.settingsService.findSettingsByPrefix(settingPrefix, metadata);
   }
 
-  @Perms({ setting: ['create'] })
-  @Post()
-  async createSetting(@Body() createSettingDto: CreateSettingDto) {
-    return await this.settingsService.createSetting(createSettingDto);
-  }
-
   @Get('{:settingId}')
   async findSettingById(@Param('settingId') settingId: string) {
     return await this.settingsService.findSettingById(settingId);
   }
 
   @Get()
-  async findManySettings(@Query() filtersSettingDto: FilterSettingsDto) {
-    return await this.settingsService.findManySettings(filtersSettingDto);
+  async findManySettings(@Query() findManySettingDto: FindManySettingsDto) {
+    return await this.settingsService.findManySettings(findManySettingDto);
+  }
+
+  @Perms({ setting: ['create'] })
+  @Post()
+  async createSetting(@Body() createSettingDto: CreateSettingDto) {
+    return await this.settingsService.createSetting(createSettingDto);
   }
 
   @Perms({ setting: ['update'] })

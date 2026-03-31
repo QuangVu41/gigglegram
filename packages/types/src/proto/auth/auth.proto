@@ -5,6 +5,7 @@ package auth;
 service AuthService {
   rpc Authenticate (Empty) returns (AuthenticatedSessionResponse) {}
   rpc HasPermission (PermissionSet) returns (HasPermissionResponse) {}
+  rpc updateUser (UpdateUserRequest) returns (UpdateUserResponse) {}
 }
 
 message Empty {}
@@ -21,8 +22,30 @@ message User {
   string name = 4;
   optional string email = 5;
   optional string image = 6;
-  string createdAt = 7;
-  string updatedAt = 8;
+  optional string bio = 7;
+  optional string gender = 8;
+  int32 followersCount = 9;
+  int32 followingCount = 10;
+  int32 postsCount = 11;
+  optional string lastActiveAt = 12;
+  string createdAt = 13;
+  string updatedAt = 14;
+}
+
+message UpdateUserRequest {
+  optional string username = 3;
+  optional string name = 4;
+  optional string image = 6;
+  optional string bio = 7;
+  optional string gender = 8;
+  optional int32 followersCount = 9;
+  optional int32 followingCount = 10;
+  optional int32 postsCount = 11;
+  optional string lastActiveAt = 12;
+}
+
+message UpdateUserResponse {
+  bool status = 1;
 }
 
 message Session {

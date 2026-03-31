@@ -258,4 +258,104 @@ export class UploadService implements OnModuleInit {
       });
     }
   }
+
+  async getBucketSize(bucketName: string) {
+    const bucket = this.storage.bucket(bucketName);
+    const [files] = await bucket.getFiles();
+
+    let totalBytes = 0;
+    let fileCount = 0;
+
+    for (const file of files) {
+      const size = parseInt(file.metadata.size?.toString() || '0', 10);
+      totalBytes += size;
+      fileCount++;
+    }
+
+    return { bucketName, totalBytes, fileCount };
+  }
+
+  async getAllBucketsConsumption() {
+    this.logger.log(
+      `\n📦 Fetching storage consumption for project: ${process.env.GCP_PROJECT_ID}\n`,
+    );
+    this.logger.log('='.repeat(65));
+
+    const [buckets] = await this.storage.getBuckets();
+
+    if (buckets.length === 0) {
+      this.logger.log('No buckets found in this project.');
+      return;
+    }
+
+    const results = await Promise.all(
+      buckets.map((b) => this.getBucketSize(b.name)),
+    );
+
+    let grandTotalBytes = 0;
+    let grandTotalFiles = 0;
+
+    // Print per-bucket summary
+    for (const { bucketName, totalBytes, fileCount } of results) {
+      this.logger.log(`🪣  Bucket : ${bucketName}`);
+      this.logger.log(`   Size   : ${this.formatBytes(totalBytes)}`);
+      this.logger.log(`   Files  : ${fileCount.toLocaleString()}`);
+      this.logger.log('-'.repeat(65));
+      grandTotalBytes += totalBytes;
+      grandTotalFiles += fileCount;
+    }
+
+    // Print project-wide totals
+    this.logger.log('\n📊 PROJECT TOTAL');
+    this.logger.log(`   Total Size  : ${this.formatBytes(grandTotalBytes)}`);
+    this.logger.log(`   Total Files : ${grandTotalFiles.toLocaleString()}`);
+    this.logger.log(`   Buckets     : ${buckets.length}`);
+    this.logger.log('='.repeat(65));
+
+    return results;
+  }
+
+  async getStorageUsagePercent(
+    quotaBytes: number = 50 * 1024 ** 3, // Default to 50 GB
+    bucketName?: string,
+  ) {
+    if (!quotaBytes || quotaBytes <= 0) {
+      throw new InternalServerErrorException({
+        code: SystemWideErrorCodes.INTERNAL_SERVER_ERROR,
+        message:
+          'quotaBytes must be a positive number representing your storage quota.',
+      });
+    }
+
+    let usedBytes = 0;
+
+    if (bucketName) {
+      const result = await this.getBucketSize(bucketName);
+      usedBytes = result.totalBytes;
+    } else {
+      const [buckets] = await this.storage.getBuckets();
+      const results = await Promise.all(
+        buckets.map((b) => this.getBucketSize(b.name)),
+      );
+      usedBytes = results.reduce((sum, r) => sum + r.totalBytes, 0);
+    }
+
+    const percent = Math.min((usedBytes / quotaBytes) * 100, 100);
+
+    return {
+      usedBytes,
+      quotaBytes,
+      percent: parseFloat(percent.toFixed(2)),
+      percentFormatted: `${percent.toFixed(2)}%`,
+      usedFormatted: this.formatBytes(usedBytes),
+      quotaFormatted: this.formatBytes(quotaBytes),
+    };
+  }
+
+  private formatBytes(bytes: number) {
+    if (bytes === 0) return '0 B';
+    const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(1024));
+    return `${(bytes / Math.pow(1024, i)).toFixed(2)} ${units[i]}`;
+  }
 }

@@ -8,11 +8,12 @@ import {
   OnModuleInit,
 } from '@nestjs/common';
 import { StoriesRepository } from '@/src/stories/stories.repository';
-import { FilterStoriesDto } from '@/src/stories/dto/filter-stories.dto';
+import { FindManyStoriesDto } from '@/src/stories/dto/find-many-stories.dto';
 import {
   DATABASE_CONNECTION,
   schema,
   stories,
+  storyHighlights,
   storyStatus,
   users,
 } from '@repo/database';
@@ -51,8 +52,8 @@ export class StoriesService implements OnModuleInit {
       );
   }
 
-  async findManyStories(filterStoriesDto: FilterStoriesDto) {
-    return await this.storiesRepository.findMany({}, filterStoriesDto);
+  async findManyStories(findManyStoriesDto: FindManyStoriesDto) {
+    return await this.storiesRepository.findMany({}, findManyStoriesDto);
   }
 
   async createStory(
@@ -76,14 +77,14 @@ export class StoriesService implements OnModuleInit {
         'mediaType' | 'originalRawFileUrl' | 'thumbnailUrl'
       > = {};
 
-      await this.db.transaction(async (tx) => {
+      const createdStory = await this.db.transaction(async (tx) => {
         try {
           const [newStory] = await tx
             .insert(stories)
             .values({
               userId: user.id,
             })
-            .returning({ id: stories.id });
+            .returning();
 
           let width = isImage
             ? settings['image.post_width']?.intValue ||
@@ -223,7 +224,7 @@ export class StoriesService implements OnModuleInit {
                 )),
           );
 
-          await tx
+          const [updatedStory] = await tx
             .update(stories)
             .set({
               mediaUrl: resultUrlObj.mediaUrl,
@@ -239,7 +240,10 @@ export class StoriesService implements OnModuleInit {
                 ? storyStatus.enumValues[1]
                 : storyStatus.enumValues[0],
             })
-            .where(eq(stories.id, newStory!.id));
+            .where(eq(stories.id, newStory!.id))
+            .returning();
+
+          return updatedStory;
         } catch (error) {
           this.logger.error('Error during story creating transaction.', error);
           await this.uploadService.deleteFile(
@@ -249,6 +253,8 @@ export class StoriesService implements OnModuleInit {
           throw error;
         }
       });
+
+      return createdStory;
     } catch (error) {
       this.logger.error('Error creating new story.', error);
       if (error instanceof HttpException) throw error;
@@ -262,6 +268,20 @@ export class StoriesService implements OnModuleInit {
     try {
       const existingStory = await this.storiesRepository.findFirst({
         where: eq(stories.id, storyId),
+        with: {
+          storyHighlightItems: {
+            columns: {
+              highlightId: true,
+            },
+            with: {
+              highlight: {
+                columns: {
+                  storiesCount: true,
+                },
+              },
+            },
+          },
+        },
       });
 
       if (!existingStory)
@@ -269,12 +289,32 @@ export class StoriesService implements OnModuleInit {
           code: SystemWideErrorCodes.NOT_FOUND,
         });
 
-      await this.storiesRepository.delete(existingStory.id);
+      const deletedStory = await this.db.transaction(async (tx) => {
+        const [deletedStory] = await tx
+          .delete(stories)
+          .where(eq(stories.id, storyId))
+          .returning();
 
-      await this.uploadService.deleteFile(
-        existingStory.originalRawFileUrl!,
-        existingStory.mediaType!,
-      );
+        await Promise.all(
+          existingStory.storyHighlightItems.map(async (item) =>
+            tx
+              .update(storyHighlights)
+              .set({
+                storiesCount: item.highlight.storiesCount - 1,
+              })
+              .where(eq(storyHighlights.id, item.highlightId)),
+          ),
+        );
+
+        await this.uploadService.deleteFile(
+          existingStory.originalRawFileUrl!,
+          existingStory.mediaType!,
+        );
+
+        return deletedStory;
+      });
+
+      return deletedStory;
     } catch (error) {
       this.logger.error('Error deleting story.', error);
       if (error instanceof HttpException) throw error;

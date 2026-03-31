@@ -5,6 +5,8 @@ export const CurrentUser = createParamDecorator(
     const request = ctx.switchToHttp().getRequest();
     const userHeader = request.headers['gg-user'];
 
+    if (request['user']) return request['user'];
+
     if (!userHeader) return null;
 
     try {
@@ -19,6 +21,8 @@ export const CurrentSession = createParamDecorator(
   (data: unknown, ctx: ExecutionContext) => {
     const request = ctx.switchToHttp().getRequest();
     const sessionHeader = request.headers['gg-session'];
+
+    if (request['session']) return request['session'];
 
     if (!sessionHeader) return null;
 

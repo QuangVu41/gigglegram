@@ -1,0 +1,1 @@
+ALTER TABLE "post_reports" RENAME COLUMN "reviewed_at" TO "resolved_at";

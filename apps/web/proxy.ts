@@ -1,16 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
-import { headers } from "next/headers";
 import { authClient } from "@/lib/auth/auth-client";
-import { API_AUTH_PREFIX, AUTH_ROUTES, DEFAULT_LOGIN_REDIRECT } from "@/constants/routes";
+import { API_AUTH_PREFIX, AUTH_ROUTES, DEFAULT_LOGIN_REDIRECT, PUBLIC_API_PREFIXES } from "@/constants/routes";
 
 export async function proxy(req: NextRequest) {
   const { nextUrl } = req;
-  const session = await authClient.getSession({ fetchOptions: { headers: await headers() } });
-
-  const isAuthRoute = AUTH_ROUTES.some((route) => nextUrl.pathname.includes(route));
   const isApiAuthRoute = nextUrl.pathname.startsWith(API_AUTH_PREFIX);
+  const isPublicApiRoute = PUBLIC_API_PREFIXES.some((prefix) => nextUrl.pathname.startsWith(prefix));
 
-  if (isApiAuthRoute) return NextResponse.next();
+  if (isApiAuthRoute || isPublicApiRoute) return NextResponse.next();
+
+  const session = await authClient.getSession({ fetchOptions: { headers: req.headers } });
+  const isAuthRoute = AUTH_ROUTES.some((route) => nextUrl.pathname.startsWith(route));
 
   if (isAuthRoute) {
     if (session.data) return NextResponse.redirect(new URL(DEFAULT_LOGIN_REDIRECT, nextUrl.origin));
@@ -25,6 +25,8 @@ export async function proxy(req: NextRequest) {
     const encodedCallbackUrl = encodeURIComponent(callBackUrl);
     return NextResponse.redirect(new URL(`/accounts/login?callbackURL=${encodedCallbackUrl}`, nextUrl.origin));
   }
+
+  return NextResponse.next();
 }
 
 export const config = {

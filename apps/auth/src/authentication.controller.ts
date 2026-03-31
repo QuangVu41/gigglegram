@@ -3,6 +3,7 @@ import {
   AuthServiceController,
   AuthServiceControllerMethods,
   PermissionSet,
+  UpdateUserRequest,
   type Empty,
 } from '@repo/types';
 import { Body, Controller, Post, UseGuards } from '@nestjs/common';
@@ -27,6 +28,10 @@ export class AuthenticationController implements AuthServiceController {
 
   async hasPermission(request: PermissionSet, metadata: Metadata) {
     return await this.authenticationService.hasPermission(request, metadata);
+  }
+
+  async updateUser(request: UpdateUserRequest, metadata: Metadata) {
+    return await this.authenticationService.updateUser(request, metadata);
   }
 
   @Perms({ member: ['create'] })

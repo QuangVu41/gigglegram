@@ -63,7 +63,13 @@ export class PermGuard implements CanActivate, OnModuleInit {
         },
       });
 
-      if (currentUser && currentUser[resourceKey].length > 0) return true;
+      if (
+        currentUser &&
+        currentUser[resourceKey] &&
+        Array.isArray(currentUser[resourceKey]) &&
+        currentUser[resourceKey].length > 0
+      )
+        return true;
     }
 
     const permissionSet = transformToPermissionSet(perms);

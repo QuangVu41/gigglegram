@@ -1,3 +1,6 @@
+import { axiosGateway, FindOneResponse } from "@/lib/axios-config";
+import { users } from "@repo/database";
+import { AxiosError } from "axios";
 import * as z from "zod";
 
 export const createLoginSchema = (t: (key: string) => string) => {
@@ -38,7 +41,26 @@ export const createSignupSchema = (t: (key: string) => string) =>
       .trim()
       .refine((val) => val.length >= 3 && val.length <= 30 && /^\S+$/.test(val), {
         message: t("usernameInvalid"),
-      }),
+      })
+      .refine(
+        async (val) => {
+          try {
+            const res = await axiosGateway.get<FindOneResponse<typeof users.$inferSelect>>(
+              `/api/users/username/${val}`,
+              {
+                validateStatus: (status) => status === 404 || status < 399, // Treat 404 as a valid response to indicate username availability
+              },
+            );
+
+            if (res.data.data) return false; // Username exists
+
+            return true; // Username available
+          } catch {
+            return true; // Assume username is available if there's an error (e.g., network issue)
+          }
+        },
+        { message: t("usernameTaken") },
+      ),
   });
 
 export const createOTPSchema = (t: (key: string) => string) =>

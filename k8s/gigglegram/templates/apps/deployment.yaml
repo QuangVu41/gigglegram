@@ -25,7 +25,7 @@ spec:
             - containerPort: {{ .service.port }}
           volumeMounts:
             - name: secret-volume
-              mountPath: "/app/apps/{{ .name }}/.env"
+              mountPath: "/app/.env"
               subPath: .env
               readOnly: true
           # envFrom:

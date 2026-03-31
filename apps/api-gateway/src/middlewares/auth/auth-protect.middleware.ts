@@ -20,15 +20,24 @@ import { tap } from 'rxjs';
 export class AuthProtectMiddleware implements NestMiddleware, OnModuleInit {
   private readonly logger = new Logger(AuthProtectMiddleware.name);
   private authService!: AuthServiceClient;
+  private readonly publicPaths = ['/api/users/username'];
 
-  constructor(@Inject(AUTH_SERVICE_NAME) private readonly client: ClientGrpc) {}
+  constructor(
+    @Inject(AUTH_SERVICE_NAME) private readonly authClient: ClientGrpc,
+  ) {}
 
   onModuleInit() {
     this.authService =
-      this.client.getService<AuthServiceClient>(AUTH_SERVICE_NAME);
+      this.authClient.getService<AuthServiceClient>(AUTH_SERVICE_NAME);
   }
 
   use(req: Request, res: Response, next: NextFunction) {
+    if (
+      this.publicPaths.some((path) => req.originalUrl.startsWith(path)) &&
+      req.method === 'GET'
+    )
+      return next();
+
     const metadata = new Metadata();
     metadata.set('headers', JSON.stringify(req.headers));
 

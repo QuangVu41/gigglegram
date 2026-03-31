@@ -4,14 +4,12 @@ import {
   ExceptionFilter,
   HttpException,
 } from '@nestjs/common';
-import { SystemWideErrorCodes, SystemWideErrorMessages } from '@repo/types';
+import {
+  SystemWideErrorCodes,
+  SystemWideErrorMessages,
+  SystemWideHttpExceptionResponse,
+} from '@repo/types';
 import { Response } from 'express';
-
-export interface SystemWideHttpExceptionResponse {
-  code: string;
-  description: string;
-  message: string;
-}
 
 @Catch(HttpException, Error)
 export class SystemWideHttpExceptionFilter implements ExceptionFilter {
@@ -56,7 +54,7 @@ export class SystemWideHttpExceptionFilter implements ExceptionFilter {
       success: false,
       code,
       message: SystemWideErrorMessages[code] || description,
-      description: errorRes.message || errorRes.description || description,
+      description: errorRes.description || errorRes.message || description,
       statusCode: status,
       stack,
     });

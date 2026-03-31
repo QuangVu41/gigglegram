@@ -1,15 +1,23 @@
 import { NextIntlClientProvider } from "next-intl";
-import { Roboto } from "next/font/google";
+import { Roboto, Dancing_Script } from "next/font/google";
 import { ThemeProvider } from "@/components/common/theme-provider";
 import BackgroundGradient from "@/components/common/backgroud-gradient";
 import { Suspense } from "react";
-import LogoLoading from "./logo-loading";
 import { Toaster } from "@/components/ui/sonner";
+import LogoLoading from "@/components/common/logo-loading";
+import AxiosInterceptorsProvider from "@/components/common/axios-interceptors-provider";
 
 const roboto = Roboto({
   subsets: ["latin"],
   display: "swap",
   variable: "--font-roboto",
+});
+
+const dancingScript = Dancing_Script({
+  weight: ["400", "700"],
+  subsets: ["vietnamese", "latin"],
+  display: "swap",
+  variable: "--font-dancing-script",
 });
 
 const LayoutTemplate = ({
@@ -18,13 +26,13 @@ const LayoutTemplate = ({
   children: React.ReactNode;
 }>) => {
   return (
-    <html lang="en" className={`${roboto.variable}`} suppressHydrationWarning>
+    <html lang="en" className={`${roboto.variable} ${dancingScript.variable}`} suppressHydrationWarning>
       <body>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <BackgroundGradient>
             <Suspense fallback={<LogoLoading />}>
               <NextIntlClientProvider>
-                {children}
+                <AxiosInterceptorsProvider>{children}</AxiosInterceptorsProvider>
                 <Toaster richColors closeButton position="top-right" />
               </NextIntlClientProvider>
             </Suspense>

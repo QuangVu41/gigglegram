@@ -1,5 +1,5 @@
 import { createAuthClient } from "better-auth/react";
-import { inferAdditionalFields, organizationClient } from "better-auth/client/plugins";
+import { inferAdditionalFields, organizationClient, adminClient } from "better-auth/client/plugins";
 import { ac } from "@repo/types/auth";
 
 export const authClient = createAuthClient({
@@ -12,6 +12,7 @@ export const authClient = createAuthClient({
         },
       },
     }),
+    adminClient(),
     organizationClient({
       ac,
       dynamicAccessControl: {

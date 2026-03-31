@@ -1,0 +1,2 @@
+CREATE INDEX "users_name_username_bio_search_idx" ON "users" USING gin ((setweight(to_tsvector('english', "username"), 'A') || setweight(to_tsvector('english', "name"), 'B') || setweight(to_tsvector('english', coalesce("bio", '')), 'C')));--> statement-breakpoint
+CREATE INDEX "posts_caption_search_idx" ON "posts" USING gin (to_tsvector('english', "caption"));

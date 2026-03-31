@@ -1,3 +1,4 @@
+import { sql } from 'drizzle-orm';
 import { relations } from 'drizzle-orm';
 import {
   pgTable,
@@ -8,26 +9,38 @@ import {
   index,
 } from 'drizzle-orm/pg-core';
 
-export const users = pgTable('users', {
-  id: text('id').primaryKey(),
-  name: text('name').notNull(),
-  email: text('email').notNull().unique(),
-  emailVerified: boolean('email_verified').default(false).notNull(),
-  image: text('image'),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at')
-    .defaultNow()
-    .$onUpdate(() => /* @__PURE__ */ new Date())
-    .notNull(),
-  username: text('username').notNull(),
-  bio: text('bio'),
-  gender: text('gender', { enum: ['male', 'female'] }),
-  is_private: boolean('is_private').default(false),
-  followers_count: integer('followers_count').default(0),
-  following_count: integer('following_count').default(0),
-  posts_count: integer('posts_count').default(0),
-  last_active_at: timestamp('last_active_at'),
-});
+export const users = pgTable(
+  'users',
+  {
+    id: text('id').primaryKey(),
+    name: text('name').notNull(),
+    email: text('email').notNull().unique(),
+    emailVerified: boolean('email_verified').default(false).notNull(),
+    image: text('image'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at')
+      .defaultNow()
+      .$onUpdate(() => /* @__PURE__ */ new Date())
+      .notNull(),
+    role: text('role'),
+    banned: boolean('banned').default(false),
+    banReason: text('ban_reason'),
+    banExpires: timestamp('ban_expires'),
+    username: text('username').notNull().unique(),
+    bio: text('bio'),
+    gender: text('gender', { enum: ['male', 'female'] }),
+    followersCount: integer('followers_count').default(0).notNull(),
+    followingCount: integer('following_count').default(0).notNull(),
+    postsCount: integer('posts_count').default(0).notNull(),
+    lastActiveAt: timestamp('last_active_at'),
+  },
+  (table) => [
+    index('users_name_username_bio_search_idx').using(
+      'gin',
+      sql`(setweight(to_tsvector('english', ${table.username}), 'A') || setweight(to_tsvector('english', ${table.name}), 'B') || setweight(to_tsvector('english', coalesce(${table.bio}, '')), 'C'))`,
+    ),
+  ],
+);
 
 export const sessions = pgTable(
   'sessions',
@@ -44,6 +57,7 @@ export const sessions = pgTable(
     userId: text('user_id')
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
+    impersonatedBy: text('impersonated_by'),
     activeOrganizationId: text('active_organization_id'),
   },
   (table) => [index('sessions_userId_idx').on(table.userId)],

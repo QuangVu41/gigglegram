@@ -1,0 +1,1 @@
+ALTER TYPE "public"."messages_type_enum" ADD VALUE 'system';

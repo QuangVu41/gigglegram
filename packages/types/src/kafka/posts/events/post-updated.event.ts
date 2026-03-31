@@ -5,6 +5,7 @@ export class PostUpdatedEvent {
     public readonly deletingHashtagIds: string[],
     public readonly newCollaboratorIds: string[],
     public readonly deletingCollaboratorIds: string[],
-    public readonly deletingPostUserTagsIds: string[]
+    public readonly newPostUserTagsIds: string[],
+    public readonly deletingPostUserTagsIds: string[],
   ) {}
 }

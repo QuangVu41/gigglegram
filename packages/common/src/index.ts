@@ -8,6 +8,8 @@ export * from '@common/src/validators/file-type-based-on-mimetype-validator.vali
 export * from '@common/src/decorators/current-user.decorator';
 export * from '@common/src/main';
 export * from '@common/src/interceptors/transform-response.interceptor';
+export * from '@common/src/interceptors/files-validator.interceptor';
 export * from '@common/src/utils';
 export * from '@common/src/decorators/perms.decorator';
 export * from '@common/src/guards/perm.guard';
+export * from '@common/src/utils/extractHeadersFromMetadata';
