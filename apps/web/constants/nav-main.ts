@@ -62,7 +62,7 @@ export const NAV_MAIN: NavMainItem[] = [
     key: "notifications",
     url: "/notifications",
     icon: Heart,
-    mobileDisplay: true,
+    mobileDisplay: false,
     type: "link",
   },
   {

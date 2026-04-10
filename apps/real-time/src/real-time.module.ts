@@ -1,5 +1,5 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
-import { EventsModule } from './events/events.module';
+import { EventsModule } from '@/src/events/events.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AUTH_PACKAGE_NAME, AUTH_SERVICE_NAME } from '@repo/types';
 import { join } from 'path';

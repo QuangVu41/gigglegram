@@ -19,6 +19,10 @@
     "privacyPolicy": "Quyền riêng tư",
     "copyright": "© {year} Gigglegram. Bảo lưu mọi quyền."
   },
+  "HomePage": {
+    "maxCaption": "Chú thích không được vượt quá 2200 ký tự.",
+    "atLeastOneMedia": "Vui lòng chọn ít nhất một tệp media."
+  },
   "NavMain": {
     "home": "Trang chủ",
     "reels": "Reels",

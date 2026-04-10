@@ -171,16 +171,25 @@ export const postHashtags = pgTable(
   ],
 );
 
-export const locations = pgTable('locations', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  name: varchar('name').notNull(),
-  latitude: decimal('latitude').notNull(),
-  longitude: decimal('longitude').notNull(),
-  city: varchar('city').notNull(),
-  country: varchar('country').notNull(),
-  postsCount: integer('posts_count').default(0).notNull(),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-});
+export const locations = pgTable(
+  'locations',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    name: text('name').notNull(),
+    latitude: decimal('latitude').notNull(),
+    longitude: decimal('longitude').notNull(),
+    city: text('city').notNull(),
+    country: text('country').notNull(),
+    postsCount: integer('posts_count').default(0).notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+  },
+  (table) => [
+    index('locations_name_city_country_search_idx').using(
+      'gin',
+      sql`(setweight(to_tsvector('english', ${table.name}), 'A') || setweight(to_tsvector('english', ${table.city}), 'B') || setweight(to_tsvector('english', ${table.country}), 'C'))`,
+    ),
+  ],
+);
 
 export const stories = pgTable(
   'stories',

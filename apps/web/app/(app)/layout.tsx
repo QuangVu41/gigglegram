@@ -17,7 +17,7 @@ const AppLayout = ({
       }
     >
       <AppSidebar />
-      <SidebarInset>
+      <SidebarInset className="bg-background/70">
         <HeaderMobile />
         {children}
         <NavBottom />

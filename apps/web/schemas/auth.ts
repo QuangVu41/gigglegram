@@ -1,6 +1,5 @@
 import { axiosGateway, FindOneResponse } from "@/lib/axios-config";
 import { users } from "@repo/database";
-import { AxiosError } from "axios";
 import * as z from "zod";
 
 export const createLoginSchema = (t: (key: string) => string) => {

@@ -57,7 +57,7 @@ import { formatDateWithLocale } from '@repo/common';
 import { FindManyPostsDto } from '@/src/dto/find-many-posts.dto';
 import { inArray } from 'drizzle-orm';
 import { SavePostDto } from '@/src/dto/save-post.dto';
-import { FindManySavedPostsDto } from './dto/find-many-saved-posts.dto';
+import { FindManySavedPostsDto } from '@/src/dto/find-many-saved-posts.dto';
 import { or } from 'drizzle-orm';
 import { sql } from 'drizzle-orm';
 import { FindManyPostsByHashtagDto } from '@/src/dto/find-many-posts-by-hashtag.dto';
@@ -363,15 +363,19 @@ export class PostsService implements OnModuleInit {
                   file.buffer,
                 );
 
+                const fileMetadata = createPostDto.videoMetadata?.find(
+                  (meta) => meta.name === file.originalname,
+                );
+
                 resultUrlObj = await this.uploadService.uploadFile(
                   file,
                   'video',
                   {
                     isReel: isReel.toString(),
                     audioOmitted:
-                      createPostDto.audioOmitted?.toString() || 'false',
+                      fileMetadata?.audioOmitted?.toString() || 'false',
                     millisecondsToExtractThumbnail:
-                      createPostDto.millisecondsToExtractThumbnail?.toString() ||
+                      fileMetadata?.millisecondsToExtractThumbnail?.toString() ||
                       '1000',
                     inputVideoWidth: inputVideoWidth!.toString(),
                     inputVideoHeight: inputVideoHeight!.toString(),
@@ -519,13 +523,15 @@ export class PostsService implements OnModuleInit {
             }
           }
 
-          if (createPostDto.audioOmitted && createPostDto.audioId && isReel) {
+          const audioOmitted = createPostDto.videoMetadata?.[0]?.audioOmitted;
+
+          if (audioOmitted && createPostDto.audioId && isReel) {
             await tx
               .update(posts)
               .set({ audioId: createPostDto.audioId })
               .where(eq(posts.id, newPost!.id));
           }
-          if (!createPostDto.audioOmitted && isReel) {
+          if (!audioOmitted && isReel) {
             const audioUrl =
               postMediaInsertsResolved[0]!.mediaUrl
                 .split('/')

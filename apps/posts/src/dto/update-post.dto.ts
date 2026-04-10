@@ -4,8 +4,6 @@ import { IsNumber, IsOptional, Min } from 'class-validator';
 
 export class UpdatePostDto extends OmitType(CreatePostDto, [
   'audioId',
-  'millisecondsToExtractThumbnail',
-  'audioOmitted',
 ] as const) {
   @IsNumber()
   @IsOptional()

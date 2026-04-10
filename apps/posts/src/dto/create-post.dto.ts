@@ -2,13 +2,13 @@ import { plainToClass, Transform, Type } from 'class-transformer';
 import {
   IsArray,
   IsBoolean,
-  IsNumber,
   IsOptional,
   IsString,
   MaxLength,
   ValidateNested,
 } from 'class-validator';
 import { CreatePostUserTagDto } from '@/src/dto/create-post-user-tag.dto';
+import { VideoMetadataDto } from '@/src/dto/video-metadata.dto';
 
 export class CreatePostDto {
   @IsString()
@@ -44,20 +44,25 @@ export class CreatePostDto {
   @IsArray()
   newHashtags?: string[];
 
-  @IsOptional()
-  @IsNumber()
-  @Type(() => Number)
-  millisecondsToExtractThumbnail?: number;
-
-  @IsOptional()
-  @IsBoolean()
-  @Type(() => Boolean)
-  audioOmitted?: boolean;
-
   @IsString({ each: true })
   @IsOptional()
   @IsArray()
   collaboratorIds?: string[];
+
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Transform(({ value }) => {
+    if (typeof value === 'string') {
+      try {
+        return plainToClass(VideoMetadataDto, JSON.parse(value));
+      } catch {
+        return plainToClass(VideoMetadataDto, value);
+      }
+    }
+    return plainToClass(VideoMetadataDto, value);
+  })
+  videoMetadata?: VideoMetadataDto[];
 
   @IsOptional()
   @IsArray()

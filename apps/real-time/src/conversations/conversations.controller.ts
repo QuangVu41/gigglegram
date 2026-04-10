@@ -9,7 +9,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { ConversationsService } from '@/src/conversations/conversations.service';
-import { SendMessageDto } from './dto/send-message.dto';
+import { SendMessageDto } from '@/src/conversations/dto/send-message.dto';
 import { CurrentUser } from '@repo/common';
 import { users } from '@repo/database';
 import { CreateGroupChatDto } from '@/src/conversations/dto/create-group-chat.dto';

@@ -19,6 +19,10 @@
     "privacyPolicy": "Privacy",
     "copyright": "© {year} Gigglegram. All rights reserved."
   },
+  "HomePage": {
+    "maxCaption": "Caption must be at most 2200 characters.",
+    "atLeastOneMedia": "Please select at least one media file."
+  },
   "NavMain": {
     "home": "Home",
     "reels": "Reels",

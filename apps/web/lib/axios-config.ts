@@ -9,7 +9,7 @@ export interface FindOneResponse<T> {
 }
 
 export interface FindManyResponse<T> {
-  data: T | T[];
+  data: T[];
   metadata?: ResponseMetadata;
   success: boolean;
 }

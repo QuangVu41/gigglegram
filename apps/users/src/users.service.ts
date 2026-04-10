@@ -46,6 +46,7 @@ import { gte } from 'drizzle-orm';
 import { desc } from 'drizzle-orm';
 import { UpdateUserFollowStatusDto } from '@/src/dto/update-user-follow-status.dto';
 import { or } from 'drizzle-orm';
+import 'multer';
 
 @Injectable()
 export class UsersService implements OnModuleInit {

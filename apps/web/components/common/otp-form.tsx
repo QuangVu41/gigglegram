@@ -32,9 +32,7 @@ const OTPForm = ({
     }
   }, [tValidation, form]);
 
-  const handleSubmit = (data: OTPSchemaType) => {
-    console.log(data);
-  };
+  const handleSubmit = (data: OTPSchemaType) => {};
 
   return (
     <form

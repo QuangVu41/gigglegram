@@ -25,6 +25,7 @@ import { CollectionsModule } from '@/src/collections/collections.module';
 import { PostReportsModule } from '@/src/post-reports/post-reports.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { PostsSyncService } from '@/src/posts-sync.service';
+import { LocationsModule } from '@/src/locations/localtions.module';
 
 @Module({
   imports: [
@@ -85,6 +86,7 @@ import { PostsSyncService } from '@/src/posts-sync.service';
     StoriesModule,
     CollectionsModule,
     PostReportsModule,
+    LocationsModule,
   ],
   controllers: [PostsController],
   providers: [

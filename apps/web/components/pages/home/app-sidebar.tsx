@@ -20,7 +20,12 @@ const AppSidebar = () => {
   const { open, setOpen } = useSidebar();
 
   return (
-    <Sidebar collapsible="icon" onMouseOver={() => setOpen(true)} onMouseLeave={() => setOpen(false)}>
+    <Sidebar
+      className="bg-sidebar/70"
+      collapsible="icon"
+      onMouseOver={() => setOpen(true)}
+      onMouseLeave={() => setOpen(false)}
+    >
       <SidebarHeader className="mt-4 mb-2">
         <SidebarMenu>
           <SidebarMenuItem>

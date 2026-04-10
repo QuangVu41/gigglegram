@@ -22,8 +22,9 @@ import { SavePostDto } from '@/src/dto/save-post.dto';
 import { FindManySavedPostsDto } from '@/src/dto/find-many-saved-posts.dto';
 import { FindManyPostsByHashtagDto } from '@/src/dto/find-many-posts-by-hashtag.dto';
 import { FindManyQueryDto } from '@repo/types';
+import 'multer';
 
-@Controller()
+@Controller('')
 export class PostsController {
   constructor(private readonly postsService: PostsService) {}
 
@@ -104,7 +105,7 @@ export class PostsController {
     return await this.postsService.savePost(savePostDto, user);
   }
 
-  @Get('{:postId}')
+  @Get('by/{:postId}')
   async findPostById(@Param('postId') postId: string) {
     return await this.postsService.findPostById(postId);
   }
@@ -116,7 +117,7 @@ export class PostsController {
       resourceParamIdKey: 'postId',
     },
   )
-  @Patch('{:postId}')
+  @Patch('by/{:postId}')
   async updatePost(
     @Param('postId') postId: string,
     @Body() updatePostDto: UpdatePostDto,
@@ -132,7 +133,7 @@ export class PostsController {
       resourceParamIdKey: 'postId',
     },
   )
-  @Delete('{:postId}')
+  @Delete('by/{:postId}')
   async deletePost(@Param('postId') postId: string) {
     return await this.postsService.deletePost(postId);
   }

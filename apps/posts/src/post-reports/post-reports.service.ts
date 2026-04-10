@@ -1,7 +1,7 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { PostReportsRepository } from '@/src/post-reports/post-reports.repository';
 import { ReportReasonsRepository } from '@/src/post-reports/report-reasons/report-reasons.repository';
-import { CreatePostReportDto } from './dto/create-post-report.dto';
+import { CreatePostReportDto } from '@/src/post-reports/dto/create-post-report.dto';
 import {
   DATABASE_CONNECTION,
   postReports,
