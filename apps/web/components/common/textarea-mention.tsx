@@ -68,7 +68,7 @@ const TextareaMention = ({
       mention: {
         allowedChars: /^[A-Za-z\sÅÄÖåäö]*$/,
         mentionDenotationChars: ["#"],
-        // minChars: 1,
+        minChars: 1,
         source: async function (searchTerm: string, renderList: Function, mentionChar: string) {
           try {
             const res = await axiosGateway.get<FindManyResponse<typeof hashtags.$inferSelect>>(`/api/posts/hashtags`, {

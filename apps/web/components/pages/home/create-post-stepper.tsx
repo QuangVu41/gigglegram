@@ -70,13 +70,7 @@ export function CreatePostStepper() {
         >
           Next
         </Button>
-        <Button
-          variant="default"
-          onClick={() => setCurrentStep((prev) => prev + 1)}
-          className={`${currentStep !== 3 && "hidden"}`}
-        >
-          Share
-        </Button>
+        <div id="create-post-share-btn" className={`${currentStep !== 3 && "hidden"}`}></div>
       </StepperNav>
       <StepperPanel className="text-sm">
         {steps.map((step) => (

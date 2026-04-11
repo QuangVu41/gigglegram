@@ -20,7 +20,7 @@ export function NavDialogPattern({ item, open, className, setOpenChange }: NavDi
 
   return (
     <Dialog open={open} onOpenChange={setOpenChange}>
-      <DialogContent className={cn("max-h-[70vh] overflow-y-auto no-scrollbar scroll-smooth md:max-w-4xl", className)}>
+      <DialogContent className={cn("max-h-[70dvh] overflow-y-auto no-scrollbar scroll-smooth md:max-w-4xl", className)}>
         <DialogHeader>
           <DialogTitle>{t(item.key)}</DialogTitle>
         </DialogHeader>

@@ -1,5 +1,6 @@
 "use client";
 
+import { createPortal } from "react-dom";
 import { createPostSchema, CreatePostSchemaType } from "@/schemas/posts";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
@@ -33,11 +34,14 @@ import { InputGroupAddon } from "@/components/ui/input-group";
 import { useDebouncedCallback } from "use-debounce";
 import { Combobox as ComboboxBaseUi } from "@base-ui/react";
 import { Spinner } from "@/components/ui/spinner";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import UserSearchItem from "@/components/common/user-search-item";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Badge } from "@/components/reui/badge";
 import { Switch } from "@/components/ui/switch";
+import { Button } from "@/components/ui/button";
+import { LoadingSwap } from "@/components/ui/loading-swap";
+import { authClient } from "@/lib/auth/auth-client";
 
 const items = [
   {
@@ -48,6 +52,7 @@ const items = [
 ];
 
 const CreatePostForm = () => {
+  const formId = "create-post-form";
   const anchor = useComboboxAnchor();
   const isLoading = useCreatePostStore((state) => state.isLoading);
   const selectedFiles = useCreatePostStore((state) => state.selectedFiles);
@@ -59,6 +64,7 @@ const CreatePostForm = () => {
   const clearLocations = useCreatePostStore((state) => state.clearLocations);
   const media = selectedFiles.map((file) => file.editedFile ?? file.file);
   const [collabValue, setCollabValue] = useState("");
+  const [shareButtonPortalTarget, setShareButtonPortalTarget] = useState<HTMLElement | null>(null);
   const videoMetadata = selectedFiles
     .filter((file) => file.file.type.startsWith("video/"))
     .map((file) => ({
@@ -98,8 +104,12 @@ const CreatePostForm = () => {
     console.log(data);
   };
 
+  useEffect(() => {
+    setShareButtonPortalTarget(document.getElementById("create-post-share-btn"));
+  }, []);
+
   return (
-    <form className="flex-1 shrink-0" onSubmit={form.handleSubmit(handleSubmit)}>
+    <form id={formId} className="flex-1 shrink-0 no-scrollbar" onSubmit={form.handleSubmit(handleSubmit)}>
       <FieldGroup className="gap-2">
         <Controller
           name="caption"
@@ -136,6 +146,7 @@ const CreatePostForm = () => {
             <Field data-invalid={fieldState.invalid}>
               <Combobox
                 items={locations}
+                filter={null}
                 inputValue={field.value}
                 onInputValueChange={(value) => {
                   field.onChange(value);
@@ -144,7 +155,13 @@ const CreatePostForm = () => {
                 onValueChange={(value) => {
                   if (locations) {
                     const selectedLocation = locations.find((loc) => loc.name === value);
-                    if (selectedLocation) form.setValue("locationId", selectedLocation.id);
+                    if (selectedLocation)
+                      (form.setValue("locationId", selectedLocation.id),
+                        {
+                          shouldDirty: true,
+                          shouldTouch: true,
+                          shouldValidate: true,
+                        });
                   }
                 }}
               >
@@ -284,6 +301,15 @@ const CreatePostForm = () => {
             </AccordionItem>
           ))}
         </Accordion>
+        <Field>
+          {shareButtonPortalTarget &&
+            createPortal(
+              <Button type="submit" form={formId}>
+                <LoadingSwap isLoading={false}>Share</LoadingSwap>
+              </Button>,
+              shareButtonPortalTarget,
+            )}
+        </Field>
       </FieldGroup>
     </form>
   );

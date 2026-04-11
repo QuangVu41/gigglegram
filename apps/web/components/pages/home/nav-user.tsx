@@ -1,3 +1,5 @@
+"use client";
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -9,16 +11,25 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar";
+import { useHandleBAAction } from "@/hooks/use-handle-ba-action";
 import { authClient } from "@/lib/auth/auth-client";
 import { getUsernameFallback } from "@/lib/utils";
 import { Archive, BadgeCheck, Bookmark, ChevronsUpDown, LogOut, Sparkles } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { useRouter } from "next/navigation";
 
 const NavUser = () => {
   const { isMobile, open } = useSidebar();
   const { data } = authClient.useSession();
+  const { handleBAAction } = useHandleBAAction();
   const t = useTranslations("NavUser");
+  const router = useRouter();
   const user = data?.user;
+
+  const handleLogout = async () => {
+    await handleBAAction(() => authClient.signOut());
+    router.push("/accounts/login");
+  };
 
   return (
     user && (
@@ -79,7 +90,7 @@ const NavUser = () => {
                 </DropdownMenuItem>
               </DropdownMenuGroup>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={handleLogout}>
                 <LogOut />
                 {t("logOut")}
               </DropdownMenuItem>

@@ -105,7 +105,7 @@ const betterAuthOptions = {
           });
 
           const activeOrganizationId = userOrgs.find(
-            (uo) => uo.role.includes('owner') || uo.role.includes('default'),
+            (uo) => uo.role.includes('owner') || uo.role.includes('member'),
           )?.organizationId;
 
           return {
@@ -133,7 +133,7 @@ const betterAuthOptions = {
           await db.insert(organizationRoles).values({
             id: crypto.randomUUID(),
             organizationId: organization.id,
-            role: 'default',
+            role: 'member',
             permission: JSON.stringify({}),
           });
         },

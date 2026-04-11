@@ -175,7 +175,7 @@ export const locations = pgTable(
   'locations',
   {
     id: uuid('id').primaryKey().defaultRandom(),
-    name: text('name').notNull(),
+    name: text('name').notNull().unique(),
     latitude: decimal('latitude').notNull(),
     longitude: decimal('longitude').notNull(),
     city: text('city').notNull(),
