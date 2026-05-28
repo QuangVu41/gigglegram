@@ -11,19 +11,53 @@ env:
   GKE_CLUSTER_NAME: ${{ secrets.GKE_CLUSTER_NAME }}
   GKE_LOCATION: ${{ secrets.GKE_LOCATION }}
   GAR_LOCATION: ${{ secrets.GAR_LOCATION }}
-  GAR_IMAGE_API_REPO: "api-gateway"
-  GAR_IMAGE_AUTH_REPO: "auth"
-  GAR_IMAGE_ENGAGEMENTS_REPO: "engagements"
-  GAR_IMAGE_FEED_REPO: "feed"
-  GAR_IMAGE_POSTS_REPO: "posts"
-  GAR_IMAGE_REAL_TIME_REPO: "real-time"
-  GAR_IMAGE_SETTINGS_REPO: "settings"
-  GAR_IMAGE_USERS_REPO: "users"
-  GAR_IMAGE_WEB_REPO: "web"
 
 jobs:
   build-and-push:
-    name: Build, Push, and Deploy
+    name: Build and Push ${{ matrix.service }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        service:
+          - api-gateway
+          - auth
+          - engagements
+          - feed
+          - posts
+          - real-time
+          - settings
+          - users
+          - web
+
+    permissions:
+      contents: "read"
+      id-token: "write"
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: "google-github-actions/auth@v3"
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WI_PROVIDER }}
+          service_account: ${{ secrets.GCP_SA_EMAIL }}
+
+      - name: Configure Docker to use Google Cloud credentials
+        run: gcloud auth configure-docker ${{ env.GAR_LOCATION }}-docker.pkg.dev
+
+      - name: Build and Push ${{ matrix.service }} Image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./apps/${{ matrix.service }}/Dockerfile.prod
+          push: true
+          tags: ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ matrix.service }}/prod:${{ github.sha }}
+
+  deploy:
+    name: Deploy to GKE
+    needs: build-and-push
     runs-on: ubuntu-latest
 
     permissions:
@@ -46,81 +80,6 @@ jobs:
           cluster_name: ${{ env.GKE_CLUSTER_NAME }}
           location: ${{ env.GKE_LOCATION }}
 
-      - name: Configure Docker to use Google Cloud credentials
-        run: gcloud auth configure-docker ${{ env.GAR_LOCATION }}-docker.pkg.dev
-
-      - name: Build and Push API Gateway Image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: ./apps/api-gateway/Dockerfile.prod
-          push: true
-          tags: ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GAR_IMAGE_API_REPO }}/prod:${{ github.sha }}
-
-      - name: Build and Push Auth Image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: ./apps/auth/Dockerfile.prod
-          push: true
-          tags: ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GAR_IMAGE_AUTH_REPO }}/prod:${{ github.sha }}
-
-      - name: Build and Push Engagements Image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: ./apps/engagements/Dockerfile.prod
-          push: true
-          tags: ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GAR_IMAGE_ENGAGEMENTS_REPO }}/prod:${{ github.sha }}
-
-      - name: Build and Push Feed Image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: ./apps/feed/Dockerfile.prod
-          push: true
-          tags: ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GAR_IMAGE_FEED_REPO }}/prod:${{ github.sha }}
-
-      - name: Build and Push Posts Image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: ./apps/posts/Dockerfile.prod
-          push: true
-          tags: ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GAR_IMAGE_POSTS_REPO }}/prod:${{ github.sha }}
-
-      - name: Build and Push Real-Time Image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: ./apps/real-time/Dockerfile.prod
-          push: true
-          tags: ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GAR_IMAGE_REAL_TIME_REPO }}/prod:${{ github.sha }}
-
-      - name: Build and Push Settings Image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: ./apps/settings/Dockerfile.prod
-          push: true
-          tags: ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GAR_IMAGE_SETTINGS_REPO }}/prod:${{ github.sha }}
-
-      - name: Build and Push Users Image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: ./apps/users/Dockerfile.prod
-          push: true
-          tags: ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GAR_IMAGE_USERS_REPO }}/prod:${{ github.sha }}
-
-      - name: Build and Push Web Image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: ./apps/web/Dockerfile.prod
-          push: true
-          tags: ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.GAR_IMAGE_WEB_REPO }}/prod:${{ github.sha }}
-
       - name: Setup Helm
         uses: azure/setup-helm@v4.3.0
         with:
@@ -138,4 +97,4 @@ jobs:
             --set apps.realTime.image.tag=${{ github.sha }} \
             --set apps.settings.image.tag=${{ github.sha }} \
             --set apps.users.image.tag=${{ github.sha }} \
-            --set apps.web.image.tag=${{ github.sha }} \
+            --set apps.web.image.tag=${{ github.sha }}
