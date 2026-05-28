@@ -25,14 +25,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         const user = data.data;
         return {
           title: `${user.name} (@${user.username})`,
-          description:
-            user.bio ||
-            `See photos and videos from ${user.name} (@${user.username}) on Gigglegram.`,
+          description: user.bio || `See photos and videos from ${user.name} (@${user.username}) on Gigglegram.`,
           openGraph: {
             title: `${user.name} (@${user.username}) • Gigglegram photos and videos`,
-            description:
-              user.bio ||
-              `See photos and videos from ${user.name} (@${user.username}) on Gigglegram.`,
+            description: user.bio || `See photos and videos from ${user.name} (@${user.username}) on Gigglegram.`,
             images: user.image ? [`/${user.image}`] : [],
           },
         };
