@@ -20,8 +20,7 @@ import {
 } from '@repo/database';
 import { SystemWideErrorCodes } from '@repo/types';
 import { UpdateHighlightDto } from '@/src/highlights/dto/update-highlight.dto';
-import { eq } from 'drizzle-orm';
-import { and } from 'drizzle-orm';
+import { eq, and, count, sum, isNotNull } from 'drizzle-orm';
 
 @Injectable()
 export class HighlightsService {
@@ -33,8 +32,57 @@ export class HighlightsService {
     private readonly db: NodePgDatabase<typeof schema>,
   ) {}
 
-  async findManyHighlights(findManyHighlightsDto: FindManyHighlightsDto) {
-    return await this.highlightsRepository.findMany({}, findManyHighlightsDto);
+  async findManyHighlights(
+    findManyHighlightsDto: FindManyHighlightsDto,
+    user?: typeof users.$inferSelect,
+  ) {
+    const userId = findManyHighlightsDto.userId || user?.id;
+    if (!userId) {
+      throw new BadRequestException('userId is required');
+    }
+
+    return await this.highlightsRepository.findMany(
+      {
+        where: eq(storyHighlights.userId, userId),
+        with: {
+          story: true,
+          user: true,
+        },
+      },
+      findManyHighlightsDto,
+    );
+  }
+
+  async findAllHighlights(findManyHighlightsDto: FindManyHighlightsDto) {
+    return await this.highlightsRepository.findMany(
+      {
+        with: {
+          story: true,
+          user: true,
+        },
+      },
+      findManyHighlightsDto,
+    );
+  }
+
+  async findOneHighlight(highlightId: string) {
+    const highlight = await this.highlightsRepository.findFirst({
+      where: eq(storyHighlights.id, highlightId),
+      with: {
+        user: true,
+        storyHighlightItems: {
+          with: {
+            story: true,
+          },
+        },
+      },
+    });
+
+    if (!highlight) {
+      throw new NotFoundException({ code: SystemWideErrorCodes.NOT_FOUND });
+    }
+
+    return highlight;
   }
 
   async createHighlight(
@@ -172,5 +220,86 @@ export class HighlightsService {
         code: SystemWideErrorCodes.DELETION_FAILED,
       });
     }
+  }
+
+  async getHighlightsStats(
+    findManyHighlightsDto: FindManyHighlightsDto,
+    user?: typeof users.$inferSelect,
+  ) {
+    const userId = findManyHighlightsDto.userId || user?.id;
+    if (!userId) {
+      throw new BadRequestException('userId is required');
+    }
+
+    const whereConditions = [eq(storyHighlights.userId, userId)];
+    const where = and(...whereConditions);
+
+    const [total, totalStoriesCount, withCovers] = await Promise.all([
+      this.db
+        .select({ count: count() })
+        .from(storyHighlights)
+        .where(where)
+        .then((res) => res[0]?.count ?? 0),
+      this.db
+        .select({
+          totalStories: sum(storyHighlights.storiesCount),
+        })
+        .from(storyHighlights)
+        .where(where)
+        .then((res) => res[0]?.totalStories ?? '0'),
+      this.db
+        .select({ count: count() })
+        .from(storyHighlights)
+        .where(and(where, isNotNull(storyHighlights.coverStoryId)))
+        .then((res) => res[0]?.count ?? 0),
+    ]);
+
+    return {
+      totalHighlights: Number(total),
+      totalStoriesCount: Number(totalStoriesCount),
+      withCovers: Number(withCovers),
+    };
+  }
+
+  async getAllHighlightsStats(findManyHighlightsDto: FindManyHighlightsDto) {
+    const [total, totalStoriesCount, withCovers] = await Promise.all([
+      this.db
+        .select({ count: count() })
+        .from(storyHighlights)
+        .then((res) => res[0]?.count ?? 0),
+      this.db
+        .select({
+          totalStories: sum(storyHighlights.storiesCount),
+        })
+        .from(storyHighlights)
+        .then((res) => res[0]?.totalStories ?? '0'),
+      this.db
+        .select({ count: count() })
+        .from(storyHighlights)
+        .where(isNotNull(storyHighlights.coverStoryId))
+        .then((res) => res[0]?.count ?? 0),
+    ]);
+
+    return {
+      totalHighlights: Number(total),
+      totalStoriesCount: Number(totalStoriesCount),
+      withCovers: Number(withCovers),
+    };
+  }
+
+  async deleteManyHighlights(highlightIds: string[]) {
+    const results: any[] = [];
+    for (const highlightId of highlightIds) {
+      try {
+        const result = await this.deleteHighlight(highlightId);
+        if (result) results.push(result);
+      } catch (error) {
+        this.logger.error(
+          `Error deleting highlight ${highlightId} in bulk operation.`,
+          error,
+        );
+      }
+    }
+    return results;
   }
 }

@@ -46,12 +46,6 @@ const betterAuthOptions = {
     },
   },
   trustedOrigins: [...process.env.BETTER_AUTH_TRUSTED_ORIGINS!.split(',')],
-  session: {
-    cookieCache: {
-      enabled: true,
-      maxAge: 3600,
-    },
-  },
   user: {
     additionalFields: {
       username: {
@@ -121,20 +115,23 @@ const betterAuthOptions = {
   plugins: [
     admin(),
     organization({
-      ac,
+      ac: ac as any,
       roles: {
         owner,
       },
       dynamicAccessControl: {
         enabled: true,
       },
+      membershipLimit: 500,
       organizationHooks: {
         afterCreateOrganization: async ({ organization }) => {
           await db.insert(organizationRoles).values({
             id: crypto.randomUUID(),
             organizationId: organization.id,
             role: 'member',
-            permission: JSON.stringify({}),
+            permission: JSON.stringify({
+              ac: ['read'],
+            }),
           });
         },
         afterAddMember: async ({ organization, user }) => {

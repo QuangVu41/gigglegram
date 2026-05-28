@@ -1,4 +1,8 @@
-import { ENGAGEMENTS_SERVICE_GROUP_ID, FEED_SERVICE_GROUP_ID, REALTIME_SERVICE_GROUP_ID } from "@ts/src/kafka";
+import {
+  ENGAGEMENTS_SERVICE_GROUP_ID,
+  FEED_SERVICE_GROUP_ID,
+  REALTIME_SERVICE_GROUP_ID,
+} from "@ts/src/kafka";
 import * as postTopics from "@ts/src/kafka/posts/topics";
 import * as userTopics from "@ts/src/kafka/users/topics";
 import * as adminTopics from "@ts/src/kafka/admin/topics";
@@ -15,7 +19,10 @@ export const KAFKA_LAG_CONFIG = {
         userTopics.USERS_TOPIC_USER_UNFOLLOWED,
       ],
     },
-    { groupId: FEED_SERVICE_GROUP_ID, topics: [postTopics.POSTS_TOPIC_POST_CREATED] },
+    {
+      groupId: FEED_SERVICE_GROUP_ID,
+      topics: [postTopics.POSTS_TOPIC_POST_CREATED],
+    },
     {
       groupId: REALTIME_SERVICE_GROUP_ID,
       topics: [

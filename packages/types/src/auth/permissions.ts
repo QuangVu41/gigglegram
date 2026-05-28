@@ -5,6 +5,7 @@ import { defaultStatements as adminStatements, adminAc } from "better-auth/plugi
 const statements = {
   ...orgStatements,
   ...adminStatements,
+  statistic: ["read"],
   post: ["read", "create", "update", "delete"],
   setting: ["read", "update", "create", "delete"],
   story: ["read", "create", "delete"],
@@ -22,10 +23,11 @@ const owner = ac.newRole({
   highlight: statements.highlight as unknown as [(typeof statements.highlight)[number]],
   collection: statements.collection as unknown as [(typeof statements.collection)[number]],
   report: statements.report as unknown as [(typeof statements.report)[number]],
+  statistic: statements.statistic as unknown as [(typeof statements.statistic)[number]],
   ...adminAc.statements,
   ...ownerAc.statements,
 });
 
 type AcStatementsTypes = typeof ac.statements;
 
-export { ac, owner, type AcStatementsTypes };
+export { ac, owner, type AcStatementsTypes, statements };

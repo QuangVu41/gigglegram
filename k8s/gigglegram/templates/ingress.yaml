@@ -4,13 +4,13 @@ kind: Ingress
 metadata:
   name: gigglegram-ingress
   annotations:
-    kubernetes.io/ingress.global-static-ip-name: gigglegram
+    kubernetes.io/ingress.global-static-ip-name: gigglegram-prod
     kubernetes.io/ingress.class: "gce"
 spec:
   rules:
     - http:
         paths:
-          {{- range .Values.expose}}
+          {{- range .Values.expose }}
           - path: {{ .path }}
             pathType: ImplementationSpecific
             backend:

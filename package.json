@@ -3,16 +3,17 @@
   "private": true,
   "scripts": {
     "build": "turbo run build",
-    "dev": "turbo run dev --ui=tui --concurrency=11",
+    "dev": "turbo run dev --ui=tui --concurrency=13",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types",
     "generate:auth": "npx @better-auth/cli generate --config=./apps/auth/src/lib/auth.ts --output=./packages/database/src/drizzle/schemas/auth-schemas.ts",
     "only:fe": "turbo run dev --filter=web --filter=api-gateway --filter=auth --filter=users --filter=posts --filter=@repo/types --filter=@repo/database --filter=@repo/common",
-    "only:be": "turbo run dev --concurrency=11 --filter=api-gateway --filter=auth --filter=posts --filter=settings --filter=engagements --filter=feed --filter=real-time --filter=users --filter=@repo/types --filter=@repo/database --filter=@repo/common",
+    "only:be": "turbo run dev --concurrency=15 --filter=api-gateway --filter=auth --filter=posts --filter=settings --filter=engagements --filter=feed --filter=real-time --filter=users --filter=@repo/types --filter=@repo/database --filter=@repo/common",
     "only:auth": "turbo run dev --filter=auth --filter=@repo/types --filter=@repo/database --filter=@repo/common"
   },
   "devDependencies": {
+    "drizzle-orm": "^0.38.4",
     "prettier": "^3.6.2",
     "turbo": "^2.5.8",
     "typescript": "5.9.2"

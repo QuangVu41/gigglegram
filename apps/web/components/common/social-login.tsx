@@ -18,7 +18,9 @@ const SocialLogin = ({ isPending = false }: { isPending?: boolean }) => {
         disabled={isPending}
         variant="outline"
         type="button"
-        action={() => authClient.signIn.social({ provider: "google", callbackURL })}
+        action={() =>
+          authClient.signIn.social({ provider: "google", callbackURL })
+        }
       >
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
           <path

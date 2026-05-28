@@ -5,10 +5,11 @@ export const setSessionHeader = (
   req: IncomingMessage,
 ) => {
   if (req['user']) {
-    proxyReq.setHeader('gg-user', JSON.stringify(req['user']));
+    delete req['user']?.bio;
+    proxyReq.setHeader('gg-user', JSON.stringify(req['user'] || {}));
   }
 
   if (req['session']) {
-    proxyReq.setHeader('gg-session', JSON.stringify(req['session']));
+    proxyReq.setHeader('gg-session', JSON.stringify(req['session'] || {}));
   }
 };

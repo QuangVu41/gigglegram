@@ -1,0 +1,144 @@
+@startuml Gigglegram Component Diagram
+
+' Clean, professional UML theme matching the requested aesthetic
+skinparam BackgroundColor #FFFFFF
+skinparam Shadowing false
+skinparam DefaultFontName "Segoe UI"
+skinparam DefaultFontSize 11
+skinparam Linetype ortho
+skinparam Nodesep 12
+skinparam Ranksep 12
+
+' Component formatting
+skinparam component {
+    BackgroundColor #FFFFFF
+    BorderColor #404040
+    BorderThickness 1.5
+    ArrowColor #555555
+    ArrowThickness 1.2
+}
+
+' Package/Folder formatting
+skinparam package {
+    BackgroundColor #FAF6F0
+    BorderColor #A0A0A0
+    BorderThickness 1.2
+}
+
+' Interface (Lollipop & Socket) formatting
+skinparam interface {
+    BackgroundColor #FFFFFF
+    BorderColor #404040
+    BorderThickness 1.5
+}
+
+package "Client Layer" as ClientLayer {
+    [Web Application (Next.js)] as WebClient
+}
+
+package "Gateway Layer" as GatewayLayer {
+    [API Gateway (NestJS)] as APIGateway
+}
+
+package "Backend Services Layer" as BackendLayer {
+    [Auth Microservice] as AuthService
+    [Settings Microservice] as SettingsService
+    [Users Microservice] as UserService
+    [Posts Microservice] as PostService
+    [Engagements Microservice] as EngService
+    [Real-Time Microservice] as RealTimeService
+    [Feed Microservice] as FeedService
+
+    ' Align horizontally to make the layer compact and landscape-friendly
+    AuthService -right[hidden]- SettingsService
+    SettingsService -right[hidden]- UserService
+    UserService -right[hidden]- PostService
+    PostService -right[hidden]- EngService
+    EngService -right[hidden]- RealTimeService
+    RealTimeService -right[hidden]- FeedService
+}
+
+package "Infrastructure Layer" as InfraLayer {
+    [PostgreSQL (Drizzle)] as PostgreSQL
+    [Apache Kafka Broker] as Kafka
+    [Redis Cache] as Redis
+
+    ' Align horizontally
+    PostgreSQL -right[hidden]- Kafka
+    Kafka -right[hidden]- Redis
+}
+
+package "Cloud Services Layer (Google Cloud)" as CloudLayer {
+    [Google Cloud Storage (GCS)] as GCS
+    [Cloud Run Functions] as CloudFunctions
+    [Cloud Transcoder API] as TranscoderAPI
+
+    ' Align horizontally
+    GCS -right[hidden]- CloudFunctions
+    CloudFunctions -right[hidden]- TranscoderAPI
+}
+
+' Layout alignment to prevent packages/layers from overlapping
+ClientLayer -down- GatewayLayer
+GatewayLayer -down- BackendLayer
+ClientLayer -right- CloudLayer
+
+' Interfaces
+interface "HTTP API" as HTTP_API
+interface "WS Conn" as WS_API
+interface "gRPC Auth" as Auth_gRPC
+interface "gRPC Settings" as Settings_gRPC
+interface "HLS Playback" as HLS_Playback
+interface "SQL Conn" as SQL_DB
+interface "Kafka API" as Kafka_API
+interface "Redis API" as Redis_API
+
+' Client / Gateway connections
+WebClient -down-( HTTP_API
+HTTP_API -down- APIGateway
+
+WebClient -down-( WS_API
+WS_API -down- RealTimeService
+APIGateway -down-( WS_API
+
+' gRPC Connections
+AuthService -up- Auth_gRPC
+SettingsService -up- Settings_gRPC
+
+APIGateway -down-( Auth_gRPC
+UserService -up-( Auth_gRPC
+PostService -up-( Auth_gRPC
+RealTimeService -up-( Auth_gRPC
+
+APIGateway -down-( Settings_gRPC
+UserService -up-( Settings_gRPC
+PostService -up-( Settings_gRPC
+
+' Database Connections
+PostgreSQL -up- SQL_DB
+AuthService -down-( SQL_DB
+SettingsService -down-( SQL_DB
+UserService -down-( SQL_DB
+PostService -down-( SQL_DB
+EngService -down-( SQL_DB
+RealTimeService -down-( SQL_DB
+FeedService -down-( SQL_DB
+
+' Kafka Event Connections
+Kafka -up- Kafka_API
+UserService -down-( Kafka_API
+PostService -down-( Kafka_API
+EngService -down-( Kafka_API
+FeedService -down-( Kafka_API
+RealTimeService -down-( Kafka_API
+
+' Redis Connections
+Redis -up- Redis_API
+RealTimeService -down-( Redis_API
+FeedService -down-( Redis_API
+
+' Media storage and transcoding pipeline
+WebClient -right-( HLS_Playback
+HLS_Playback -right- GCS
+
+@enduml

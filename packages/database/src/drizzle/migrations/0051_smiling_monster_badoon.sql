@@ -1,0 +1,5 @@
+ALTER TABLE "notifications" DROP CONSTRAINT "notifications_one_ref_check";--> statement-breakpoint
+ALTER TABLE "notifications" ADD COLUMN "story_id" uuid;--> statement-breakpoint
+ALTER TABLE "notifications" ADD CONSTRAINT "notifications_story_id_stories_id_fk" FOREIGN KEY ("story_id") REFERENCES "public"."stories"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+CREATE INDEX "notifications_storyId_idx" ON "notifications" USING btree ("story_id");--> statement-breakpoint
+ALTER TABLE "notifications" ADD CONSTRAINT "notifications_one_ref_check" CHECK (("notifications"."post_id" IS NOT NULL) OR ("notifications"."post_user_tag_id" IS NOT NULL) OR ("notifications"."post_collab_id" IS NOT NULL) OR ("notifications"."comment_id" IS NOT NULL) OR ("notifications"."report_id" IS NOT NULL) OR ("notifications"."story_id" IS NOT NULL) OR ("notifications"."type" IN ('follow', 'follow_request', 'follow_accept')));

@@ -1,4 +1,4 @@
-import { Controller, Delete, Get, Param, Query } from '@nestjs/common';
+import { Controller, Delete, Get, Param, Patch, Query } from '@nestjs/common';
 import { NotificationsService } from '@/src/notifications/notifications.service';
 import {
   PostLikedEvent,
@@ -10,12 +10,16 @@ import {
   PostCollaboratorAcceptedEvent,
   POSTS_TOPIC_POST_COLLABORATOR_ACCEPTED,
   POSTS_TOPIC_POST_CREATED,
+  POSTS_TOPIC_POST_UPDATED,
   PostCreatedEvent,
+  PostUpdatedEvent,
   ReviewerAssignedEvent,
   POST_REPORTS_TOPIC_REVIEWER_ASSIGNED,
   POST_REPORTS_TOPIC_REPORT_UPDATED,
   ReportUpdatedEvent,
   FindManyQueryDto,
+  MediaViolationEvent,
+  NOTIFICATIONS_TOPIC_MEDIA_VIOLATION,
 } from '@repo/types';
 import { EventPattern } from '@nestjs/microservices';
 import { CurrentUser } from '@repo/common';
@@ -45,6 +49,11 @@ export class NotificationsController {
     return await this.notificationsService.handlePostCreated(data);
   }
 
+  @EventPattern(POSTS_TOPIC_POST_UPDATED)
+  async handlePostUpdated(data: PostUpdatedEvent) {
+    return await this.notificationsService.handlePostUpdated(data);
+  }
+
   @EventPattern(POSTS_TOPIC_POST_COLLABORATOR_ACCEPTED)
   async handlePostCollaboratorAccepted(data: PostCollaboratorAcceptedEvent) {
     return await this.notificationsService.handlePostCollaboratorAccepted(data);
@@ -60,6 +69,11 @@ export class NotificationsController {
     return await this.notificationsService.handleReportUpdated(data);
   }
 
+  @EventPattern(NOTIFICATIONS_TOPIC_MEDIA_VIOLATION)
+  async handleMediaViolation(data: MediaViolationEvent) {
+    return await this.notificationsService.handleMediaViolation(data);
+  }
+
   @Get()
   async findUserNotifications(
     @Query() findManyQueryDto: FindManyQueryDto,
@@ -71,7 +85,18 @@ export class NotificationsController {
     );
   }
 
-  @Delete('{:notificationId}')
+  @Patch('{:notificationId}/read')
+  async markNotificationAsRead(
+    @Param('notificationId') notificationId: string,
+    @CurrentUser() user: typeof users.$inferSelect,
+  ) {
+    return await this.notificationsService.markNotificationAsRead(
+      notificationId,
+      user,
+    );
+  }
+
+  @Delete(':notificationId')
   async deleteNotification(
     @Param('notificationId') notificationId: string,
     @CurrentUser() user: typeof users.$inferSelect,

@@ -14,8 +14,14 @@ interface CreatePostStore {
   collaborators: (typeof users.$inferSelect)[];
   setSelectedFileIndex: (index: number) => void;
   setSelectedFiles: (files: FileWithPreview[]) => void;
-  fetchLocations: (query: Partial<FindManyQueryDto> & Record<string, string | number | string[]>) => void;
-  fetchCollaborators: (query: Partial<FindManyQueryDto> & Record<string, string | number | string[]>) => void;
+  fetchLocations: (
+    query: Partial<FindManyQueryDto> &
+      Record<string, string | number | string[]>,
+  ) => void;
+  fetchCollaborators: (
+    query: Partial<FindManyQueryDto> &
+      Record<string, string | number | string[]>,
+  ) => void;
   clearLocations: () => void;
   clearCollaborators: () => void;
 }
@@ -24,7 +30,9 @@ interface CreatePostProviderProps {
   children: React.ReactNode;
 }
 
-const CreatePostContext = createContext<StoreApi<CreatePostStore> | undefined>(undefined);
+const CreatePostContext = createContext<StoreApi<CreatePostStore> | undefined>(
+  undefined,
+);
 
 const CreatePostProvider = ({ children }: CreatePostProviderProps) => {
   const [store] = useState(() =>
@@ -35,13 +43,20 @@ const CreatePostProvider = ({ children }: CreatePostProviderProps) => {
       locations: [],
       collaborators: [],
       setIsLoading: (isLoading: boolean) => set({ isLoading }),
-      setSelectedFileIndex: (index: number) => set({ selectedFileIndex: index }),
-      setSelectedFiles: (files: FileWithPreview[]) => set({ selectedFiles: files }),
-      fetchLocations: async (query: Partial<FindManyQueryDto> & Record<string, string | number | string[]>) => {
+      setSelectedFileIndex: (index: number) =>
+        set({ selectedFileIndex: index }),
+      setSelectedFiles: (files: FileWithPreview[]) =>
+        set({ selectedFiles: files }),
+      fetchLocations: async (
+        query: Partial<FindManyQueryDto> &
+          Record<string, string | number | string[]>,
+      ) => {
         set({ isLoading: true, locations: [] });
 
         try {
-          const res = await axiosGateway.get<FindManyResponse<typeof locations.$inferSelect>>(`/api/posts/locations`, {
+          const res = await axiosGateway.get<
+            FindManyResponse<typeof locations.$inferSelect>
+          >(`/api/posts/locations`, {
             params: query,
           });
           const data = res.data.data;
@@ -56,11 +71,16 @@ const CreatePostProvider = ({ children }: CreatePostProviderProps) => {
           set({ isLoading: false });
         }
       },
-      fetchCollaborators: async (query: Partial<FindManyQueryDto> & Record<string, string | number | string[]>) => {
+      fetchCollaborators: async (
+        query: Partial<FindManyQueryDto> &
+          Record<string, string | number | string[]>,
+      ) => {
         set({ isLoading: true, collaborators: [] });
 
         try {
-          const res = await axiosGateway.get<FindManyResponse<typeof users.$inferSelect>>(`/api/users`, {
+          const res = await axiosGateway.get<
+            FindManyResponse<typeof users.$inferSelect>
+          >(`/api/users`, {
             params: query,
           });
           const data = res.data.data;
@@ -80,13 +100,20 @@ const CreatePostProvider = ({ children }: CreatePostProviderProps) => {
     })),
   );
 
-  return <CreatePostContext.Provider value={store}>{children}</CreatePostContext.Provider>;
+  return (
+    <CreatePostContext.Provider value={store}>
+      {children}
+    </CreatePostContext.Provider>
+  );
 };
 
 export function useCreatePostStore<T>(selector: (state: CreatePostStore) => T) {
   const context = useContext(CreatePostContext);
 
-  if (!context) throw new Error("useCartItemsStore must be used within a CartItemsProvider");
+  if (!context)
+    throw new Error(
+      "useCartItemsStore must be used within a CartItemsProvider",
+    );
 
   return useStore(context, selector);
 }

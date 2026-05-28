@@ -2,7 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 import { extractFrames } from "@/lib/video-utils";
+import Image from "next/image";
 import { LoaderCircle } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 type Frame = {
   time: number;
@@ -28,6 +30,7 @@ export default function VideoFramePicker({
   frameCount?: number;
   onChange?: (time: number) => void;
 }) {
+  const t = useTranslations("Common");
   const [frames, setFrames] = useState<Frame[]>([]);
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
@@ -99,7 +102,10 @@ export default function VideoFramePicker({
           return;
         }
 
-        console.error("Failed to extract video frames", error);
+        console.error(
+          t("videoFramePicker.errors.failedToExtractFrames"),
+          error,
+        );
       } finally {
         if (!controller.signal.aborted) {
           setIsLoading(false);
@@ -112,7 +118,7 @@ export default function VideoFramePicker({
     return () => {
       controller.abort();
     };
-  }, [src, frameCount]);
+  }, [src, frameCount, t]);
 
   const handleSeek = (time: number) => {
     setCurrentTime(time);
@@ -165,9 +171,9 @@ export default function VideoFramePicker({
   };
 
   return (
-    <div className="max-w-93 space-y-4 rounded-lg bg-background">
-      <h3 className="text-xl font-semibold">Cover photo</h3>
-      <div className="relative overflow-hidden rounded-md border bg-muted/30 p-1">
+    <div className="w-full space-y-4 bg-background">
+      <h3 className="text-xl font-bold">{t("videoFramePicker.title")}</h3>
+      <div className="relative w-full">
         <div
           ref={containerRef}
           onMouseDown={onMouseDown}
@@ -177,37 +183,59 @@ export default function VideoFramePicker({
           onTouchStart={onTouchStart}
           onTouchMove={onTouchMove}
           onTouchEnd={onTouchEnd}
-          className="flex gap-1 overflow-x-auto select-none cursor-grab no-scrollbar scroll-smooth active:cursor-grabbing"
+          className="flex overflow-x-scroll select-none cursor-grab no-scrollbar scroll-smooth active:cursor-grabbing pl-1 py-4"
         >
           {isLoading
-            ? Array.from({ length: Math.max(frameCount, 8) }).map((_, i) => (
+            ? Array.from({ length: 6 }).map((_, i) => (
                 <div
                   key={i}
-                  className="h-16 w-20 flex shrink-0 items-center justify-center animate-pulse rounded-md border bg-muted"
+                  className={`h-24 w-18 flex shrink-0 items-center justify-center animate-pulse bg-muted border-r border-background/20 last:border-0 ${
+                    i === 0 ? "rounded-l-lg" : ""
+                  } ${i === 5 ? "rounded-r-lg" : ""}`}
                 >
-                  <LoaderCircle className="animate-spin" />
+                  <LoaderCircle className="animate-spin text-muted-foreground w-5 h-5" />
                 </div>
               ))
             : null}
 
-          {frames.map((frame, i) => (
-            <img
-              key={i}
-              src={frame.url}
-              draggable={false}
-              onClick={() => handleSeek(frame.time)}
-              alt={`Frame at ${toFrameLabel(frame.time)}`}
-              className={`h-16 w-20 shrink-0 rounded-md border-2 object-cover transition ${
-                Math.abs(frame.time - currentTime) < Math.max(duration / Math.max(frameCount, 1), 0.2)
-                  ? "border-primary"
-                  : "border-transparent opacity-80"
-              }`}
-            />
-          ))}
+          {frames.map((frame, i) => {
+            const isSelected =
+              Math.abs(frame.time - currentTime) <
+              Math.max(duration / Math.max(frameCount, 1), 0.2);
+            return (
+              <div
+                key={i}
+                onClick={() => handleSeek(frame.time)}
+                className={`relative shrink-0 cursor-pointer transition-transform duration-200 ${
+                  isSelected ? "z-10 scale-[1.1]" : "z-0 scale-100"
+                }`}
+              >
+                <Image
+                  src={frame.url}
+                  draggable={false}
+                  alt={t("videoFramePicker.frameAlt", {
+                    time: toFrameLabel(frame.time),
+                  })}
+                  width={72}
+                  height={96}
+                  unoptimized
+                  className={`h-24 w-18 object-cover pointer-events-none ${
+                    isSelected
+                      ? "rounded-xl border-[3px] border-white shadow-md shadow-black/20"
+                      : "rounded-none"
+                  } ${!isSelected && i === 0 ? "rounded-l-lg" : ""} ${
+                    !isSelected && i === frames.length - 1 ? "rounded-r-lg" : ""
+                  }`}
+                />
+              </div>
+            );
+          })}
         </div>
 
         {!isLoading && frames.length === 0 ? (
-          <div className="flex h-16 items-center justify-center text-xs text-muted-foreground">No frames available</div>
+          <div className="flex h-24 items-center justify-center text-xs text-muted-foreground">
+            {t("videoFramePicker.empty")}
+          </div>
         ) : null}
       </div>
     </div>

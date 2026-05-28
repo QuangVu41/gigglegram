@@ -8,15 +8,20 @@ interface CaptionRendererProps {
 
 export const CaptionRenderer = ({ html }: CaptionRendererProps) => {
   const processedContent = useMemo(() => {
+    if (typeof html !== "string") return null;
+
     // 1. Remove all contenteditable attributes saved by Quill
-    // This removes the "Case 2" conflict entirely
-    const strippedHtml = html.replace(/\s?contenteditable="[^"]*"/g, "");
+    // 2. Replace &nbsp; with regular spaces to allow wrapping
+    const strippedHtml = html
+      .replace(/\s?contenteditable="[^"]*"/g, "")
+      .replace(/&nbsp;/g, " ");
 
     const options: HTMLReactParserOptions = {
       replace: (domNode) => {
         if ((domNode as Element).attribs?.class?.includes("mention")) {
           const value = (domNode as Element).attribs["data-value"];
-          const char = (domNode as Element).attribs["data-denotation-char"] || "@";
+          const char =
+            (domNode as Element).attribs["data-denotation-char"] || "@";
 
           return (
             <Link
@@ -36,5 +41,9 @@ export const CaptionRenderer = ({ html }: CaptionRendererProps) => {
     return parse(strippedHtml, options);
   }, [html]);
 
-  return <div className="whitespace-pre-wrap break-words text-sm text-foreground">{processedContent}</div>;
+  return (
+    <div className="whitespace-pre-wrap break-words text-sm text-foreground">
+      {processedContent}
+    </div>
+  );
 };

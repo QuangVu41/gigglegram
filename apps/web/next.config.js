@@ -2,10 +2,45 @@
 import createNextIntlPlugin from "next-intl/plugin";
 
 const nextConfig = {
+  experimental: {
+    proxyClientMaxBodySize: "150mb",
+  },
   // reactCompiler: true,
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "storage.googleapis.com",
+      },
+      {
+        protocol: "https",
+        hostname: "api.dicebear.com",
+      },
+    ],
+  },
   cacheComponents: true,
   async rewrites() {
     return [
+      {
+        source: "/raw/:path*",
+        destination: `${process.env.GS_HOST}/input-video-st/:path*`,
+      },
+      {
+        source: "/images/messages/:path*",
+        destination: `${process.env.GS_HOST}/image-st/messages/:path*`,
+      },
+      {
+        source: "/video/messages/:path*",
+        destination: `${process.env.GS_HOST}/input-video-st/messages/:path*`,
+      },
+      {
+        source: "/images/stories/:path*",
+        destination: `${process.env.STATIC_IMAGE_ASSETS_URL}/:path*`,
+      },
+      {
+        source: "/video/stories/:path*",
+        destination: `${process.env.STATIC_VIDEO_ASSETS_URL}/:path*`,
+      },
       {
         source: "/video/:path*",
         destination: `${process.env.STATIC_VIDEO_ASSETS_URL}/:path*`,
@@ -13,6 +48,10 @@ const nextConfig = {
       {
         source: "/images/:path*",
         destination: `${process.env.STATIC_IMAGE_ASSETS_URL}/:path*`,
+      },
+      {
+        source: "/avatars/:path*",
+        destination: `${process.env.STATIC_IMAGE_ASSETS_URL}/avatars/:path*`,
       },
       {
         source: "/api/:path*",

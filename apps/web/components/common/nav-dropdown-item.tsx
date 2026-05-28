@@ -39,14 +39,24 @@ const NavDropdownItem = ({ navItem, children }: NavDropdownItemProps) => {
           sideOffset={4}
         >
           {navItem.dropdownItems?.map((item) => (
-            <DropdownMenuItem key={item.key} className="text-xl justify-between" onClick={() => handleItemClick(item)}>
+            <DropdownMenuItem
+              key={item.key}
+              className="text-xl justify-between"
+              onClick={() => handleItemClick(item)}
+            >
               {t(item.key)}
               <item.icon className="size-8! stroke-sidebar-accent-foreground" />
             </DropdownMenuItem>
           ))}
         </DropdownMenuContent>
       </DropdownMenu>
-      {selectedItem && <NavDialogPattern item={selectedItem} open={openDialog} setOpenChange={setOpenDialog} />}
+      {selectedItem && (
+        <NavDialogPattern
+          item={selectedItem}
+          open={openDialog}
+          setOpenChange={setOpenDialog}
+        />
+      )}
     </>
   );
 };

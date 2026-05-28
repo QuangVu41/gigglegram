@@ -13,9 +13,7 @@ import {
   SystemSettingsResponse,
 } from '@repo/types';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { eq } from 'drizzle-orm';
-import { like } from 'drizzle-orm';
-import { or } from 'drizzle-orm';
+import { and, eq, or, like, count, inArray } from 'drizzle-orm';
 import { SettingsRepository } from '@/src/settings.repository';
 import { CreateSettingDto } from '@/src/dto/create-setting.dto';
 import { UpdateSettingDto } from '@/src/dto/update-setting.dto';
@@ -96,25 +94,127 @@ export class SettingsService {
   }
 
   async findManySettings(findManySettingDto: FindManySettingsDto) {
-    const conditions: SQL[] = [];
+    const whereConditions: any[] = [];
 
-    if (findManySettingDto.key) {
-      conditions.push(eq(systemSettings.key, findManySettingDto.key));
-    }
     if (findManySettingDto.prefixes && findManySettingDto.prefixes.length > 0) {
-      conditions.push(
-        ...findManySettingDto.prefixes.map((prefix) =>
-          like(systemSettings.key, `${prefix}%`),
+      whereConditions.push(
+        or(
+          ...findManySettingDto.prefixes.map((prefix) =>
+            like(systemSettings.key, `${prefix}%`),
+          ),
         ),
       );
     }
 
+    if (findManySettingDto.key) {
+      whereConditions.push(eq(systemSettings.key, findManySettingDto.key));
+    }
+
+    if (findManySettingDto.keyword) {
+      whereConditions.push(
+        or(
+          like(systemSettings.key, `%${findManySettingDto.keyword}%`),
+          like(systemSettings.description, `%${findManySettingDto.keyword}%`),
+        ),
+      );
+    }
+
+    if (findManySettingDto.type && findManySettingDto.type !== 'all') {
+      whereConditions.push(
+        eq(
+          systemSettings.type,
+          findManySettingDto.type as (typeof systemSettingsTypeEnum.enumValues)[number],
+        ),
+      );
+    }
+
+    if (
+      findManySettingDto.isPublic !== undefined &&
+      findManySettingDto.isPublic !== 'all'
+    ) {
+      const isPublicBool =
+        findManySettingDto.isPublic === 'true' ||
+        findManySettingDto.isPublic === true;
+      whereConditions.push(eq(systemSettings.isPublic, isPublicBool));
+    }
+
+    const where =
+      whereConditions.length > 0 ? and(...whereConditions) : undefined;
+
     return await this.settingsRepository.findMany(
       {
-        where: conditions.length > 0 ? or(...conditions) : undefined,
+        where,
       },
       findManySettingDto,
     );
+  }
+
+  async getSettingsStats() {
+    const [totalRes, publicRes, privateRes, typesRes] = await Promise.all([
+      this.db
+        .select({ count: count() })
+        .from(systemSettings)
+        .then((res) => res[0]?.count ?? 0),
+      this.db
+        .select({ count: count() })
+        .from(systemSettings)
+        .where(eq(systemSettings.isPublic, true))
+        .then((res) => res[0]?.count ?? 0),
+      this.db
+        .select({ count: count() })
+        .from(systemSettings)
+        .where(eq(systemSettings.isPublic, false))
+        .then((res) => res[0]?.count ?? 0),
+      this.db
+        .select({
+          type: systemSettings.type,
+          count: count(),
+        })
+        .from(systemSettings)
+        .groupBy(systemSettings.type),
+    ]);
+
+    const typesMix = {
+      string: 0,
+      int: 0,
+      float: 0,
+      bool: 0,
+      json: 0,
+    };
+
+    typesRes.forEach((item) => {
+      if (item.type in typesMix) {
+        typesMix[item.type as keyof typeof typesMix] = Number(item.count);
+      }
+    });
+
+    return {
+      totalSettings: Number(totalRes),
+      publicSettings: Number(publicRes),
+      privateSettings: Number(privateRes),
+      typesMix,
+    };
+  }
+
+  async deleteManySettings(ids: string[]) {
+    if (!ids || ids.length === 0) return [];
+
+    const deletedSettings = await this.db
+      .delete(systemSettings)
+      .where(inArray(systemSettings.id, ids))
+      .returning();
+
+    deletedSettings.forEach((setting) => {
+      this.cache.forEach((_, key) => {
+        if (
+          key.includes(setting.key) ||
+          key.includes(setting.key.split('.')[0]!)
+        )
+          this.cache.delete(key);
+      });
+    });
+
+    return deletedSettings;
   }
 
   async updateSetting(settingId: string, updateSettingDto: UpdateSettingDto) {

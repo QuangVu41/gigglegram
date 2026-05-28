@@ -1,10 +1,14 @@
 import { OmitType } from '@nestjs/swagger';
 import { CreatePostDto } from '@/src/dto/create-post.dto';
-import { IsNumber, IsOptional, Min } from 'class-validator';
+import { IsBoolean, IsNumber, IsOptional, Min } from 'class-validator';
 
 export class UpdatePostDto extends OmitType(CreatePostDto, [
   'audioId',
 ] as const) {
+  @IsBoolean()
+  @IsOptional()
+  isArchived?: boolean;
+
   @IsNumber()
   @IsOptional()
   @Min(1)

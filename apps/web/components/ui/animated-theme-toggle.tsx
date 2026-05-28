@@ -11,9 +11,11 @@ export const AnimatedThemeToggle = ({
   className,
   iconClassName,
   ...props
-}: { className?: string; iconClassName?: string; children?: React.ReactNode } & VariantProps<
-  typeof buttonVariants
->) => {
+}: {
+  className?: string;
+  iconClassName?: string;
+  children?: React.ReactNode;
+} & VariantProps<typeof buttonVariants>) => {
   const { setTheme, resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
@@ -51,7 +53,13 @@ export const AnimatedThemeToggle = ({
   );
 };
 
-const SolarSwitch = ({ isDark, className }: { isDark: boolean; className?: string }) => {
+const SolarSwitch = ({
+  isDark,
+  className,
+}: {
+  isDark: boolean;
+  className?: string;
+}) => {
   const duration = 0.7;
 
   const moonVariants = {

@@ -8,7 +8,9 @@ interface AxiosInterceptorsProviderProps {
   children: React.ReactNode;
 }
 
-const AxiosInterceptorsProvider = ({ children }: AxiosInterceptorsProviderProps) => {
+const AxiosInterceptorsProvider = ({
+  children,
+}: AxiosInterceptorsProviderProps) => {
   const t = useTranslations("SystemWideErrorCodes");
 
   useEffect(() => {

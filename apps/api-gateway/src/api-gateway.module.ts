@@ -48,7 +48,9 @@ import { RealTimeProxyMiddleware } from '@/src/middlewares/real-time/real-time-p
 export class APIGatewayModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(BAAuthProxyMiddleware).forRoutes('/auth');
-    consumer.apply(AuthProxyMiddleware).forRoutes('/authentication');
+    consumer
+      .apply(AuthProtectMiddleware, AuthProxyMiddleware)
+      .forRoutes('/authentication');
     consumer
       .apply(AuthProtectMiddleware, PostsProxyMiddleware)
       .forRoutes('/posts');

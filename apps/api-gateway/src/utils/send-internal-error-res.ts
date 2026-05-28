@@ -5,6 +5,19 @@ export const sendInternalErrorRes = (
   res: ServerResponse<IncomingMessage>,
   error: Error,
 ) => {
+  if (res.headersSent) {
+    res.end(
+      JSON.stringify({
+        success: false,
+        code: SystemWideErrorCodes.INTERNAL_SERVER_ERROR,
+        message: SystemWideErrorMessages.INTERNAL_SERVER_ERROR,
+        description: error.message,
+        statusCode: 500,
+        stack: error.stack,
+      }),
+    );
+    return;
+  }
   res.writeHead(500, {
     'Content-Type': 'application/json',
   });

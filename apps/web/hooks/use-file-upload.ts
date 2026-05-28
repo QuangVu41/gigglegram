@@ -1,7 +1,14 @@
 "use client";
 
 import type React from "react";
-import { useCallback, useRef, useState, type ChangeEvent, type DragEvent, type InputHTMLAttributes } from "react";
+import {
+  useCallback,
+  useRef,
+  useState,
+  type ChangeEvent,
+  type DragEvent,
+  type InputHTMLAttributes,
+} from "react";
 
 export type FileMetadata = {
   name: string;
@@ -19,6 +26,7 @@ export type FileWithPreview = {
   editedPreview?: string;
   selectedFilter?: string;
   audioOmitted?: boolean;
+  hasAudio?: boolean;
   millisecondsToExtractThumbnail?: number;
 };
 
@@ -50,12 +58,16 @@ export type FileUploadActions = {
   handleDrop: (e: DragEvent<HTMLElement>) => void;
   handleFileChange: (e: ChangeEvent<HTMLInputElement>) => void;
   openFileDialog: () => void;
-  getInputProps: (props?: InputHTMLAttributes<HTMLInputElement>) => InputHTMLAttributes<HTMLInputElement> & {
+  getInputProps: (
+    props?: InputHTMLAttributes<HTMLInputElement>,
+  ) => InputHTMLAttributes<HTMLInputElement> & {
     ref: React.Ref<HTMLInputElement>;
   };
 };
 
-export const useFileUpload = (options: FileUploadOptions = {}): [FileUploadState, FileUploadActions] => {
+export const useFileUpload = (
+  options: FileUploadOptions = {},
+): [FileUploadState, FileUploadActions] => {
   const {
     maxFiles = Number.POSITIVE_INFINITY,
     maxSize = Number.POSITIVE_INFINITY,
@@ -117,12 +129,15 @@ export const useFileUpload = (options: FileUploadOptions = {}): [FileUploadState
     [accept, maxSize],
   );
 
-  const createPreview = useCallback((file: File | FileMetadata): string | undefined => {
-    if (file instanceof File) {
-      return URL.createObjectURL(file);
-    }
-    return file.url;
-  }, []);
+  const createPreview = useCallback(
+    (file: File | FileMetadata): string | undefined => {
+      if (file instanceof File) {
+        return URL.createObjectURL(file);
+      }
+      return file.url;
+    },
+    [],
+  );
 
   const generateUniqueId = useCallback((file: File | FileMetadata): string => {
     if (file instanceof File) {
@@ -135,7 +150,11 @@ export const useFileUpload = (options: FileUploadOptions = {}): [FileUploadState
     setState((prev) => {
       // Clean up object URLs
       for (const file of prev.files) {
-        if (file.preview && file.file instanceof File && file.file.type.startsWith("image/")) {
+        if (
+          file.preview &&
+          file.file instanceof File &&
+          file.file.type.startsWith("image/")
+        ) {
           URL.revokeObjectURL(file.preview);
         }
       }
@@ -171,7 +190,11 @@ export const useFileUpload = (options: FileUploadOptions = {}): [FileUploadState
       }
 
       // Check if adding these files would exceed maxFiles (only in multiple mode)
-      if (multiple && maxFiles !== Number.POSITIVE_INFINITY && state.files.length + newFilesArray.length > maxFiles) {
+      if (
+        multiple &&
+        maxFiles !== Number.POSITIVE_INFINITY &&
+        state.files.length + newFilesArray.length > maxFiles
+      ) {
         errors.push(`You can only upload a maximum of ${maxFiles} files.`);
         onError?.(errors);
         setState((prev) => ({ ...prev, errors }));
@@ -184,7 +207,9 @@ export const useFileUpload = (options: FileUploadOptions = {}): [FileUploadState
         // Only check for duplicates if multiple files are allowed
         if (multiple) {
           const isDuplicate = state.files.some(
-            (existingFile) => existingFile.file.name === file.name && existingFile.file.size === file.size,
+            (existingFile) =>
+              existingFile.file.name === file.name &&
+              existingFile.file.size === file.size,
           );
 
           // Skip duplicate files silently
@@ -221,7 +246,9 @@ export const useFileUpload = (options: FileUploadOptions = {}): [FileUploadState
         onFilesAdded?.(validFiles);
 
         setState((prev) => {
-          const newFiles = !multiple ? validFiles : [...prev.files, ...validFiles];
+          const newFiles = !multiple
+            ? validFiles
+            : [...prev.files, ...validFiles];
           onFilesChange?.(newFiles);
           return {
             ...prev,

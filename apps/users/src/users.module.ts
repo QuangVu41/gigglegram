@@ -4,6 +4,8 @@ import { UsersService } from '@/src/users.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { DatabaseModule } from '@repo/database';
 import { UsersRepository } from '@/src/users.repository';
+import { UserNotificationSettingsRepository } from '@/src/user-notification-settings.repository';
+import { UserPrivacySettingsRepository } from '@/src/user-privacy-settings.repository';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import {
   AUTH_PACKAGE_NAME,
@@ -80,6 +82,8 @@ import { APP_INTERCEPTOR } from '@nestjs/core';
   providers: [
     UsersService,
     UsersRepository,
+    UserNotificationSettingsRepository,
+    UserPrivacySettingsRepository,
     UsersSyncService,
 
     {

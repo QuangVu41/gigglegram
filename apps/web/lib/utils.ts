@@ -1,6 +1,13 @@
 import type { FindManyQueryDto } from "@repo/types/common";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import {
+  differenceInDays,
+  differenceInHours,
+  differenceInMinutes,
+  differenceInSeconds,
+  differenceInWeeks,
+} from "date-fns";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -66,4 +73,68 @@ export function convertToQueryParams(
   }
 
   return params.toString();
+}
+
+export function formatInstagramDate(
+  date: Date | string | number,
+  t: (key: string, values?: any) => string,
+): string {
+  const d = new Date(date);
+  const now = new Date();
+  if (isNaN(d.getTime())) return "";
+
+  const diffInSeconds = Math.max(0, differenceInSeconds(now, d));
+  if (diffInSeconds < 60) {
+    return t("now");
+  }
+
+  const diffInMinutes = Math.max(0, differenceInMinutes(now, d));
+  if (diffInMinutes < 60) {
+    return t("minutes", { count: diffInMinutes });
+  }
+
+  const diffInHours = Math.max(0, differenceInHours(now, d));
+  if (diffInHours < 24) {
+    return t("hours", { count: diffInHours });
+  }
+
+  const diffInDays = Math.max(0, differenceInDays(now, d));
+  if (diffInDays < 7) {
+    return t("days", { count: diffInDays });
+  }
+
+  const diffInWeeks = Math.max(0, differenceInWeeks(now, d));
+  return t("weeks", { count: diffInWeeks });
+}
+
+export function getMediaUrl(
+  filename: string | null | undefined,
+  context: "post" | "story",
+  mediaType?: string | null,
+): string {
+  if (!filename) return "/placeholder-image.png";
+
+  // If filename is already a full URL, return it as is
+  if (filename.startsWith("http://") || filename.startsWith("https://")) {
+    return filename;
+  }
+
+  // Check if mediaType indicates video (e.g., "video/mp4")
+  const isVideo = mediaType?.startsWith("video/");
+
+  const basePrefix = isVideo ? "/video" : "/images";
+  const contextPrefix = context === "story" ? "/stories" : "";
+
+  // Make sure we don't double slash if filename already has a leading slash
+  const cleanFilename = filename.startsWith("/") ? filename.slice(1) : filename;
+
+  return `${basePrefix}${contextPrefix}/${cleanFilename}`;
+}
+export function formatCompactNumber(number: number): string {
+  if (number < 1000) return number.toString();
+
+  return new Intl.NumberFormat("en-US", {
+    notation: "compact",
+    maximumFractionDigits: 1,
+  }).format(number);
 }

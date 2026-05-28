@@ -39,9 +39,17 @@ export interface SettingValue {
 export const SYSTEM_SETTINGS_PACKAGE_NAME = "systemSettings";
 
 export interface SystemSettingsServiceClient {
-  findSettingByKey(request: SettingKey, metadata: Metadata, ...rest: any): Observable<SettingValue>;
+  findSettingByKey(
+    request: SettingKey,
+    metadata: Metadata,
+    ...rest: any
+  ): Observable<SettingValue>;
 
-  findSettingsByPrefix(request: SettingPrefix, metadata: Metadata, ...rest: any): Observable<SystemSettingsResponse>;
+  findSettingsByPrefix(
+    request: SettingPrefix,
+    metadata: Metadata,
+    ...rest: any
+  ): Observable<SystemSettingsResponse>;
 }
 
 export interface SystemSettingsServiceController {
@@ -55,20 +63,37 @@ export interface SystemSettingsServiceController {
     request: SettingPrefix,
     metadata: Metadata,
     ...rest: any
-  ): Promise<SystemSettingsResponse> | Observable<SystemSettingsResponse> | SystemSettingsResponse;
+  ):
+    | Promise<SystemSettingsResponse>
+    | Observable<SystemSettingsResponse>
+    | SystemSettingsResponse;
 }
 
 export function SystemSettingsServiceControllerMethods() {
   return function (constructor: Function) {
     const grpcMethods: string[] = ["findSettingByKey", "findSettingsByPrefix"];
     for (const method of grpcMethods) {
-      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
-      GrpcMethod("SystemSettingsService", method)(constructor.prototype[method], method, descriptor);
+      const descriptor: any = Reflect.getOwnPropertyDescriptor(
+        constructor.prototype,
+        method,
+      );
+      GrpcMethod("SystemSettingsService", method)(
+        constructor.prototype[method],
+        method,
+        descriptor,
+      );
     }
     const grpcStreamMethods: string[] = [];
     for (const method of grpcStreamMethods) {
-      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
-      GrpcStreamMethod("SystemSettingsService", method)(constructor.prototype[method], method, descriptor);
+      const descriptor: any = Reflect.getOwnPropertyDescriptor(
+        constructor.prototype,
+        method,
+      );
+      GrpcStreamMethod("SystemSettingsService", method)(
+        constructor.prototype[method],
+        method,
+        descriptor,
+      );
     }
   };
 }

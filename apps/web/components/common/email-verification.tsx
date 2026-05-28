@@ -21,13 +21,18 @@ const EmailVerification = ({
   className?: string;
   email: string;
 }) => {
-  const { countdown, startCountdown } = useCountdownDisable();
+  const { countdown, startCountdown } = useCountdownDisable(15, true);
   const t = useTranslations("EmailVerification");
   const searchParams = useSearchParams();
   const callbackURL = searchParams.get("callbackURL") || DEFAULT_LOGIN_REDIRECT;
 
   return (
-    <div className={cn(`flex flex-col items-center justify-center p-6 md:p-8`, className)}>
+    <div
+      className={cn(
+        `flex flex-col items-center justify-center p-6 md:p-8`,
+        className,
+      )}
+    >
       <FieldGroup>
         <Field className="items-center text-center">
           <h1 className="text-2xl font-bold">{t("heading")}</h1>
@@ -42,13 +47,15 @@ const EmailVerification = ({
                   onSuccess: () => {
                     startCountdown(15);
                   },
-                }
+                },
               );
             }}
             successMessage="Verification email sent!"
             disabled={countdown > 0}
           >
-            {countdown > 0 ? `${t("resendButton")} (${countdown})` : t("resendButton")}
+            {countdown > 0
+              ? `${t("resendButton")} (${countdown})`
+              : t("resendButton")}
           </BAActionButton>
           <Button variant="outline" type="button" onClick={handleGoBack}>
             {backLabel}

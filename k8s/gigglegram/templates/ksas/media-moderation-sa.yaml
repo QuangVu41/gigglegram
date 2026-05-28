@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: media-moderation-sa
+  namespace: default
+  annotations:
+    # Links the Kubernetes Service Account directly to the Google Cloud Service Account
+    iam.gke.io/gcp-service-account: sa-media-moderation@gigglegram-491420.iam.gserviceaccount.com

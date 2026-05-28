@@ -7,7 +7,8 @@ export const metadata: Metadata = {
     default: "Gigglegram",
     template: "%s • Gigglegram",
   },
-  description: "Create an account or log in to Gigglegram - Share what you're into with the people who get you.",
+  description:
+    "Create an account or log in to Gigglegram - Share what you're into with the people who get you.",
 };
 
 const RootLayout = ({

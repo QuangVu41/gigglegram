@@ -1,13 +1,21 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { LoadingSwap } from "@/components/ui/loading-swap";
 import { useHandleBAAction } from "@/hooks/use-handle-ba-action";
 import { authClient } from "@/lib/auth/auth-client";
 import { cn } from "@/lib/utils";
-import { createPasswordResetSchema, PasswordResetSchemaType } from "@/schemas/auth";
+import {
+  createPasswordResetSchema,
+  PasswordResetSchemaType,
+} from "@/schemas/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -48,8 +56,8 @@ const PasswordResetForm = ({ className }: { className?: string }) => {
               toast.success(t("successMessage"));
               router.push("/accounts/login");
             },
-          }
-        )
+          },
+        ),
       );
   };
 
@@ -57,13 +65,18 @@ const PasswordResetForm = ({ className }: { className?: string }) => {
 
   return (
     <form
-      className={cn(`flex flex-col items-center justify-center p-6 md:p-8`, className)}
+      className={cn(
+        `flex flex-col items-center justify-center p-6 md:p-8`,
+        className,
+      )}
       onSubmit={form.handleSubmit(handleSubmit)}
     >
       <FieldGroup>
         <Field className="items-center text-center">
           <h1 className="text-2xl font-bold">{t("heading")}</h1>
-          <p className="text-muted-foreground text-sm text-balance">{t("description")}</p>
+          <p className="text-muted-foreground text-sm text-balance">
+            {t("description")}
+          </p>
         </Field>
         <Controller
           name="password"
@@ -81,14 +94,21 @@ const PasswordResetForm = ({ className }: { className?: string }) => {
                 placeholder={t("passwordPlaceholder")}
                 disabled={isSubmitting}
               />
-              {fieldState.invalid && <FieldError className="text-center" errors={[fieldState.error]} />}
+              {fieldState.invalid && (
+                <FieldError
+                  className="text-center"
+                  errors={[fieldState.error]}
+                />
+              )}
             </Field>
           )}
         />
 
         <Field>
           <Button type="submit" disabled={isSubmitting}>
-            <LoadingSwap isLoading={isSubmitting}>{t("resetButton")}</LoadingSwap>
+            <LoadingSwap isLoading={isSubmitting}>
+              {t("resetButton")}
+            </LoadingSwap>
           </Button>
         </Field>
       </FieldGroup>

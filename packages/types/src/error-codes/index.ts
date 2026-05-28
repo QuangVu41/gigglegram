@@ -30,6 +30,7 @@ export enum SystemWideErrorCodes {
 
   // REPORT ERROR CODES
   CANNOT_REPORT_OWN_POST = "CANNOT_REPORT_OWN_POST",
+  CANNOT_REPORT_OWN_STORY = "CANNOT_REPORT_OWN_STORY",
 
   // UPLOAD ERROR CODES
   UPLOAD_FILE_FAILED = "UPLOAD_FILE_FAILED",
@@ -46,10 +47,12 @@ export enum SystemWideErrorCodes {
 
 export const SystemWideErrorMessages = {
   // GENERAL CLIENT ERROR MESSAGES
-  [SystemWideErrorCodes.GENERAL_CLIENT_ERROR]: "Some client errors occurred. Check the description for details.",
+  [SystemWideErrorCodes.GENERAL_CLIENT_ERROR]:
+    "Some client errors occurred. Check the description for details.",
 
   // GENERAL ERROR MESSAGES
-  [SystemWideErrorCodes.INTERNAL_SERVER_ERROR]: "Internal server error.",
+  [SystemWideErrorCodes.INTERNAL_SERVER_ERROR]:
+    "Something went wrong. Please try again later.",
 
   // AUTH ERROR MESSAGES
   [SystemWideErrorCodes.AUTH_UNAUTHORIZED]: "Unauthorized.",
@@ -69,12 +72,16 @@ export const SystemWideErrorMessages = {
   [SystemWideErrorCodes.UNFOLLOW_SELF]: "You cannot unfollow yourself.",
 
   // REPORT ERROR MESSAGES
-  [SystemWideErrorCodes.CANNOT_REPORT_OWN_POST]: "You cannot report your own post.",
+  [SystemWideErrorCodes.CANNOT_REPORT_OWN_POST]:
+    "You cannot report your own post.",
+  [SystemWideErrorCodes.CANNOT_REPORT_OWN_STORY]:
+    "You cannot report your own story.",
 
   // UPLOAD ERROR MESSAGES
   [SystemWideErrorCodes.UPLOAD_FILE_FAILED]: "Failed to upload file.",
   [SystemWideErrorCodes.UPLOAD_UNSUPPORTED_FILE_TYPE]: `The current file type is not supported. Supported types are: ${process.env.DEFAULT_FILE_TYPE_REGEX}.`,
-  [SystemWideErrorCodes.UPLOAD_PROCESSING_FILE_FAILED]: "Failed to process file.",
+  [SystemWideErrorCodes.UPLOAD_PROCESSING_FILE_FAILED]:
+    "Failed to process file.",
   [SystemWideErrorCodes.UPLOAD_POST_VIDEOS_TOO_LONG_IN_DURATION]: `One or more videos were too long to be uploaded.`,
   [SystemWideErrorCodes.UPLOAD_MAX_FILE_SIZE_EXCEEDED]: (...args) =>
     `Current file size is ${args[0]} bytes, which exceeds the maximum allowed size of ${args[1]} bytes.`,
@@ -83,4 +90,7 @@ export const SystemWideErrorMessages = {
   [SystemWideErrorCodes.UPLOAD_STORY_VIDEO_DURATION_EXCEEDED]: `One or more videos exceed the maximum allowed duration of ${process.env.DEFAULT_STORY_MAX_VIDEO_DURATION} seconds for stories.`,
   [SystemWideErrorCodes.UPLOAD_POST_MAX_MULTI_VIDEOS_DURATION]: `If any videos are longer than ${process.env.DEFAULT_POST_MAX_MULTI_VIDEOS_DURATION} seconds, you can only post one video at a time.`,
   [SystemWideErrorCodes.UPLOAD_VIDEO_DURATION_TOO_SHORT]: `The video is too short to be uploaded. The minimum duration is ${process.env.DEFAULT_LEAST_VIDEO_DURATION} seconds.`,
-} satisfies Record<SystemWideErrorCodes, string | (<T>(...args: T[]) => string)>;
+} satisfies Record<
+  SystemWideErrorCodes,
+  string | (<T>(...args: T[]) => string)
+>;

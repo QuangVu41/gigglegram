@@ -1,7 +1,13 @@
 "use client";
 
 import { AnimatePresence, motion, useInView } from "framer-motion";
-import { type HTMLAttributes, useCallback, useEffect, useRef, useState } from "react";
+import {
+  type HTMLAttributes,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 
 interface ShutterTextProps extends HTMLAttributes<HTMLDivElement> {
   text?: string;
@@ -72,9 +78,15 @@ export default function ShutterText({
     >
       <AnimatePresence mode="wait">
         {animating ? (
-          <motion.span key={count} className="flex flex-wrap items-center justify-center">
+          <motion.span
+            key={count}
+            className="flex flex-wrap items-center justify-center"
+          >
             {characters.map((char, i) => (
-              <span key={i} className="relative inline-block overflow-hidden px-[0.1vw]">
+              <span
+                key={i}
+                className="relative inline-block overflow-hidden px-[0.1vw]"
+              >
                 {/* Main Character */}
                 <motion.span
                   initial={{ opacity: 0, filter: "blur(10px)" }}
@@ -139,7 +151,10 @@ export default function ShutterText({
         ) : (
           <span className="flex flex-wrap items-center justify-center">
             {characters.map((char, i) => (
-              <span key={i} className="relative inline-block overflow-hidden px-[0.1vw]">
+              <span
+                key={i}
+                className="relative inline-block overflow-hidden px-[0.1vw]"
+              >
                 <span className="inline-block font-bold antialiased font-dancing-script text-tertiary leading-none dark:text-tertiary">
                   {char === " " ? "\u00A0" : char}
                 </span>

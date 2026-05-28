@@ -18,8 +18,10 @@ import {
   followers,
   followersStatusEnum,
   messages,
+  messageMedia,
   messagesTypeEnum,
   schema,
+  userPrivacySettings,
   userPrivacySettingsWhoCanMessageEnum,
   users,
 } from '@repo/database';
@@ -37,9 +39,9 @@ import { CreateGroupChatDto } from '@/src/conversations/dto/create-group-chat.dt
 import { sql } from 'drizzle-orm';
 import { desc } from 'drizzle-orm';
 import { ne } from 'drizzle-orm';
-import { alias } from 'drizzle-orm/pg-core';
 import { asc } from 'drizzle-orm';
 import { AddGroupMembersDto } from '@/src/conversations/dto/add-group-members.dto';
+import { UploadService } from '@repo/common';
 
 @Injectable()
 export class ConversationsService {
@@ -50,6 +52,7 @@ export class ConversationsService {
     @Inject(DATABASE_CONNECTION)
     private readonly db: NodePgDatabase<typeof schema>,
     private readonly eventsGateWay: EventsGateway,
+    private readonly uploadService: UploadService,
   ) {}
 
   async findConversationMessages(
@@ -62,6 +65,7 @@ export class ConversationsService {
       where: and(
         eq(conversationParticipants.conversationId, conversationId),
         eq(conversationParticipants.userId, user.id),
+        eq(conversationParticipants.isDeleted, false),
       ),
     });
 
@@ -72,40 +76,30 @@ export class ConversationsService {
       });
     }
 
-    const replyMsg = alias(messages, 'replyMsg');
-
-    const userMessages = await this.db
-      .select({
-        id: messages.id,
-        content: messages.content,
-        type: messages.type,
-        mediaUrl: messages.mediaUrl,
-        isDeleted: messages.isDeleted,
-        createdAt: messages.createdAt,
-        replyToMessageId: messages.replyToMessageId,
-
-        // Sender info
+    const userMessages = await this.db.query.messages.findMany({
+      where: eq(messages.conversationId, conversationId),
+      with: {
         sender: {
-          id: users.id,
-          username: users.username,
-          name: users.name,
-          image: users.image,
+          columns: {
+            id: true,
+            username: true,
+            name: true,
+            image: true,
+          },
         },
-
-        // Reply info
         replyToMessage: {
-          id: replyMsg.id,
-          content: replyMsg.content,
-          messageType: replyMsg.type,
+          columns: {
+            id: true,
+            content: true,
+            type: true,
+          },
         },
-      })
-      .from(messages)
-      .leftJoin(users, eq(messages.senderId, users.id))
-      .leftJoin(replyMsg, eq(messages.replyToMessageId, replyMsg.id))
-      .where(eq(messages.conversationId, conversationId))
-      .orderBy(asc(messages.createdAt))
-      .limit(findManyQueryDto.limit)
-      .offset((findManyQueryDto.page - 1) * findManyQueryDto.limit);
+        media: true,
+      },
+      orderBy: desc(messages.createdAt),
+      limit: findManyQueryDto.limit,
+      offset: (findManyQueryDto.page - 1) * findManyQueryDto.limit,
+    });
 
     await this.db
       .update(conversationParticipants)
@@ -133,7 +127,7 @@ export class ConversationsService {
         lastMessageAt: conversations.lastMessageAt,
 
         lastReadAt: conversationParticipants.lastReadAt,
-        notificationsEnnaled: conversationParticipants.notificationsEnabled,
+        notificationsEnabled: conversationParticipants.notificationsEnabled,
 
         lastMessage: {
           id: messages.id,
@@ -161,48 +155,60 @@ export class ConversationsService {
           ),
         ),
       )
-      .where(eq(conversationParticipants.userId, user.id))
+      .where(
+        and(
+          eq(conversationParticipants.userId, user.id),
+          eq(conversationParticipants.isDeleted, false),
+        ),
+      )
       .orderBy(desc(conversations.lastMessageAt))
       .limit(findManyQueryDto.limit)
       .offset((findManyQueryDto.page - 1) * findManyQueryDto.limit);
 
     const enriched = await Promise.all(
       userConversations.map(async (conv) => {
-        if (conv.type === conversationsTypeEnum.enumValues[0]) {
-          const [otherParticipant] = await this.db
-            .select({
-              id: users.id,
-              username: users.username,
-              name: users.name,
-              image: users.image,
-              lastActiveAt: users.lastActiveAt,
-            })
-            .from(conversationParticipants)
-            .innerJoin(users, eq(conversationParticipants.userId, users.id))
-            .where(
-              and(
-                eq(conversationParticipants.conversationId, conv.id),
-                ne(conversationParticipants.userId, user.id),
-              ),
-            );
-
-          return {
-            ...conv,
-            otherParticipant,
-            displayName: otherParticipant?.name,
-            displayImage: otherParticipant?.image,
-          };
-        }
-
-        return {
-          ...conv,
-          displayName: conv.name,
-          displayImage: conv.imageUrl,
-        };
+        return this.enrichConversation(conv, user.id);
       }),
     );
 
     return enriched;
+  }
+
+  private async enrichConversation(conv: any, userId: string) {
+    const participants = await this.db
+      .select({
+        id: users.id,
+        username: users.username,
+        name: users.name,
+        image: users.image,
+        lastActiveAt: users.lastActiveAt,
+        isAdmin: conversationParticipants.isAdmin,
+        hideActivityStatus: sql<boolean>`COALESCE(${userPrivacySettings.hideActivityStatus}, false)`,
+      })
+      .from(conversationParticipants)
+      .innerJoin(users, eq(conversationParticipants.userId, users.id))
+      .leftJoin(userPrivacySettings, eq(users.id, userPrivacySettings.userId))
+      .where(eq(conversationParticipants.conversationId, conv.id));
+
+    if (conv.type === conversationsTypeEnum.enumValues[0]) {
+      const otherParticipant = participants.find((p) => p.id !== userId);
+
+      return {
+        ...conv,
+        participants,
+        otherParticipant: otherParticipant || null,
+        displayName:
+          otherParticipant?.name || otherParticipant?.username || 'User',
+        displayImage: otherParticipant?.image || '',
+      };
+    }
+
+    return {
+      ...conv,
+      participants,
+      displayName: conv.name,
+      displayImage: conv.imageUrl,
+    };
   }
 
   async addGroupMembers(
@@ -353,46 +359,90 @@ export class ConversationsService {
     return result;
   }
 
-  async leaveGroupChat(
+  async deleteConversation(
     conversationId: string,
     user: typeof users.$inferSelect,
   ) {
-    const exisitngConv = await this.conversationsRepository.findFirst({
+    const existingConv = await this.conversationsRepository.findFirst({
       where: eq(conversations.id, conversationId),
     });
 
-    if (!exisitngConv)
+    if (!existingConv)
       throw new NotFoundException({
         code: SystemWideErrorCodes.NOT_FOUND,
         description: 'Conversation not found.',
       });
 
     const result = await this.db.transaction(async (tx) => {
-      if (exisitngConv.type === conversationsTypeEnum.enumValues[1]) {
-        //group chat
-        const [result] = await tx
-          .delete(conversationParticipants)
-          .where(
-            and(
-              eq(conversationParticipants.conversationId, conversationId),
-              eq(conversationParticipants.userId, user.id),
-            ),
-          )
+      // Soft delete for the current user
+      const [result] = await tx
+        .update(conversationParticipants)
+        .set({ isDeleted: true })
+        .where(
+          and(
+            eq(conversationParticipants.conversationId, conversationId),
+            eq(conversationParticipants.userId, user.id),
+          ),
+        )
+        .returning();
+
+      // Check remaining participants who haven't deleted the conversation
+      const remainingParticipants = await tx
+        .select()
+        .from(conversationParticipants)
+        .where(
+          and(
+            eq(conversationParticipants.conversationId, conversationId),
+            eq(conversationParticipants.isDeleted, false),
+          ),
+        );
+
+      if (remainingParticipants.length === 0) {
+        // Hard delete if no one is left
+        return tx
+          .delete(conversations)
+          .where(eq(conversations.id, conversationId))
+          .returning();
+      }
+
+      if (existingConv.type === conversationsTypeEnum.enumValues[1]) {
+        // Group chat specific: add system message
+        const newMessage = await tx
+          .insert(messages)
+          .values({
+            conversationId: conversationId,
+            senderId: user.id,
+            content: `${user.name} left the group.`,
+            type: messagesTypeEnum.enumValues[4], // system
+            createdAt: new Date(),
+          })
           .returning();
 
-        const newMessage = await tx.insert(messages).values({
-          conversationId: conversationId,
-          senderId: user.id,
-          content: `${user.name} left the group.`,
-          type: messagesTypeEnum.enumValues[4], // system
-        });
+        const messageId = newMessage?.[0]?.id;
+        if (messageId) {
+          const enrichedMessage = await tx.query.messages.findFirst({
+            where: eq(messages.id, messageId),
+            with: {
+              sender: {
+                columns: {
+                  id: true,
+                  username: true,
+                  name: true,
+                  image: true,
+                },
+              },
+            },
+          });
 
-        this.eventsGateWay.server
-          .to(`conversation-${conversationId}`)
-          .emit(NEW_MESSAGE_EVENT, newMessage);
-
-        return result;
+          if (enrichedMessage) {
+            this.eventsGateWay.server
+              .to(`conversation-${conversationId}`)
+              .emit(NEW_MESSAGE_EVENT, enrichedMessage);
+          }
+        }
       }
+
+      return result;
     });
 
     return result;
@@ -453,6 +503,7 @@ export class ConversationsService {
   async sendMessage(
     sendMessageDto: SendMessageDto,
     user: typeof users.$inferSelect,
+    media?: Express.Multer.File[],
   ) {
     const receiverUser = await this.db.query.users.findFirst({
       where: eq(users.id, sendMessageDto.receiverId),
@@ -494,16 +545,49 @@ export class ConversationsService {
       sendMessageDto.receiverId,
     );
 
-    const [message] = await this.db
-      .insert(messages)
-      .values({
-        conversationId: conversation.id,
-        senderId: user.id,
-        content: sendMessageDto.content,
-        type: sendMessageDto.type,
-        replyToMessageId: sendMessageDto.replyToMessageId,
-      })
-      .returning();
+    const message = await this.db.transaction(async (tx) => {
+      const [message] = await tx
+        .insert(messages)
+        .values({
+          conversationId: conversation.id,
+          senderId: user.id,
+          content: sendMessageDto.content,
+          type: sendMessageDto.type,
+          replyToMessageId: sendMessageDto.replyToMessageId,
+        })
+        .returning();
+
+      if (!message) {
+        throw new InternalServerErrorException({
+          code: SystemWideErrorCodes.CREATION_FAILED,
+          description: 'Failed to create message.',
+        });
+      }
+
+      if (media && media.length > 0) {
+        const mediaPromises = media.map(async (file, index) => {
+          const isVideo = file.mimetype.startsWith('video/');
+          const uploadResult = await this.uploadService.uploadFile(
+            file,
+            'messages',
+            {
+              transcodingOmitted: 'true',
+            },
+          );
+          return tx.insert(messageMedia).values({
+            messageId: message.id,
+            mediaUrl: isVideo
+              ? uploadResult.originalRawFileUrl
+              : uploadResult.mediaUrl,
+            mediaType: file.mimetype,
+            displayOrder: index,
+          });
+        });
+        await Promise.all(mediaPromises);
+      }
+
+      return message;
+    });
 
     const [_, receiverParticipant] = await Promise.all([
       this.db
@@ -530,29 +614,55 @@ export class ConversationsService {
       }),
     ]);
 
-    if (
-      receiverParticipant &&
-      receiverParticipant.user.userNotificationSetting?.messagesNotifications
-    )
-      if (receiverParticipant.notificationsEnabled)
-        this.eventsGateWay.server
-          .to(`user-${sendMessageDto.receiverId}`)
-          .emit(NEW_MESSAGE_EVENT, message);
+    const enrichedMessage = await this.db.query.messages.findFirst({
+      where: eq(messages.id, message.id),
+      with: {
+        media: true,
+        sender: {
+          columns: {
+            id: true,
+            username: true,
+            name: true,
+            image: true,
+          },
+        },
+      },
+    });
+
+    const targetRooms = [`conversation-${conversation.id}`];
+
+    if (receiverParticipant) {
+      targetRooms.push(`user-${sendMessageDto.receiverId}`);
+    }
 
     this.eventsGateWay.server
-      .to(`conversation-${conversation.id}`)
-      .emit(NEW_MESSAGE_EVENT, message);
+      .to(targetRooms)
+      .emit(NEW_MESSAGE_EVENT, enrichedMessage);
 
-    return message;
+    return enrichedMessage;
   }
 
-  async muteConversation(
+  async toggleMuteConversation(
     conversationId: string,
     user: typeof users.$inferSelect,
   ) {
+    const participant = await this.db.query.conversationParticipants.findFirst({
+      where: and(
+        eq(conversationParticipants.conversationId, conversationId),
+        eq(conversationParticipants.userId, user.id),
+      ),
+    });
+
+    if (!participant) {
+      throw new NotFoundException({
+        code: SystemWideErrorCodes.NOT_FOUND,
+        description: 'Not a participant of this conversation',
+      });
+    }
+
     const result = await this.db
       .update(conversationParticipants)
-      .set({ notificationsEnabled: false })
+      .set({ notificationsEnabled: !participant.notificationsEnabled })
       .where(
         and(
           eq(conversationParticipants.conversationId, conversationId),
@@ -595,42 +705,71 @@ export class ConversationsService {
   }
 
   public async getOrCreateConversation(user1Id: string, user2Id: string) {
-    // Util function
-    const existingConversation = await this.conversationsRepository.findMany({
-      where: eq(conversations.type, conversationsTypeEnum.enumValues[0]),
-      with: {
-        participants: {
-          where: or(
+    // Find conversation ID where both users are participants and it's a direct chat
+    const existingConv = await this.db
+      .select({
+        id: conversationParticipants.conversationId,
+      })
+      .from(conversationParticipants)
+      .innerJoin(
+        conversations,
+        eq(conversationParticipants.conversationId, conversations.id),
+      )
+      .where(
+        and(
+          eq(conversations.type, conversationsTypeEnum.enumValues[0]),
+          or(
             eq(conversationParticipants.userId, user1Id),
             eq(conversationParticipants.userId, user2Id),
           ),
-        },
-      },
-    });
+        ),
+      )
+      .groupBy(conversationParticipants.conversationId)
+      .having(sql`count(${conversationParticipants.userId}) = 2`)
+      .limit(1);
 
-    if (
-      existingConversation.length === 1 &&
-      existingConversation[0]?.participants.length === 2
-    ) {
-      return existingConversation[0];
+    let conversation: any;
+
+    const firstConv = existingConv[0];
+    if (firstConv) {
+      conversation = await this.conversationsRepository.findFirst({
+        where: eq(conversations.id, firstConv.id),
+        with: {
+          participants: true,
+        },
+      });
+
+      // Reset isDeleted if either user had deleted it
+      await this.db
+        .update(conversationParticipants)
+        .set({ isDeleted: false })
+        .where(eq(conversationParticipants.conversationId, conversation.id));
+    } else {
+      const createdConversation = await this.conversationsRepository.create({
+        type: conversationsTypeEnum.enumValues[0],
+        lastMessageAt: new Date(),
+      });
+
+      await this.db.insert(conversationParticipants).values([
+        {
+          conversationId: createdConversation.id,
+          userId: user1Id,
+        },
+        {
+          conversationId: createdConversation.id,
+          userId: user2Id,
+        },
+      ]);
+
+      conversation = await this.conversationsRepository.findFirst({
+        where: eq(conversations.id, createdConversation.id),
+        with: {
+          participants: true,
+        },
+      });
     }
 
-    const createdConversation = await this.conversationsRepository.create({
-      type: conversationsTypeEnum.enumValues[0],
-      lastMessageAt: new Date(),
-    });
-
-    await db.insert(conversationParticipants).values([
-      {
-        conversationId: createdConversation.id,
-        userId: user1Id,
-      },
-      {
-        conversationId: createdConversation.id,
-        userId: user2Id,
-      },
-    ]);
-
-    return createdConversation;
+    // Enrich it
+    return this.enrichConversation(conversation, user1Id);
   }
 }

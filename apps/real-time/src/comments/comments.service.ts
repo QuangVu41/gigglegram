@@ -32,6 +32,7 @@ import { eq, and, desc, isNull, sql } from 'drizzle-orm';
 import { CreateCommentDto } from '@/src/comments/dto/create-comment.dto';
 import { NotificationsRepository } from '@/src/notifications/notifications.repository';
 import { UpdateCommentDto } from '@/src/comments/dto/update-comment.dto';
+import { asc } from 'drizzle-orm';
 
 @Injectable()
 export class CommentsService {
@@ -53,11 +54,22 @@ export class CommentsService {
   ) {
     const { postId, parentCommentId, content } = createCommentDto;
 
+    let effectiveParentId = parentCommentId;
+
+    if (parentCommentId) {
+      const parent = await this.db.query.comments.findFirst({
+        where: eq(comments.id, parentCommentId),
+      });
+      if (parent?.parentCommentId) {
+        effectiveParentId = parent.parentCommentId;
+      }
+    }
+
     const [newComment] = await this.db
       .insert(comments)
       .values({
         postId,
-        parentCommentId,
+        parentCommentId: effectiveParentId,
         userId: user.id,
         content,
       })
@@ -77,12 +89,12 @@ export class CommentsService {
       })
       .where(eq(posts.id, postId));
 
-    if (parentCommentId) {
-      // Increment parent comment replies count
+    if (effectiveParentId) {
+      // Increment top-level parent comment replies count
       await this.db
         .update(comments)
         .set({ repliesCount: sql`${comments.repliesCount} + 1` })
-        .where(eq(comments.id, parentCommentId));
+        .where(eq(comments.id, effectiveParentId));
     }
 
     const fullComment = await this.db.query.comments.findFirst({
@@ -102,37 +114,22 @@ export class CommentsService {
             user: true,
           },
         },
+        parentComment: {
+          with: {
+            user: true,
+          },
+        },
       },
     });
 
     if (fullComment) {
-      const newNotification = await this.notificationsRepository.create({
-        userId: fullComment.post.user.id,
-        actorId: user.id,
-        type: notificationsTypeEnum.enumValues[1], // comment
-        commentId: fullComment.id,
-        content: 'commented:',
-      });
-
-      const createdNotification = await this.notificationsRepository.findFirst({
-        where: eq(notifications.id, newNotification.id),
-        with: {
-          actor: true,
-          comment: true,
-        },
-      });
-
-      this.eventsGateWay.server
-        .to(`user-${fullComment.post.user.id}`)
-        .emit(NEW_NOTIFICATION_EVENT, createdNotification);
-
-      if (fullComment.parentCommentId) {
+      if (fullComment.post.userId !== user.id) {
         const newNotification = await this.notificationsRepository.create({
-          userId: fullComment.parentCommentId,
+          userId: fullComment.post.userId,
           actorId: user.id,
-          type: notificationsTypeEnum.enumValues[7], // comment_reply
+          type: notificationsTypeEnum.enumValues[1], // comment
           commentId: fullComment.id,
-          content: 'replied to your comment:',
+          content: 'commented:',
         });
 
         const createdNotification =
@@ -145,8 +142,33 @@ export class CommentsService {
           });
 
         this.eventsGateWay.server
-          .to(`user-${fullComment.parentCommentId}`)
+          .to(`user-${fullComment.post.user.id}`)
           .emit(NEW_NOTIFICATION_EVENT, createdNotification);
+      }
+
+      if (fullComment.parentCommentId && fullComment.parentComment) {
+        if (fullComment.parentComment.userId !== user.id) {
+          const newNotification = await this.notificationsRepository.create({
+            userId: fullComment.parentComment.userId,
+            actorId: user.id,
+            type: notificationsTypeEnum.enumValues[7], // comment_reply
+            commentId: fullComment.id,
+            content: 'replied to your comment:',
+          });
+
+          const createdNotification =
+            await this.notificationsRepository.findFirst({
+              where: eq(notifications.id, newNotification.id),
+              with: {
+                actor: true,
+                comment: true,
+              },
+            });
+
+          this.eventsGateWay.server
+            .to(`user-${fullComment.parentComment.userId}`)
+            .emit(NEW_NOTIFICATION_EVENT, createdNotification);
+        }
       }
 
       // Broadcast comment creation via WebSocket
@@ -174,7 +196,6 @@ export class CommentsService {
           },
         },
         likes: true,
-        replies: true,
       },
       orderBy: desc(comments.createdAt),
       limit: findManyQueryDto.limit,
@@ -216,7 +237,7 @@ export class CommentsService {
         },
         likes: true,
       },
-      orderBy: desc(comments.createdAt),
+      orderBy: asc(comments.createdAt),
       limit: findManyQueryDto.limit,
       offset: (findManyQueryDto.page - 1) * findManyQueryDto.limit,
     });
@@ -320,10 +341,15 @@ export class CommentsService {
       });
     }
 
-    if (existingComment.userId !== user.id) {
+    const post = await this.db.query.posts.findFirst({
+      where: eq(posts.id, existingComment.postId),
+    });
+
+    if (existingComment.userId !== user.id && post?.userId !== user.id) {
       throw new BadRequestException({
         code: SystemWideErrorCodes.BAD_REQUEST,
-        description: 'You can only delete your own comments.',
+        description:
+          'You can only delete your own comments or comments on your posts.',
       });
     }
 
@@ -381,7 +407,7 @@ export class CommentsService {
     }
 
     // Check if already liked
-    const existingLike = await this.commentLikesRepository.findFirst({
+    const existingLike = await this.db.query.commentLikes.findFirst({
       where: and(
         eq(commentLikes.commentId, commentId),
         eq(commentLikes.userId, user.id),
@@ -439,7 +465,7 @@ export class CommentsService {
       });
     }
 
-    const existingLike = await this.commentLikesRepository.findFirst({
+    const existingLike = await this.db.query.commentLikes.findFirst({
       where: and(
         eq(commentLikes.commentId, commentId),
         eq(commentLikes.userId, user.id),
@@ -475,5 +501,31 @@ export class CommentsService {
       .emit(COMMENT_UNLIKED_EVENT, like);
 
     return like;
+  }
+
+  /**
+   * Get comments made by a user (paginated)
+   */
+  async findManyUserComments(
+    user: typeof users.$inferSelect,
+    findManyQueryDto: FindManyQueryDto,
+  ) {
+    const userComments = await this.db.query.comments.findMany({
+      where: eq(comments.userId, user.id),
+      with: {
+        post: {
+          with: {
+            postMedia: true,
+            user: true,
+          },
+        },
+        likes: true,
+      },
+      orderBy: desc(comments.createdAt),
+      limit: findManyQueryDto.limit,
+      offset: (findManyQueryDto.page - 1) * findManyQueryDto.limit,
+    });
+
+    return userComments;
   }
 }

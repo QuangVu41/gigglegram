@@ -1405,7 +1405,7 @@
 
 /* 5. Match the Placeholder to shadcn muted-foreground */
 .ql-editor.ql-blank::before {
-  @apply text-muted-foreground font-normal not-italic left-3 opacity-100;
+  @apply text-muted-foreground! font-normal! not-italic! left-3 opacity-100;
 }
 
 /* 6. Hide the toolbar entirely if you don't need it */

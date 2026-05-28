@@ -15,7 +15,11 @@ import { cn } from "@/lib/utils";
 import { SkeletonSearch } from "@/components/common/skeleton-search";
 import { useTranslations } from "next-intl";
 import { useDebouncedCallback } from "use-debounce";
-import { isUserSearchItem, SearchItemData, useSearchStore } from "@/hooks/use-search-store";
+import {
+  isUserSearchItem,
+  SearchItemData,
+  useSearchStore,
+} from "@/hooks/use-search-store";
 import SearchItem from "@/components/common/search-item";
 import { useRouter } from "next/navigation";
 
@@ -84,13 +88,20 @@ export function SearchCommand({ children, className }: SearchCommandProps) {
           },
         })
       ) : (
-        <Button variant="outline" className="w-full justify-start" onClick={() => setOpen(true)}>
+        <Button
+          variant="outline"
+          className="w-full justify-start"
+          onClick={() => setOpen(true)}
+        >
           {t("search")}
         </Button>
       )}
       <CommandDialog open={open} onOpenChange={setOpen}>
         <Command loop shouldFilter={false}>
-          <CommandInput placeholder={t("search")} onValueChange={onValueChange} />
+          <CommandInput
+            placeholder={t("search")}
+            onValueChange={onValueChange}
+          />
           <CommandList>
             {isLoading ? (
               <CommandGroup>
@@ -108,8 +119,13 @@ export function SearchCommand({ children, className }: SearchCommandProps) {
                     {data.map((item) => (
                       <CommandItem
                         key={`${isUserSearchItem(item) ? "user" : "hashtag"}:${item.id}`}
-                        value={isUserSearchItem(item) ? item.username : `#${item.name}`}
+                        value={
+                          isUserSearchItem(item)
+                            ? item.username
+                            : `#${item.name}`
+                        }
                         onSelect={() => onSelect(item)}
+                        className="group"
                       >
                         <SearchItem item={item} />
                       </CommandItem>
@@ -121,8 +137,13 @@ export function SearchCommand({ children, className }: SearchCommandProps) {
                     {recentSearches.map((item) => (
                       <CommandItem
                         key={`${isUserSearchItem(item) ? "user" : "hashtag"}:${item.id}`}
-                        value={isUserSearchItem(item) ? item.username : `#${item.name}`}
+                        value={
+                          isUserSearchItem(item)
+                            ? item.username
+                            : `#${item.name}`
+                        }
                         onSelect={() => onRecentSelect(item)}
+                        className="group"
                       >
                         <SearchItem item={item} />
                       </CommandItem>

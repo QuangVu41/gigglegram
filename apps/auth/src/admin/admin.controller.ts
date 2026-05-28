@@ -12,8 +12,8 @@ export class AdminController {
   }
 
   @Get('stats/total-users')
-  async getTotalUsersStats() {
-    return await this.adminService.getTotalUsersStats();
+  async getTotalUsersStats(@Query() dateRangeQueryDto: DateRangeQueryDto) {
+    return await this.adminService.getTotalUsersStats(dateRangeQueryDto);
   }
 
   @Get('stats/new-signups')
@@ -52,8 +52,8 @@ export class AdminController {
   }
 
   @Get('stats/content-activity/popular-content')
-  async getPopularContentStats() {
-    return await this.adminService.getPopularContentStats();
+  async getPopularContentStats(@Query() dateRangeQueryDto: DateRangeQueryDto) {
+    return await this.adminService.getPopularContentStats(dateRangeQueryDto);
   }
 
   @Get('stats/storage-usage')

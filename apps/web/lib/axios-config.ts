@@ -3,7 +3,7 @@ import { SystemWideHttpExceptionResponse } from "@repo/types";
 import { toast } from "sonner";
 import { _Translator } from "next-intl";
 
-export interface FindOneResponse<T> {
+export interface OkResponse<T> {
   data: T;
   success: boolean;
 }
@@ -26,7 +26,9 @@ export const axiosGateway = axios.create();
 
 let responseInterceptorId: number | null = null;
 
-export const setupAxiosInterceptors = (t: _Translator<Record<string, any>, "SystemWideErrorCodes">) => {
+export const setupAxiosInterceptors = (
+  t: _Translator<Record<string, any>, "SystemWideErrorCodes">,
+) => {
   if (responseInterceptorId !== null) {
     axiosGateway.interceptors.response.eject(responseInterceptorId);
   }
@@ -37,31 +39,64 @@ export const setupAxiosInterceptors = (t: _Translator<Record<string, any>, "Syst
     },
     (error: AxiosError<SystemWideHttpExceptionResponse>) => {
       if (error.config?.validateStatus?.(error.response?.status || 500)) return;
-
       if (error.response) {
-        const data = error.response.data;
-        const code = data.code;
-        let message = t(code);
+        const data = error.response.data as SystemWideHttpExceptionResponse;
+        const code = data?.code;
+
+        // Ensure we have a valid code to translate, otherwise fallback to internal error
+        let message = "";
 
         if (code === "UPLOAD_UNSUPPORTED_FILE_TYPE") {
-          message = t(code, { supportedTypes: process.env.DEFAULT_FILE_TYPE_REGEX! });
-        } else if (code === "UPLOAD_MAX_FILE_SIZE_EXCEEDED") {
           message = t(code, {
-            currentSize: data.message?.split(" ")[4] || "unknown",
+            supportedTypes: process.env.DEFAULT_FILE_TYPE_REGEX!,
+          });
+        } else if (code === "UPLOAD_MAX_FILE_SIZE_EXCEEDED") {
+          const sizeString =
+            typeof data.message === "string"
+              ? data.message.split(" ")[4]
+              : "unknown";
+          message = t(code, {
+            currentSize: sizeString || "unknown",
             imageSize: process.env.DEFAULT_IMAGE_SIZE_IN_BYTES!,
             videoSize: process.env.DEFAULT_VIDEO_SIZE_IN_BYTES!,
           });
         } else if (code === "UPLOAD_VIDEO_DURATION_TOO_SHORT") {
-          message = t(code, { minVideoDuration: process.env.DEFAULT_LEAST_VIDEO_DURATION! });
+          message = t(code, {
+            minVideoDuration: process.env.DEFAULT_LEAST_VIDEO_DURATION!,
+          });
         } else if (code === "UPLOAD_POST_VIDEO_DURATION_EXCEEDED") {
-          message = t(code, { maxPostDuration: process.env.DEFAULT_POST_MAX_VIDEO_DURATION! });
+          message = t(code, {
+            maxPostDuration: process.env.DEFAULT_POST_MAX_VIDEO_DURATION!,
+          });
         } else if (code === "UPLOAD_REEL_VIDEO_DURATION_EXCEEDED") {
-          message = t(code, { maxReelDuration: process.env.DEFAULT_REEL_MAX_VIDEO_DURATION! });
+          message = t(code, {
+            maxReelDuration: process.env.DEFAULT_REEL_MAX_VIDEO_DURATION!,
+          });
         } else if (code === "UPLOAD_STORY_VIDEO_DURATION_EXCEEDED") {
-          message = t(code, { maxStoryDuration: process.env.DEFAULT_STORY_MAX_VIDEO_DURATION! });
+          message = t(code, {
+            maxStoryDuration: process.env.DEFAULT_STORY_MAX_VIDEO_DURATION!,
+          });
         } else if (code === "UPLOAD_POST_MAX_MULTI_VIDEOS_DURATION") {
-          message = t(code, { maxMultiVideoDuration: process.env.DEFAULT_POST_MAX_MULTI_VIDEOS_DURATION! });
+          message = t(code, {
+            maxMultiVideoDuration:
+              process.env.DEFAULT_POST_MAX_MULTI_VIDEOS_DURATION!,
+          });
+        } else if (code) {
+          try {
+            message = t(code);
+          } catch (e) {
+            // If translation fails (e.g. missing variables), fallback to a generic error or the raw message
+            message = data?.message || t("INTERNAL_SERVER_ERROR");
+          }
+        } else {
+          message = t("INTERNAL_SERVER_ERROR");
         }
+
+        // Final sanity check for message content
+        if (message === "SystemWideErrorCodes") {
+          message = t("INTERNAL_SERVER_ERROR");
+        }
+
         toast.error(message);
       }
 

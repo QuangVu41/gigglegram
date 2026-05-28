@@ -1,5 +1,16 @@
-import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
-import { InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot } from "@/components/ui/input-otp";
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from "@/components/ui/field";
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSeparator,
+  InputOTPSlot,
+} from "@/components/ui/input-otp";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
@@ -36,13 +47,18 @@ const OTPForm = ({
 
   return (
     <form
-      className={cn(`flex flex-col items-center justify-center p-6 md:p-8`, className)}
+      className={cn(
+        `flex flex-col items-center justify-center p-6 md:p-8`,
+        className,
+      )}
       onSubmit={form.handleSubmit(handleSubmit)}
     >
       <FieldGroup>
         <Field className="items-center text-center">
           <h1 className="text-2xl font-bold">{t("heading")}</h1>
-          <p className="text-muted-foreground text-sm text-balance">{t("description")}</p>
+          <p className="text-muted-foreground text-sm text-balance">
+            {t("description")}
+          </p>
         </Field>
         <Controller
           name="otp"
@@ -71,8 +87,15 @@ const OTPForm = ({
                   <InputOTPSlot index={5} />
                 </InputOTPGroup>
               </InputOTP>
-              {fieldState.invalid && <FieldError className="text-center" errors={[fieldState.error]} />}
-              <FieldDescription className="text-center">{t("fieldDescription")}</FieldDescription>
+              {fieldState.invalid && (
+                <FieldError
+                  className="text-center"
+                  errors={[fieldState.error]}
+                />
+              )}
+              <FieldDescription className="text-center">
+                {t("fieldDescription")}
+              </FieldDescription>
             </Field>
           )}
         />

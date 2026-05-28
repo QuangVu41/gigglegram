@@ -21,12 +21,18 @@ import {
   PostSavedEvent,
   PostUnsavedEvent,
   PostUpdatedEvent,
+  PostViewedEvent,
 } from '@repo/types';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { eq } from 'drizzle-orm';
-import { inArray } from 'drizzle-orm';
-import { and } from 'drizzle-orm';
-import { UploadService } from '@repo/common';
+import { and, eq, inArray, sql } from 'drizzle-orm';
+import { ModerationService, UploadService } from '@repo/common';
+import { ClientKafka, KafkaContext } from '@nestjs/microservices';
+import {
+  KAFKA_SERVICE_NAME,
+  MediaViolationEvent,
+  NOTIFICATIONS_TOPIC_MEDIA_VIOLATION,
+} from '@repo/types';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class PostEngsService {
@@ -35,17 +41,30 @@ export class PostEngsService {
   constructor(
     @Inject(DATABASE_CONNECTION)
     private readonly db: NodePgDatabase<typeof schema>,
+    @Inject(KAFKA_SERVICE_NAME)
+    private readonly kafkaClient: ClientKafka,
     private readonly uploadService: UploadService,
+    private readonly moderationService: ModerationService,
+    private readonly configService: ConfigService,
   ) {}
 
-  async handlePostCreated(data: PostCreatedEvent) {
+  async handlePostCreated(data: PostCreatedEvent, context: KafkaContext) {
     try {
+      const heartbeat = context.getHeartbeat();
       const createdPost = await this.db.query.posts.findFirst({
         where: eq(posts.id, data.postId),
         with: {
           user: {
             with: {
               following: true,
+            },
+          },
+          postMedia: {
+            columns: {
+              id: true,
+              mediaUrl: true,
+              mediaType: true,
+              originalRawFileUrl: true,
             },
           },
           postHashtags: {
@@ -96,6 +115,53 @@ export class PostEngsService {
       if (!createdPost)
         return this.logger.warn(`Post with ID ${data.postId} not found.`);
 
+      if (createdPost.postMedia.length) {
+        for (const media of createdPost.postMedia) {
+          let res: { isSafe: boolean; reason?: string };
+
+          if (media.mediaType.startsWith('image/')) {
+            const safetyRes = await this.moderationService.checkImageSafety(
+              media.originalRawFileUrl,
+              this.configService.getOrThrow('GOOGLE_IMAGES_BUCKET_NAME'),
+            );
+            res = {
+              isSafe: safetyRes.isSafe,
+              reason: safetyRes.isSafe
+                ? undefined
+                : 'Potential unsafe image content detected',
+            };
+          } else {
+            res = await this.moderationService.checkVideoSafety(
+              media.originalRawFileUrl,
+              this.configService.getOrThrow('GOOGLE_INPUT_VIDEO_BUCKET_NAME'),
+            );
+          }
+
+          this.logger.log(
+            `Moderation result for ${media.id}: ${JSON.stringify(res)}`,
+          );
+
+          if (!res.isSafe) {
+            await this.db
+              .update(postMedia)
+              .set({
+                moderationStatus: 'flagged',
+                moderationReason: res.reason || 'Safety violation detected',
+              })
+              .where(eq(postMedia.id, media.id));
+
+            this.kafkaClient.emit(NOTIFICATIONS_TOPIC_MEDIA_VIOLATION, {
+              postId: data.postId,
+              mediaId: media.id,
+              userId: createdPost.userId,
+              reason: res.reason || 'Safety violation detected',
+            } as MediaViolationEvent);
+          }
+        }
+      }
+
+      await heartbeat();
+
       deletingPostCollaboratorsIds = createdPost.postCollaborators
         .filter(
           (pc) =>
@@ -126,24 +192,24 @@ export class PostEngsService {
           await Promise.all([
             tx
               .update(users)
-              .set({ postsCount: createdPost.user.postsCount + 1 })
+              .set({ postsCount: sql`${users.postsCount} + 1` })
               .where(eq(users.id, createdPost.userId)),
             ...createdPost.postHashtags.map(async ({ hashtag }) => {
               await tx
                 .update(hashtags)
-                .set({ postsCount: hashtag.postsCount + 1 })
+                .set({ postsCount: sql`${hashtags.postsCount} + 1` })
                 .where(eq(hashtags.id, hashtag.id));
             }),
             createdPost.audioId && createdPost.audioTrack
               ? tx
                   .update(audioTracks)
-                  .set({ usageCount: createdPost.audioTrack.usageCount + 1 })
+                  .set({ usageCount: sql`${audioTracks.usageCount} + 1` })
                   .where(eq(audioTracks.id, createdPost.audioTrack.id))
               : Promise.resolve(),
             createdPost.locationId && createdPost.location
               ? tx
                   .update(locations)
-                  .set({ postsCount: createdPost.location.postsCount + 1 })
+                  .set({ postsCount: sql`${locations.postsCount} + 1` })
                   .where(eq(schema.locations.id, createdPost.location.id))
               : Promise.resolve(),
             ...deletingPostCollaboratorsIds.map(async (postCollaboratorId) => {
@@ -277,14 +343,14 @@ export class PostEngsService {
             ...newHashtags.map(async (hashtag) => {
               await tx
                 .update(hashtags)
-                .set({ postsCount: hashtag.postsCount + 1 })
+                .set({ postsCount: sql`${hashtags.postsCount} + 1` })
                 .where(eq(hashtags.id, hashtag.id));
             }),
             ...deletingPostHashtags.map(async (postHashtag) => {
               await tx
                 .update(hashtags)
                 .set({
-                  postsCount: Math.max(0, postHashtag.hashtag.postsCount - 1),
+                  postsCount: sql`GREATEST(0, ${hashtags.postsCount} - 1)`,
                 })
                 .where(eq(hashtags.id, postHashtag.hashtagId));
               await tx
@@ -368,13 +434,13 @@ export class PostEngsService {
             updatingUser &&
               tx
                 .update(users)
-                .set({ postsCount: Math.max(0, updatingUser.postsCount - 1) })
+                .set({ postsCount: sql`GREATEST(0, ${users.postsCount} - 1)` })
                 .where(eq(users.id, data.userId)),
             ...existingHashtags.map(async (hashtag) => {
               await tx
                 .update(hashtags)
                 .set({
-                  postsCount: Math.max(0, hashtag.postsCount - 1),
+                  postsCount: sql`GREATEST(0, ${hashtags.postsCount} - 1)`,
                 })
                 .where(eq(hashtags.id, hashtag.id));
             }),
@@ -382,16 +448,22 @@ export class PostEngsService {
               tx
                 .update(locations)
                 .set({
-                  postsCount: Math.max(0, existingLocation.postsCount - 1),
+                  postsCount: sql`GREATEST(0, ${locations.postsCount} - 1)`,
                 })
                 .where(eq(locations.id, existingLocation.id)),
             existingAudio &&
-              tx
-                .update(audioTracks)
-                .set({
-                  usageCount: Math.max(0, existingAudio.usageCount - 1),
-                })
-                .where(eq(audioTracks.id, existingAudio.id)),
+              (existingAudio.uploaderId === data.userId
+                ? (async () => {
+                    await tx
+                      .delete(audioTracks)
+                      .where(eq(audioTracks.id, existingAudio.id));
+                  })()
+                : tx
+                    .update(audioTracks)
+                    .set({
+                      usageCount: sql`GREATEST(0, ${audioTracks.usageCount} - 1)`,
+                    })
+                    .where(eq(audioTracks.id, existingAudio.id))),
             ...data.postMediaData.map(async (media) => {
               await this.uploadService.deleteFile(
                 media.originalRawFileUrl,
@@ -401,7 +473,9 @@ export class PostEngsService {
             ...existingCollections.map(async (collec) => {
               await tx
                 .update(savedCollections)
-                .set({ postsCount: Math.max(0, collec.postsCount - 1) })
+                .set({
+                  postsCount: sql`GREATEST(0, ${savedCollections.postsCount} - 1)`,
+                })
                 .where(eq(savedCollections.id, collec.id));
             }),
           ]);
@@ -433,7 +507,7 @@ export class PostEngsService {
 
       await this.db
         .update(posts)
-        .set({ savesCount: savedPost.savesCount + 1 })
+        .set({ savesCount: sql`${posts.savesCount} + 1` })
         .where(eq(posts.id, data.postId));
     } catch (error) {
       this.logger.error('Error handling post saved event.', error);
@@ -452,11 +526,35 @@ export class PostEngsService {
 
       await this.db
         .update(posts)
-        .set({ savesCount: Math.max(0, unsavedPost.savesCount - 1) })
+        .set({ savesCount: sql`GREATEST(0, ${posts.savesCount} - 1)` })
         .where(eq(posts.id, data.postId));
     } catch (error) {
       this.logger.error('Error handling post unsaved event.', error);
       throw error;
     }
+  }
+  async handlePostViewed(data: PostViewedEvent) {
+    const post = await this.db.query.posts.findFirst({
+      where: eq(posts.id, data.postId),
+      columns: {
+        userId: true,
+      },
+    });
+
+    if (!post) {
+      this.logger.warn(`Post with ID ${data.postId} not found.`);
+      return;
+    }
+
+    if (post.userId === data.userId) {
+      return;
+    }
+
+    await this.db
+      .update(posts)
+      .set({
+        viewsCount: sql`${posts.viewsCount} + 1`,
+      })
+      .where(eq(posts.id, data.postId));
   }
 }

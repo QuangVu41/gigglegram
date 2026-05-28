@@ -19,6 +19,8 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { FindManyQueryDto } from '@repo/types';
 import { UpdateUserFollowStatusDto } from '@/src/dto/update-user-follow-status.dto';
 import { FollowUserDto } from '@/src/dto/follow-user.dto';
+import { UpdateUserNotificationSettingsDto } from '@/src/dto/update-user-notification-settings.dto';
+import { UpdateUserPrivacySettingsDto } from '@/src/dto/update-user-privacy-settings.dto';
 
 @Controller()
 export class UsersController {
@@ -29,9 +31,22 @@ export class UsersController {
     return await this.usersService.findManyUsers(findManyUsersDto);
   }
 
-  @Get('username/{:username}')
-  async findUserByUsername(@Param('username') username: string) {
+  @Get('by/{:username}')
+  async findUserByUsername(
+    @Param('username') username: string,
+    @CurrentUser() user: typeof users.$inferSelect,
+  ) {
     return await this.usersService.findUserByUsername(username);
+  }
+
+  @Get('username/{:username}')
+  async findUserByUsernameOnly(@Param('username') username: string) {
+    return await this.usersService.findUserByUsernameOnly(username);
+  }
+
+  @Get('email/{:email}')
+  async findUserByEmail(@Param('email') email: string) {
+    return await this.usersService.findUserByEmail(email);
   }
 
   @Get('follow-requests')
@@ -62,14 +77,25 @@ export class UsersController {
   }
 
   @Post('upload-photo')
-  @UseInterceptors(FilesValidatorInterceptor)
+  @UseInterceptors(
+    FilesValidatorInterceptor.setOptions({ fileIsRequired: true }),
+  )
   @UseInterceptors(FileInterceptor('media'))
   async uploadPhoto(
-    @UploadedFile('media') media: Express.Multer.File,
+    @UploadedFile() media: Express.Multer.File,
     @CurrentUser() user: typeof users.$inferSelect,
     @Req() req: Request,
   ) {
     return await this.usersService.uploadPhoto(media, user, req);
+  }
+
+  @Post('admin/upload-photo')
+  @UseInterceptors(
+    FilesValidatorInterceptor.setOptions({ fileIsRequired: true }),
+  )
+  @UseInterceptors(FileInterceptor('media'))
+  async adminUploadPhoto(@UploadedFile() media: Express.Multer.File) {
+    return await this.usersService.adminUploadPhoto(media);
   }
 
   @Get('suggested-following')
@@ -94,8 +120,31 @@ export class UsersController {
     );
   }
 
+  @Get('notification-settings')
+  async findUserNotificationSettings(
+    @CurrentUser() user: typeof users.$inferSelect,
+  ) {
+    return await this.usersService.findUserNotificationSettings(user.id);
+  }
+
   @Get('{:userId}')
   async findUserById(@Param('userId') userId: string) {
     return await this.usersService.findUserById(userId);
+  }
+
+  @Patch('notification-settings')
+  async updateUserNotificationSettings(
+    @Body() dto: UpdateUserNotificationSettingsDto,
+    @CurrentUser() user: typeof users.$inferSelect,
+  ) {
+    return await this.usersService.updateUserNotificationSettings(user.id, dto);
+  }
+
+  @Patch('privacy-settings')
+  async updateUserPrivacySettings(
+    @Body() dto: UpdateUserPrivacySettingsDto,
+    @CurrentUser() user: typeof users.$inferSelect,
+  ) {
+    return await this.usersService.updateUserPrivacySettings(user.id, dto);
   }
 }

@@ -1,0 +1,1 @@
+ALTER TYPE "public"."report_reasons_category" ADD VALUE 'adult';

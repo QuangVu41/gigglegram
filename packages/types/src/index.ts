@@ -6,5 +6,7 @@ export * from "@ts/src/auth/permissions";
 export * from "@ts/src/socket-io/notifications/events";
 export * from "@ts/src/socket-io/messages/events";
 export * from "@ts/src/socket-io/comments/events";
-export * from "@ts/src/socket-io/common";
+export * from "@ts/src/socket-io/common/events";
+export * from "@ts/src/socket-io/posts/events";
+export * from "@ts/src/socket-io/stories/events";
 export * from "@ts/src/enums";

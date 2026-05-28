@@ -19,7 +19,9 @@ const locales = routing.locales.map((locale) => ({
   flag: locale === "en" ? "🇺🇸" : "🇻🇳",
 }));
 
-export function LocaleSwitcher({ variant }: ComponentProps<"button"> & VariantProps<typeof buttonVariants>) {
+export function LocaleSwitcher({
+  variant,
+}: ComponentProps<"button"> & VariantProps<typeof buttonVariants>) {
   const handleLocaleChange = async (locale: string) => {
     await setLocale(locale);
     document.documentElement.lang = locale;
@@ -34,7 +36,10 @@ export function LocaleSwitcher({ variant }: ComponentProps<"button"> & VariantPr
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         {locales.map((locale) => (
-          <DropdownMenuItem key={locale.code} onClick={() => handleLocaleChange(locale.code)}>
+          <DropdownMenuItem
+            key={locale.code}
+            onClick={() => handleLocaleChange(locale.code)}
+          >
             <span className="mr-2">{locale.flag}</span>
             {locale.name}
           </DropdownMenuItem>

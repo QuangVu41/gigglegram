@@ -1,15 +1,34 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { formatBytes, useFileUpload, type FileMetadata, type FileWithPreview } from "@/hooks/use-file-upload";
-import { Alert, AlertAction, AlertDescription, AlertTitle } from "@/components/reui/alert";
+import {
+  formatBytes,
+  useFileUpload,
+  type FileMetadata,
+  type FileWithPreview,
+} from "@/hooks/use-file-upload";
+import Image from "next/image";
+import {
+  Alert,
+  AlertAction,
+  AlertDescription,
+  AlertTitle,
+} from "@/components/reui/alert";
 import { Badge } from "@/components/reui/badge";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { CircleAlertIcon, ImageIcon, RefreshCwIcon, UploadIcon, VideoIcon, XIcon } from "lucide-react";
-import { useCreatePostStore } from "@/components/pages/home/create-post-provider";
+import {
+  CircleAlertIcon,
+  ImageIcon,
+  RefreshCwIcon,
+  UploadIcon,
+  VideoIcon,
+  XIcon,
+} from "lucide-react";
+import { ALL_FORMATS, Input, UrlSource } from "mediabunny";
+import { useTranslations } from "next-intl";
 
 export interface FileUploadItem extends FileWithPreview {
   progress: number;
@@ -25,11 +44,14 @@ interface ProgressUploadProps {
   className?: string;
   onFilesChange?: (files: FileWithPreview[]) => void;
   simulateUpload?: boolean;
+  i18nKey: string;
 }
 
 export function ProgressUpload({
   maxFiles = 5,
-  maxSize = Number(process.env.NEXT_PUBLIC_DEFAULT_VIDEO_SIZE_IN_BYTES || "104857600"), // 100MB
+  maxSize = Number(
+    process.env.NEXT_PUBLIC_DEFAULT_VIDEO_SIZE_IN_BYTES || "104857600",
+  ), // 100MB
   accept = process.env.NEXT_PUBLIC_ACCEPTED_IMAGE_FILE_TYPES! +
     "," +
     process.env.NEXT_PUBLIC_ACCEPTED_VIDEO_FILE_TYPES!,
@@ -37,11 +59,12 @@ export function ProgressUpload({
   className,
   onFilesChange,
   simulateUpload = true,
+  i18nKey,
 }: ProgressUploadProps) {
-  const setSelectedFiles = useCreatePostStore((state) => state.setSelectedFiles);
+  const t = useTranslations(i18nKey);
   const [uploadFiles, setUploadFiles] = useState<FileUploadItem[]>([]);
   const [
-    { isDragging, errors, files },
+    { isDragging, errors },
     {
       removeFile,
       clearFiles,
@@ -58,7 +81,23 @@ export function ProgressUpload({
     accept,
     multiple,
     initialFiles: [],
-    onFilesChange: (newFiles) => {
+    onFilesChange: async (newFiles) => {
+      newFiles = await Promise.all(
+        newFiles.map(async (file) => {
+          if (file.file.type.startsWith("image/")) return file;
+          const inputVideo = new Input({
+            formats: ALL_FORMATS,
+            source: new UrlSource(file.preview!),
+          });
+          const audioTrack = await inputVideo.getPrimaryAudioTrack();
+
+          return {
+            ...file,
+            audioOmitted: audioTrack ? undefined : true,
+            hasAudio: !!audioTrack,
+          };
+        }),
+      );
       // Convert to upload items when files change, preserving existing status
       setUploadFiles((prev) =>
         newFiles.map((file) => {
@@ -84,10 +123,6 @@ export function ProgressUpload({
       onFilesChange?.(newFiles);
     },
   });
-
-  useEffect(() => {
-    setSelectedFiles(files);
-  }, [files, setSelectedFiles]);
 
   // Simulate upload progress
   useEffect(() => {
@@ -147,9 +182,13 @@ export function ProgressUpload({
     if (type.startsWith("video/")) return <VideoIcon className="size-4" />;
   };
 
-  const completedCount = uploadFiles.filter((f) => f.status === "completed").length;
+  const completedCount = uploadFiles.filter(
+    (f) => f.status === "completed",
+  ).length;
   const errorCount = uploadFiles.filter((f) => f.status === "error").length;
-  const uploadingCount = uploadFiles.filter((f) => f.status === "uploading").length;
+  const uploadingCount = uploadFiles.filter(
+    (f) => f.status === "uploading",
+  ).length;
 
   return (
     <div className={cn("w-full", className)}>
@@ -157,7 +196,9 @@ export function ProgressUpload({
       <div
         className={cn(
           "rounded-lg relative border border-dashed p-8 text-center transition-colors",
-          isDragging ? "border-primary bg-primary/5" : "border-muted-foreground/25 hover:border-muted-foreground/50",
+          isDragging
+            ? "border-primary bg-primary/5"
+            : "border-muted-foreground/25 hover:border-muted-foreground/50",
         )}
         onDragEnter={handleDragEnter}
         onDragLeave={handleDragLeave}
@@ -173,17 +214,22 @@ export function ProgressUpload({
               isDragging ? "bg-primary/10" : "bg-muted",
             )}
           >
-            <UploadIcon className={cn("h-6", isDragging ? "text-primary" : "text-muted-foreground")} />
+            <UploadIcon
+              className={cn(
+                "h-6",
+                isDragging ? "text-primary" : "text-muted-foreground",
+              )}
+            />
           </div>
 
           <div className="space-y-2">
-            <h3 className="text-lg font-semibold">Upload your photos and videos</h3>
-            <p className="text-muted-foreground text-sm">Drag photos and videos here or click to browse</p>
+            <h3 className="text-lg font-semibold">{t("title")}</h3>
+            <p className="text-muted-foreground text-sm">{t("description")}</p>
           </div>
 
           <Button onClick={openFileDialog}>
             <UploadIcon className="h-4 w-4" />
-            Select from computer
+            {t("selectFromComputer")}
           </Button>
         </div>
       </div>
@@ -192,28 +238,28 @@ export function ProgressUpload({
       {uploadFiles.length > 0 && (
         <div className="mt-6 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <h4 className="text-sm font-medium">Upload Progress</h4>
+            <h4 className="text-sm font-medium">{t("stats.title")}</h4>
             <div className="flex items-center gap-2">
               {completedCount > 0 && (
                 <Badge size="sm" variant="success-light">
-                  Completed: {completedCount}
+                  {t("stats.completed", { count: completedCount })}
                 </Badge>
               )}
               {errorCount > 0 && (
                 <Badge size="sm" variant="destructive">
-                  Failed: {errorCount}
+                  {t("stats.failed", { count: errorCount })}
                 </Badge>
               )}
               {uploadingCount > 0 && (
                 <Badge size="sm" variant="secondary">
-                  Uploading: {uploadingCount}
+                  {t("stats.uploading", { count: uploadingCount })}
                 </Badge>
               )}
             </div>
           </div>
 
           <Button onClick={clearFiles} variant="outline" size="sm">
-            Clear all
+            {t("clearAll")}
           </Button>
         </div>
       )}
@@ -222,14 +268,21 @@ export function ProgressUpload({
       {uploadFiles.length > 0 && (
         <div className="mt-4 space-y-3">
           {uploadFiles.map((fileItem: FileUploadItem) => (
-            <div key={fileItem.id} className="border-border bg-card rounded-lg border p-2.5">
+            <div
+              key={fileItem.id}
+              className="border-border bg-card rounded-lg border p-2.5"
+            >
               <div className="flex items-start gap-2.5">
                 {/* File Icon */}
                 <div className="shrink-0">
-                  {fileItem.preview && fileItem.file.type.startsWith("image/") ? (
-                    <img
+                  {fileItem.preview &&
+                  fileItem.file.type.startsWith("image/") ? (
+                    <Image
                       src={fileItem.preview}
                       alt={fileItem.file.name}
+                      width={48}
+                      height={48}
+                      unoptimized
                       className="rounded-lg h-12 w-12 border object-cover"
                     />
                   ) : (
@@ -244,7 +297,9 @@ export function ProgressUpload({
                   <div className="mt-0.75 flex items-center justify-between">
                     <p className="inline-flex flex-col justify-center gap-1 truncate font-medium">
                       <span className="text-sm">{fileItem.file.name}</span>
-                      <span className="text-muted-foreground text-xs">{formatBytes(fileItem.file.size)}</span>
+                      <span className="text-muted-foreground text-xs">
+                        {formatBytes(fileItem.file.size)}
+                      </span>
                     </p>
                     <div className="flex items-center gap-2">
                       {/* Remove Button */}
@@ -270,7 +325,9 @@ export function ProgressUpload({
                   {fileItem.status === "error" && fileItem.error && (
                     <Alert variant="destructive" className="mt-2 px-2 py-1">
                       <CircleAlertIcon className="size-4" />
-                      <AlertTitle className="text-xs">{fileItem.error}</AlertTitle>
+                      <AlertTitle className="text-xs">
+                        {fileItem.error}
+                      </AlertTitle>
                       <AlertAction>
                         <Button
                           onClick={() => retryUpload(fileItem.id)}
@@ -294,7 +351,7 @@ export function ProgressUpload({
       {errors.length > 0 && (
         <Alert variant="destructive" className="mt-5">
           <CircleAlertIcon />
-          <AlertTitle>File upload error(s)</AlertTitle>
+          <AlertTitle>{t("errors.title")}</AlertTitle>
           <AlertDescription>
             {errors.map((error, index) => (
               <p key={index} className="last:mb-0">

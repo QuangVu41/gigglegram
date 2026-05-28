@@ -14,16 +14,15 @@ import {
   schema,
   users,
 } from '@repo/database';
-import { eq } from 'drizzle-orm';
+import { eq, and, inArray } from 'drizzle-orm';
 import { SystemWideErrorCodes } from '@repo/types';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { and } from 'drizzle-orm';
-import { inArray } from 'drizzle-orm';
 import { CreateCollectionDto } from '@/src/collections/dto/create-collection.dto';
 import { UpdateCollectionDto } from '@/src/collections/dto/update-collection.dto';
 import { AddPostsToCollectionDto } from '@/src/collections/dto/add-posts-to-collection.dto';
 import { DeletePostsFromCollectionDto } from '@/src/collections/dto/delete-posts-from-collection.dto';
 import { FindManySavedCollectionsDto } from '@/src/collections/dto/find-many-saved-collections.dto';
+import { like } from 'drizzle-orm';
 
 @Injectable()
 export class CollectionsService {
@@ -45,6 +44,17 @@ export class CollectionsService {
           eq(savedCollections.id, collectionId),
           eq(savedCollections.userId, user.id),
         ),
+        with: {
+          savedPosts: {
+            with: {
+              post: {
+                with: {
+                  postMedia: true,
+                },
+              },
+            },
+          },
+        },
       });
 
       return collection;
@@ -62,10 +72,24 @@ export class CollectionsService {
     user: typeof users.$inferSelect,
   ) {
     try {
+      const conditions: any[] = [];
+      if (findManySavedCollectionsDto.all !== 'true') {
+        conditions.push(eq(schema.savedCollections.userId, user.id));
+      }
+      if (findManySavedCollectionsDto.keyword) {
+        conditions.push(
+          like(
+            schema.savedCollections.name,
+            `%${findManySavedCollectionsDto.keyword}%`,
+          ),
+        );
+      }
+
       const savedCollections = await this.collectionsRepository.findMany(
         {
-          where: eq(schema.savedCollections.userId, user.id),
+          where: conditions.length > 0 ? and(...conditions) : undefined,
           with: {
+            user: true,
             savedPosts: {
               with: {
                 post: {
@@ -110,7 +134,10 @@ export class CollectionsService {
           .where(
             and(
               eq(schema.savedPosts.userId, user.id),
-              inArray(schema.savedPosts.id, createCollectionDto.savedPostIds),
+              inArray(
+                schema.savedPosts.postId,
+                createCollectionDto.savedPostIds,
+              ),
             ),
           );
         return createdCollection;
@@ -144,6 +171,33 @@ export class CollectionsService {
       return deletedCollection;
     } catch (error) {
       this.logger.error('Error deleting saved posts collection.', error);
+      if (error instanceof HttpException) throw error;
+      throw new InternalServerErrorException({
+        code: SystemWideErrorCodes.DELETION_FAILED,
+      });
+    }
+  }
+
+  async deleteManyCollections(ids: string[], user: typeof users.$inferSelect) {
+    try {
+      if (ids.length === 0) return [];
+
+      const deletedCollections = await this.db
+        .delete(schema.savedCollections)
+        .where(
+          and(
+            inArray(schema.savedCollections.id, ids),
+            eq(schema.savedCollections.userId, user.id),
+          ),
+        )
+        .returning();
+
+      return deletedCollections;
+    } catch (error) {
+      this.logger.error(
+        'Error deleting saved posts collections in bulk.',
+        error,
+      );
       if (error instanceof HttpException) throw error;
       throw new InternalServerErrorException({
         code: SystemWideErrorCodes.DELETION_FAILED,
@@ -205,6 +259,10 @@ export class CollectionsService {
           ),
       );
 
+      if (newSavingPostIds.length === 0) {
+        return [];
+      }
+
       const [[addedSavedPosts]] = await Promise.all([
         this.db
           .insert(schema.savedPosts)
@@ -217,6 +275,10 @@ export class CollectionsService {
               }),
             ),
           )
+          .onConflictDoUpdate({
+            target: [schema.savedPosts.userId, schema.savedPosts.postId],
+            set: { collectionId: existingCollection.id },
+          })
           .returning(),
         this.db
           .update(savedCollections)

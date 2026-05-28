@@ -44,6 +44,18 @@ export class CommentsController {
   }
 
   /**
+   * Get all comments for the current user (paginated)
+   * GET /comments/user-comments
+   */
+  @Get('user-comments')
+  async findManyUserComments(
+    @CurrentUser() user: typeof users.$inferSelect,
+    @Query() findManyQueryDto: FindManyQueryDto,
+  ) {
+    return this.commentsService.findManyUserComments(user, findManyQueryDto);
+  }
+
+  /**
    * Get all replies for a specific comment (paginated)
    * GET /comments/:commentId/replies
    */

@@ -337,6 +337,62 @@
       "when": 1775852898623,
       "tag": "0047_wealthy_spacker_dave",
       "breakpoints": true
+    },
+    {
+      "idx": 48,
+      "version": "7",
+      "when": 1777148227824,
+      "tag": "0048_brief_tenebrous",
+      "breakpoints": true
+    },
+    {
+      "idx": 49,
+      "version": "7",
+      "when": 1777324119185,
+      "tag": "0049_pink_shinobi_shaw",
+      "breakpoints": true
+    },
+    {
+      "idx": 50,
+      "version": "7",
+      "when": 1777325811301,
+      "tag": "0050_superb_bloodstorm",
+      "breakpoints": true
+    },
+    {
+      "idx": 51,
+      "version": "7",
+      "when": 1777411752491,
+      "tag": "0051_smiling_monster_badoon",
+      "breakpoints": true
+    },
+    {
+      "idx": 52,
+      "version": "7",
+      "when": 1777581133433,
+      "tag": "0052_conscious_vin_gonzales",
+      "breakpoints": true
+    },
+    {
+      "idx": 53,
+      "version": "7",
+      "when": 1777762032648,
+      "tag": "0053_violet_warlock",
+      "breakpoints": true
+    },
+    {
+      "idx": 54,
+      "version": "7",
+      "when": 1778108542225,
+      "tag": "0054_striped_tomorrow_man",
+      "breakpoints": true
+    },
+    {
+      "idx": 55,
+      "version": "7",
+      "when": 1779922947180,
+      "tag": "0055_steady_hedge_knight",
+      "breakpoints": true
     }
   ]
 }

@@ -17,8 +17,9 @@ import {
 } from '@nestjs/common';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { UsersRepository } from '@/src/users.repository';
+import { UserNotificationSettingsRepository } from '@/src/user-notification-settings.repository';
+import { UserPrivacySettingsRepository } from '@/src/user-privacy-settings.repository';
 import { FindManyUsersDto } from '@/src/dto/find-many-users.dto';
-import { sql } from 'drizzle-orm';
 import { createTSQuery, UploadService } from '@repo/common';
 import {
   AUTH_SERVICE_NAME,
@@ -34,18 +35,17 @@ import {
   USERS_TOPIC_USER_FOLLOWED,
   USERS_TOPIC_USER_UNFOLLOWED,
   UserUnfollowedEvent,
+  UserUnfollowedEvent as UserUnfollowedEventPayload,
 } from '@repo/types';
 import { type ClientKafkaProxy, type ClientGrpc } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { Metadata } from '@grpc/grpc-js';
 import { Request } from 'express';
-import { eq } from 'drizzle-orm';
+import { eq, and, gte, desc, or, notInArray, sql } from 'drizzle-orm';
 import { FollowUserDto } from '@/src/dto/follow-user.dto';
-import { and } from 'drizzle-orm';
-import { gte } from 'drizzle-orm';
-import { desc } from 'drizzle-orm';
 import { UpdateUserFollowStatusDto } from '@/src/dto/update-user-follow-status.dto';
-import { or } from 'drizzle-orm';
+import { UpdateUserNotificationSettingsDto } from '@/src/dto/update-user-notification-settings.dto';
+import { UpdateUserPrivacySettingsDto } from '@/src/dto/update-user-privacy-settings.dto';
 import 'multer';
 
 @Injectable()
@@ -55,12 +55,14 @@ export class UsersService implements OnModuleInit {
   private authService!: AuthServiceClient;
 
   constructor(
+    private readonly usersRepository: UsersRepository,
+    private readonly userNotificationSettingsRepository: UserNotificationSettingsRepository,
+    private readonly userPrivacySettingsRepository: UserPrivacySettingsRepository,
     @Inject(DATABASE_CONNECTION)
     private readonly db: NodePgDatabase<typeof schema>,
     @Inject(SYSTEM_SETTINGS_SERVICE_NAME)
     private readonly systemSettingsClient: ClientGrpc,
     @Inject(AUTH_SERVICE_NAME) private readonly authClient: ClientGrpc,
-    private readonly usersRepository: UsersRepository,
     private readonly uploadService: UploadService,
     @Inject(KAFKA_SERVICE_NAME)
     private readonly kafkaClient: ClientKafkaProxy,
@@ -146,6 +148,34 @@ export class UsersService implements OnModuleInit {
     return user;
   }
 
+  async findUserByUsernameOnly(username: string) {
+    const user = await this.usersRepository.findFirst({
+      where: eq(users.username, username),
+    });
+
+    if (!user)
+      throw new NotFoundException({
+        code: SystemWideErrorCodes.NOT_FOUND,
+        description: 'User not found.',
+      });
+
+    return user;
+  }
+
+  async findUserByEmail(email: string) {
+    const user = await this.usersRepository.findFirst({
+      where: eq(users.email, email),
+    });
+
+    if (!user)
+      throw new NotFoundException({
+        code: SystemWideErrorCodes.NOT_FOUND,
+        description: 'User not found.',
+      });
+
+    return user;
+  }
+
   async findUserFollowRequests(
     findManyQueryDto: FindManyQueryDto,
     user: typeof users.$inferSelect,
@@ -209,55 +239,62 @@ export class UsersService implements OnModuleInit {
     findManyQueryDto: FindManyQueryDto,
     user: typeof users.$inferSelect,
   ) {
-    const following = await this.db.query.followers.findMany({
+    // Collect IDs the current user already follows (all statuses)
+    const currentFollowing = await this.db.query.followers.findMany({
+      where: eq(followers.followerId, user.id),
+      columns: { followingId: true },
+    });
+    const excludedIds = [
+      user.id,
+      ...currentFollowing.map((f) => f.followingId),
+    ];
+
+    // Traverse one hop: friends-of-friends
+    const friendsOfFriends = await this.db.query.followers.findMany({
       where: eq(followers.followerId, user.id),
       with: {
         following: {
           with: {
             followers: {
               with: {
-                following: {
-                  with: {
-                    followers: {
-                      with: {
-                        following: true,
-                      },
-                      limit: 5,
-                    },
-                  },
-                },
+                following: true,
               },
-              limit: 5,
+              limit: 10,
             },
           },
         },
       },
-      limit: findManyQueryDto.limit,
-      offset: (findManyQueryDto.page - 1) * findManyQueryDto.limit,
     });
 
-    const suggestedFollowing = following
+    const candidates = friendsOfFriends
       .flatMap((f) => f.following)
       .flatMap((f) => f.followers)
-      .flatMap((f) => f.following)
-      .flatMap((f) => f.followers)
-      .flatMap((f) => f.following)
-      .filter((u) => u.id !== user.id);
+      .map((f) => f.following)
+      .filter((u) => !excludedIds.includes(u.id));
 
-    if (suggestedFollowing.length === 0)
-      return await this.usersRepository.findMany(
-        {
-          where: gte(users.followersCount, 0),
-          orderBy: desc(users.followersCount),
-        },
-        findManyQueryDto,
+    // Deduplicate by user ID
+    const seen = new Set<string>();
+    const uniqueCandidates = candidates.filter((u) => {
+      if (seen.has(u.id)) return false;
+      seen.add(u.id);
+      return true;
+    });
+
+    if (uniqueCandidates.length > 0) {
+      return uniqueCandidates.slice(
+        (findManyQueryDto.page - 1) * findManyQueryDto.limit,
+        findManyQueryDto.page * findManyQueryDto.limit,
       );
+    }
 
-    const uniqueSuggestedFollowing = Array.from(
-      new Set(suggestedFollowing.map((u) => u.id)),
-    ).map((id) => suggestedFollowing.find((u) => u.id === id));
-
-    return uniqueSuggestedFollowing;
+    // Fallback: popular users the current user doesn't already follow
+    return await this.usersRepository.findMany(
+      {
+        where: notInArray(users.id, excludedIds),
+        orderBy: desc(users.followersCount),
+      },
+      findManyQueryDto,
+    );
   }
 
   async followUser(
@@ -351,7 +388,63 @@ export class UsersService implements OnModuleInit {
     user: typeof users.$inferSelect,
     req: Request,
   ) {
-    if (media.mimetype.startsWith('image/'))
+    if (!media.mimetype.startsWith('image/'))
+      throw new BadRequestException({
+        code: SystemWideErrorCodes.UPLOAD_UNSUPPORTED_FILE_TYPE,
+      });
+
+    try {
+      const { settings } = await firstValueFrom(
+        this.systemSettingsService.findSettingsByPrefix(
+          {
+            prefixes: ['image'],
+          },
+          {} as Metadata,
+        ),
+      );
+
+      const width = settings['image.avatar_width']?.intValue || 200;
+      const height = settings['image.avatar_height']?.intValue || 200;
+
+      media.buffer = await this.uploadService.preprocessImageFile(
+        media.buffer,
+        width,
+        height,
+      );
+      media.originalname =
+        media.originalname.split('.').slice(0, -1).join('.') + '.webp';
+      media.mimetype = 'image/webp';
+
+      if (user.image)
+        await this.uploadService.deleteFile(user.image, media.mimetype);
+
+      const resultUrlObj = await this.uploadService.uploadFile(
+        media,
+        'avatars',
+      );
+
+      const metadata = new Metadata();
+      metadata.set('headers', JSON.stringify(req.headers));
+
+      return await firstValueFrom(
+        this.authService.updateUser(
+          {
+            image: resultUrlObj.mediaUrl,
+          },
+          metadata,
+        ),
+      );
+    } catch (error) {
+      this.logger.error('Error updating user image.', error);
+      if (error instanceof HttpException) throw error;
+      throw new InternalServerErrorException({
+        code: SystemWideErrorCodes.UPLOAD_FILE_FAILED,
+      });
+    }
+  }
+
+  async adminUploadPhoto(media: Express.Multer.File) {
+    if (!media.mimetype.startsWith('image/'))
       throw new BadRequestException({
         code: SystemWideErrorCodes.UPLOAD_UNSUPPORTED_FILE_TYPE,
       });
@@ -383,22 +476,76 @@ export class UsersService implements OnModuleInit {
         'avatars',
       );
 
-      const metadata = new Metadata();
-      metadata.set('headers', JSON.stringify(req.headers));
-
-      return await firstValueFrom(
-        this.authService.updateUser(
-          {
-            image: resultUrlObj.mediaUrl,
-          },
-          metadata,
-        ),
-      );
+      return {
+        url: resultUrlObj.mediaUrl,
+      };
     } catch (error) {
-      this.logger.error('Error updating user image.', error);
+      this.logger.error('Error uploading user image as admin.', error);
       if (error instanceof HttpException) throw error;
       throw new InternalServerErrorException({
         code: SystemWideErrorCodes.UPLOAD_FILE_FAILED,
+      });
+    }
+  }
+
+  async findUserNotificationSettings(userId: string) {
+    const [settings] = await this.db
+      .select()
+      .from(schema.userNotificationSettings)
+      .where(eq(schema.userNotificationSettings.userId, userId))
+      .limit(1);
+
+    return (
+      settings || {
+        likesNotifications: true,
+        commentsNotifications: true,
+        newFollowersNotifications: true,
+        mentionsNotifications: true,
+        messagesNotifications: true,
+        videoCallsNotifications: true,
+      }
+    );
+  }
+
+  async updateUserNotificationSettings(
+    userId: string,
+    dto: UpdateUserNotificationSettingsDto,
+  ) {
+    const [existing] = await this.db
+      .select()
+      .from(schema.userNotificationSettings)
+      .where(eq(schema.userNotificationSettings.userId, userId))
+      .limit(1);
+
+    if (existing) {
+      return await this.userNotificationSettingsRepository.update(
+        existing.id,
+        dto,
+      );
+    } else {
+      return await this.userNotificationSettingsRepository.create({
+        userId,
+        ...dto,
+      });
+    }
+  }
+
+  async updateUserPrivacySettings(
+    userId: string,
+    dto: UpdateUserPrivacySettingsDto,
+  ) {
+    const [existing] = await this.db
+      .select()
+      .from(schema.userPrivacySettings)
+      .where(eq(schema.userPrivacySettings.userId, userId))
+      .limit(1);
+    console.log(dto);
+    if (existing) {
+      return await this.userPrivacySettingsRepository.update(existing.id, dto);
+    } else {
+      return await this.userPrivacySettingsRepository.create({
+        userId,
+        ...dto,
       });
     }
   }

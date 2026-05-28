@@ -1,5 +1,5 @@
 import { NestFactory } from '@nestjs/core';
-import { PostsModule } from './posts.module';
+import { PostsModule } from '@/src/posts.module';
 import { ValidationPipe } from '@nestjs/common';
 import { SystemWideHttpExceptionFilter } from '@repo/common';
 

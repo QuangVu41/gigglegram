@@ -11,11 +11,15 @@ const PasswordResetError = () => {
       <FieldGroup>
         <Field className="items-center text-center">
           <h1 className="text-2xl font-bold">{t("errorHeading")}</h1>
-          <p className="text-muted-foreground text-sm text-balance">{t("errorDescription")}</p>
+          <p className="text-muted-foreground text-sm text-balance">
+            {t("errorDescription")}
+          </p>
         </Field>
         <Field>
           <Button asChild>
-            <Link href="/accounts/forgot/password">{t("goToForgotPassword")}</Link>
+            <Link href="/accounts/forgot/password">
+              {t("goToForgotPassword")}
+            </Link>
           </Button>
         </Field>
       </FieldGroup>

@@ -46,7 +46,7 @@ export const NAV_MAIN: NavMainItem[] = [
   },
   {
     key: "search",
-    url: "/#",
+    url: "#",
     icon: Search,
     mobileDisplay: false,
     type: "button",
@@ -63,25 +63,25 @@ export const NAV_MAIN: NavMainItem[] = [
     url: "/notifications",
     icon: Heart,
     mobileDisplay: false,
-    type: "link",
+    type: "button",
   },
   {
     key: "create",
-    url: "/#",
+    url: "#",
     icon: SquarePlus,
     mobileDisplay: true,
     type: "dropdown",
     dropdownItems: [
       {
         key: "createPost",
-        url: "/#",
+        url: "#",
         icon: ImagePlay,
         mobileDisplay: true,
         type: "button",
       },
       {
         key: "createStory",
-        url: "/#",
+        url: "#",
         icon: CircleFadingPlus,
         mobileDisplay: true,
         type: "button",
@@ -90,7 +90,7 @@ export const NAV_MAIN: NavMainItem[] = [
   },
   {
     key: "settings",
-    url: "/settings",
+    url: "/accounts/edit",
     icon: Settings,
     mobileDisplay: false,
     type: "link",

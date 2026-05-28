@@ -1,7 +1,12 @@
 import { Global, Module } from '@nestjs/common';
 import { EventsGateway } from '@/src/events/providers/events.gateway';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { AUTH_PACKAGE_NAME, AUTH_SERVICE_NAME } from '@repo/types';
+import {
+  AUTH_PACKAGE_NAME,
+  AUTH_SERVICE_NAME,
+  KAFKA_SERVICE_NAME,
+  REAL_TIME_CLIENT_ID,
+} from '@repo/types';
 import { join } from 'path';
 import { ConfigService } from '@nestjs/config';
 
@@ -20,6 +25,21 @@ import { ConfigService } from '@nestjs/config';
               '../../packages/types/src/proto/auth/auth.proto',
             ),
             url: configService.getOrThrow<string>('AUTH_SERVICE_GRPC_URL'),
+          },
+        }),
+        inject: [ConfigService],
+      },
+      {
+        name: KAFKA_SERVICE_NAME,
+        useFactory: (configService: ConfigService) => ({
+          transport: Transport.KAFKA,
+          options: {
+            client: {
+              clientId: REAL_TIME_CLIENT_ID,
+              brokers: [
+                configService.getOrThrow<string>('KAFKA_BROKER_LISTENER'),
+              ],
+            },
           },
         }),
         inject: [ConfigService],

@@ -3,6 +3,7 @@ import {
   Catch,
   ExceptionFilter,
   HttpException,
+  Logger,
 } from '@nestjs/common';
 import {
   SystemWideErrorCodes,
@@ -13,6 +14,8 @@ import { Response } from 'express';
 
 @Catch(HttpException, Error)
 export class SystemWideHttpExceptionFilter implements ExceptionFilter {
+  private readonly logger = new Logger(SystemWideHttpExceptionFilter.name);
+
   catch(exception: HttpException | Error, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const res = ctx.getResponse<Response>();
@@ -21,6 +24,8 @@ export class SystemWideHttpExceptionFilter implements ExceptionFilter {
     const stack = exception.stack;
     const description = exception.message;
     let code: string;
+
+    this.logger.error(exception);
 
     if (exception instanceof HttpException) {
       errorRes = exception.getResponse() as SystemWideHttpExceptionResponse;

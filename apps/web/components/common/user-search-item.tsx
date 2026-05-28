@@ -11,8 +11,13 @@ const UserSearchItem = ({ user }: UserSearchItemProps) => {
   return (
     <div className="flex items-center gap-3 w-full">
       <Avatar className="h-7 w-7 rounded-full">
-        <AvatarImage src={user.image || "/default-avatar.png"} alt={user.name} />
-        <AvatarFallback className="rounded-lg">{getUsernameFallback(user.name)}</AvatarFallback>
+        <AvatarImage
+          src={`/${user.image}` || "/default-avatar.png"}
+          alt={user.name}
+        />
+        <AvatarFallback className="rounded-lg">
+          {getUsernameFallback(user.name)}
+        </AvatarFallback>
       </Avatar>
       <div className="space-y-1">
         <h3 className="h-4 w-62.5">{user.name}</h3>

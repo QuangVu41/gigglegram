@@ -1,4 +1,4 @@
-import { axiosGateway, FindOneResponse } from "@/lib/axios-config";
+import { axiosGateway, OkResponse } from "@/lib/axios-config";
 import { users } from "@repo/database";
 import * as z from "zod";
 
@@ -38,18 +38,20 @@ export const createSignupSchema = (t: (key: string) => string) =>
     username: z
       .string()
       .trim()
-      .refine((val) => val.length >= 3 && val.length <= 30 && /^\S+$/.test(val), {
-        message: t("usernameInvalid"),
-      })
+      .refine(
+        (val) => val.length >= 3 && val.length <= 30 && /^\S+$/.test(val),
+        {
+          message: t("usernameInvalid"),
+        },
+      )
       .refine(
         async (val) => {
           try {
-            const res = await axiosGateway.get<FindOneResponse<typeof users.$inferSelect>>(
-              `/api/users/username/${val}`,
-              {
-                validateStatus: (status) => status === 404 || status < 399, // Treat 404 as a valid response to indicate username availability
-              },
-            );
+            const res = await axiosGateway.get<
+              OkResponse<typeof users.$inferSelect>
+            >(`/api/users/username/${val}`, {
+              validateStatus: (status) => status === 404 || status < 399, // Treat 404 as a valid response to indicate username availability
+            });
 
             if (res.data.data) return false; // Username exists
 
@@ -90,5 +92,9 @@ export const createPasswordResetSchema = (t: (key: string) => string) =>
 export type LoginSchemaType = z.infer<ReturnType<typeof createLoginSchema>>;
 export type SignupSchemaType = z.infer<ReturnType<typeof createSignupSchema>>;
 export type OTPSchemaType = z.infer<ReturnType<typeof createOTPSchema>>;
-export type ForgotPasswordSchemaType = z.infer<ReturnType<typeof createForgotPasswordSchema>>;
-export type PasswordResetSchemaType = z.infer<ReturnType<typeof createPasswordResetSchema>>;
+export type ForgotPasswordSchemaType = z.infer<
+  ReturnType<typeof createForgotPasswordSchema>
+>;
+export type PasswordResetSchemaType = z.infer<
+  ReturnType<typeof createPasswordResetSchema>
+>;

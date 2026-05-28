@@ -17,6 +17,7 @@ spec:
       labels:
         app: {{ .name }}
     spec:
+      serviceAccountName: {{ .serviceAccountName }}
       containers:
         - name: {{ .name }}
           image: "{{ .image.repository }}:{{ .image.tag }}"
@@ -25,8 +26,13 @@ spec:
             - containerPort: {{ .service.port }}
           volumeMounts:
             - name: secret-volume
+              {{- if eq .name "web" }}
+              mountPath: "/app/apps/web/.env"
+              subPath: .env
+              {{- else }}
               mountPath: "/app/.env"
               subPath: .env
+              {{- end }}
               readOnly: true
           # envFrom:
           #   - secretRef:

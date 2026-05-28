@@ -15,6 +15,6 @@ export class SendMessageDto {
   type: (typeof messagesTypeEnum.enumValues)[number];
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   replyToMessageId?: string;
 }

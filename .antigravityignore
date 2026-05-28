@@ -1,0 +1,17 @@
+# Next.js & NestJS build folders
+.next/
+dist/
+build/
+
+# Package managers
+node_modules/
+.npm/
+
+# Graduation project specifics
+# (Ignore raw media used for testing HLS)
+public/uploads/
+*.tsbuildinfo
+
+# Infrastructure noise
+.terraform/
+charts/

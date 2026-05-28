@@ -7,7 +7,13 @@ interface LogoTextProps {
 }
 
 const LogoText = ({ className }: LogoTextProps) => {
-  return <Image src={logoTextImage} alt="gigglegram" className={cn("w-44 object-contain", className)} />;
+  return (
+    <Image
+      src={logoTextImage}
+      alt="gigglegram"
+      className={cn("w-44 object-contain", className)}
+    />
+  );
 };
 
 export default LogoText;

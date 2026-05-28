@@ -1,16 +1,21 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { LocationsRepository } from '@/src/locations/locations.repository';
 import { CreateLocationDto } from '@/src/locations/dto/create-location.dto';
 import { UpdateLocationDto } from '@/src/locations/dto/update-location.dto';
 import { FindManyLocationsDto } from '@/src/locations/dto/find-many-locations.dto';
-import { and, eq } from 'drizzle-orm';
-import { locations } from '@repo/database';
+import { and, eq, count, inArray } from 'drizzle-orm';
+import { DATABASE_CONNECTION, locations, schema } from '@repo/database';
 import { createTSQuery } from '@repo/common';
 import { sql } from 'drizzle-orm';
+import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 
 @Injectable()
 export class LocationsService {
-  constructor(private readonly locationsRepository: LocationsRepository) {}
+  constructor(
+    private readonly locationsRepository: LocationsRepository,
+    @Inject(DATABASE_CONNECTION)
+    private readonly db: NodePgDatabase<typeof schema>,
+  ) {}
 
   async findManyLocations(findManyLocationsDto: FindManyLocationsDto) {
     const { keyword } = findManyLocationsDto;
@@ -60,5 +65,36 @@ export class LocationsService {
 
   async deleteLocation(locationId: string) {
     return this.locationsRepository.delete(locationId);
+  }
+
+  async getLocationsStats() {
+    const [totalResult] = await this.db
+      .select({ count: count() })
+      .from(locations);
+
+    const [citiesResult] = await this.db
+      .select({ count: sql<number>`count(distinct ${locations.city})` })
+      .from(locations);
+
+    const [countriesResult] = await this.db
+      .select({ count: sql<number>`count(distinct ${locations.country})` })
+      .from(locations);
+
+    return {
+      totalLocations: totalResult?.count || 0,
+      uniqueCities: citiesResult?.count || 0,
+      uniqueCountries: countriesResult?.count || 0,
+    };
+  }
+
+  async deleteManyLocations(ids: string[]) {
+    if (!ids || ids.length === 0) {
+      return [];
+    }
+
+    return this.db
+      .delete(locations)
+      .where(inArray(locations.id, ids))
+      .returning();
   }
 }

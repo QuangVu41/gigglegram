@@ -2,6 +2,8 @@ export * from '@common/src/email/email.module';
 export * from '@common/src/email/email.service';
 export * from '@common/src/upload/upload.service';
 export * from '@common/src/upload/upload.module';
+export * from '@common/src/moderation/moderation.service';
+export * from '@common/src/moderation/moderation.module';
 export * from '@common/src/exception-filters/system-wide-http.exception';
 export * from '@common/src/validators/max-size-based-on-mimetype.validator';
 export * from '@common/src/validators/file-type-based-on-mimetype-validator.validator';

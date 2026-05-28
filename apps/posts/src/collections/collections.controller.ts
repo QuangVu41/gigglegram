@@ -16,6 +16,7 @@ import { CreateCollectionDto } from '@/src/collections/dto/create-collection.dto
 import { AddPostsToCollectionDto } from '@/src/collections/dto/add-posts-to-collection.dto';
 import { DeletePostsFromCollectionDto } from '@/src/collections/dto/delete-posts-from-collection.dto';
 import { FindManySavedCollectionsDto } from '@/src/collections/dto/find-many-saved-collections.dto';
+import { DeleteManyCollectionsDto } from '@/src/collections/dto/delete-many-collections.dto';
 
 @Controller('collections')
 export class CollectionsController {
@@ -39,6 +40,17 @@ export class CollectionsController {
   ) {
     return await this.collectionsService.createCollection(
       createCollectionDto,
+      user,
+    );
+  }
+
+  @Delete('bulk')
+  async deleteManyCollections(
+    @Body() deleteManyCollectionsDto: DeleteManyCollectionsDto,
+    @CurrentUser() user: typeof users.$inferSelect,
+  ) {
+    return await this.collectionsService.deleteManyCollections(
+      deleteManyCollectionsDto.ids,
       user,
     );
   }

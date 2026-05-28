@@ -8,7 +8,7 @@ import {
 } from '@db/src/drizzle/schemas/auth-schemas';
 import {
   likes,
-  postReports,
+  contentReports,
   posts,
   savedCollections,
   savedPosts,
@@ -46,7 +46,7 @@ export const usersRelations = relations(users, ({ many, one }) => ({
     relationName: 'user_following',
   }),
   savedCollections: many(savedCollections),
-  postReports: many(postReports),
+  contentReports: many(contentReports),
   likes: many(likes),
   comments: many(comments),
   commentLikes: many(commentLikes),

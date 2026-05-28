@@ -21,7 +21,7 @@ const AppSidebar = () => {
 
   return (
     <Sidebar
-      className="bg-sidebar/70"
+      className="bg-sidebar/50"
       collapsible="icon"
       onMouseOver={() => setOpen(true)}
       onMouseLeave={() => setOpen(false)}
@@ -29,10 +29,15 @@ const AppSidebar = () => {
       <SidebarHeader className="mt-4 mb-2">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton className="overflow-visible group-data-[collapsible=icon]:size-auto! h-auto!" asChild>
+            <SidebarMenuButton
+              className="overflow-visible group-data-[collapsible=icon]:size-auto! h-auto!"
+              asChild
+            >
               <Link href="/">
                 <Logo className="w-8 h-8 shrink-0" />
-                <LogoText className={`w-36 object-contain ${open ? "" : "hidden!"}`} />
+                <LogoText
+                  className={`w-36 object-contain ${open ? "" : "hidden!"}`}
+                />
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>

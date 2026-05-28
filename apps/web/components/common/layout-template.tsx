@@ -6,6 +6,8 @@ import { Suspense } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import LogoLoading from "@/components/common/logo-loading";
 import AxiosInterceptorsProvider from "@/components/common/axios-interceptors-provider";
+import TanstackQueryProvider from "@/components/common/tanstack-query-provider";
+import { SocketProvider } from "@/components/common/socket-provider";
 
 const roboto = Roboto({
   subsets: ["latin"],
@@ -26,18 +28,31 @@ const LayoutTemplate = ({
   children: React.ReactNode;
 }>) => {
   return (
-    <html lang="en" className={`${roboto.variable} ${dancingScript.variable}`} suppressHydrationWarning>
-      <body>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-          <BackgroundGradient>
-            <Suspense fallback={<LogoLoading />}>
-              <NextIntlClientProvider>
-                <AxiosInterceptorsProvider>{children}</AxiosInterceptorsProvider>
-                <Toaster richColors closeButton position="top-right" />
-              </NextIntlClientProvider>
-            </Suspense>
-          </BackgroundGradient>
-        </ThemeProvider>
+    <html
+      lang="en"
+      className={`${roboto.variable} ${dancingScript.variable}`}
+      suppressHydrationWarning
+    >
+      <body className="mb-16 md:mb-0">
+        <TanstackQueryProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <BackgroundGradient>
+              <Suspense fallback={<LogoLoading />}>
+                <NextIntlClientProvider>
+                  <AxiosInterceptorsProvider>
+                    <SocketProvider>{children}</SocketProvider>
+                  </AxiosInterceptorsProvider>
+                  <Toaster richColors closeButton position="top-right" />
+                </NextIntlClientProvider>
+              </Suspense>
+            </BackgroundGradient>
+          </ThemeProvider>
+        </TanstackQueryProvider>
       </body>
     </html>
   );

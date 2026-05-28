@@ -9,6 +9,10 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { usePathname } from "next/navigation";
 import { getUsernameFallback } from "@/lib/utils";
 import NavDropdownItem from "@/components/common/nav-dropdown-item";
+import { useConversations } from "@/hooks/use-conversations";
+import { useQuery } from "@tanstack/react-query";
+import { axiosGateway, OkResponse } from "@/lib/axios-config";
+import { UserNotificationSetting } from "@/hooks/use-update-notification-settings";
 
 export function NavBottom() {
   const pathname = usePathname();
@@ -16,6 +20,28 @@ export function NavBottom() {
   const { data } = authClient.useSession();
   const user = data?.user;
   const mobileNavItems = NAV_MAIN.filter((item) => item.mobileDisplay);
+
+  const { data: conversations } = useConversations();
+  const { data: userSettings } = useQuery({
+    queryKey: ["user-notification-settings"],
+    queryFn: async () => {
+      const response = await axiosGateway.get<
+        OkResponse<UserNotificationSetting>
+      >("/api/users/notification-settings");
+      return response.data.data;
+    },
+    enabled: !!user,
+  });
+
+  const hasUnreadMessages =
+    ((userSettings?.messagesNotifications ?? true) &&
+      conversations?.some((c) => {
+        if (!c.notificationsEnabled) return false;
+        if (!c.lastMessageAt) return false;
+        if (!c.lastReadAt) return true;
+        return new Date(c.lastMessageAt) > new Date(c.lastReadAt);
+      })) ??
+    false;
 
   return (
     isMobile &&
@@ -52,9 +78,14 @@ export function NavBottom() {
                 className={`flex flex-col items-center justify-center hover:bg-sidebar-accent p-2 size-auto! ${pathname === item.url ? "bg-accent" : ""}`}
               >
                 <Link href={item.url}>
-                  <item.icon
-                    className={`h-8! w-8! stroke-sidebar-accent-foreground ${pathname === item.url ? "stroke-3" : ""}`}
-                  />
+                  <div className="relative">
+                    <item.icon
+                      className={`h-8! w-8! stroke-sidebar-accent-foreground ${pathname === item.url ? "stroke-3" : ""}`}
+                    />
+                    {item.key === "messages" && hasUnreadMessages && (
+                      <span className="absolute -top-0.5 -right-0.5 flex size-3 rounded-full bg-destructive border-2 border-background" />
+                    )}
+                  </div>
                   <span className="sr-only">{item.key}</span>
                 </Link>
               </Button>
@@ -70,8 +101,13 @@ export function NavBottom() {
             >
               <Link href={`/${user.username}`}>
                 <Avatar className="h-8 w-8 rounded-full">
-                  <AvatarImage src={user.image || "/default-avatar.png"} alt={user.name} />
-                  <AvatarFallback className="rounded-lg">{getUsernameFallback(user.name)}</AvatarFallback>
+                  <AvatarImage
+                    src={`/${user.image}` || "/default-avatar.png"}
+                    alt={user.name}
+                  />
+                  <AvatarFallback className="rounded-lg">
+                    {getUsernameFallback(user.name)}
+                  </AvatarFallback>
                 </Avatar>
               </Link>
             </Button>

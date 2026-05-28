@@ -3,7 +3,14 @@
 import SocialLogin from "@/components/common/social-login";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel, FieldSeparator } from "@/components/ui/field";
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+  FieldSeparator,
+} from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { useTranslations } from "next-intl";
 import { Controller, useForm } from "react-hook-form";
@@ -45,8 +52,11 @@ export default function SignupForm({
   }, [tValidation, form]);
 
   const handleSubmit = async (data: SignupSchemaType) => {
-    const res = await handleBAAction(() => authClient.signUp.email({ ...data, callbackURL }));
-    if (res.error == null && !res.data.user.emailVerified) handleOpenEmailVerificationTab(data.email);
+    const res = await handleBAAction(() =>
+      authClient.signUp.email({ ...data, callbackURL }),
+    );
+    if (res.error == null && !res.data.user.emailVerified)
+      handleOpenEmailVerificationTab(data.email);
   };
 
   return (
@@ -127,13 +137,18 @@ export default function SignupForm({
         />
         <Field>
           <Button type="submit" disabled={isSubmitting}>
-            <LoadingSwap isLoading={isSubmitting}>{t("createAccountButton")}</LoadingSwap>
+            <LoadingSwap isLoading={isSubmitting}>
+              {t("createAccountButton")}
+            </LoadingSwap>
           </Button>
         </Field>
-        <FieldSeparator className="*:data-[slot=field-separator-content]:bg-card">{t("orContinueWith")}</FieldSeparator>
+        <FieldSeparator className="*:data-[slot=field-separator-content]:bg-card">
+          {t("orContinueWith")}
+        </FieldSeparator>
         <SocialLogin isPending={isSubmitting} />
         <FieldDescription className="px-6 text-center">
-          {t("alreadyHaveAccount")} <Link href="/accounts/login">{t("login")}</Link>
+          {t("alreadyHaveAccount")}{" "}
+          <Link href="/accounts/login">{t("login")}</Link>
         </FieldDescription>
       </FieldGroup>
     </form>

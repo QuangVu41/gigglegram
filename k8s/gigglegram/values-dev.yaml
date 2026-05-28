@@ -24,7 +24,7 @@ apps:
     name: api-gateway
     replicaCount: 1
     image:
-      repository: asia-southeast1-docker.pkg.dev/mystic-subject-478902-i5/api-gateway/prod
+      repository: asia-southeast1-docker.pkg.dev/gigglegram-491420/api-gateway/prod
       tag: latest
       pullPolicy: IfNotPresent
     service:
@@ -44,7 +44,7 @@ apps:
     name: auth
     replicaCount: 1
     image:
-      repository: asia-southeast1-docker.pkg.dev/mystic-subject-478902-i5/auth/prod
+      repository: asia-southeast1-docker.pkg.dev/gigglegram-491420/auth/prod
       tag: latest
       pullPolicy: IfNotPresent
     service:
@@ -66,7 +66,7 @@ apps:
     name: engagements
     replicaCount: 1
     image:
-      repository: asia-southeast1-docker.pkg.dev/mystic-subject-478902-i5/engagements/prod
+      repository: asia-southeast1-docker.pkg.dev/gigglegram-491420/engagements/prod
       tag: latest
       pullPolicy: IfNotPresent
     resources:
@@ -81,7 +81,7 @@ apps:
     name: feed
     replicaCount: 1
     image:
-      repository: asia-southeast1-docker.pkg.dev/mystic-subject-478902-i5/feed/prod
+      repository: asia-southeast1-docker.pkg.dev/gigglegram-491420/feed/prod
       tag: latest
       pullPolicy: IfNotPresent
     service:
@@ -101,7 +101,7 @@ apps:
     name: posts
     replicaCount: 1
     image:
-      repository: asia-southeast1-docker.pkg.dev/mystic-subject-478902-i5/posts/prod
+      repository: asia-southeast1-docker.pkg.dev/gigglegram-491420/posts/prod
       tag: latest
       pullPolicy: IfNotPresent
     service:
@@ -121,7 +121,7 @@ apps:
     name: real-time
     replicaCount: 1
     image:
-      repository: asia-southeast1-docker.pkg.dev/mystic-subject-478902-i5/real-time/prod
+      repository: asia-southeast1-docker.pkg.dev/gigglegram-491420/real-time/prod
       tag: latest
       pullPolicy: IfNotPresent
     service:
@@ -141,7 +141,7 @@ apps:
     name: settings
     replicaCount: 1
     image:
-      repository: asia-southeast1-docker.pkg.dev/mystic-subject-478902-i5/settings/prod
+      repository: asia-southeast1-docker.pkg.dev/gigglegram-491420/settings/prod
       tag: latest
       pullPolicy: IfNotPresent
     service:
@@ -163,7 +163,7 @@ apps:
     name: users
     replicaCount: 1
     image:
-      repository: asia-southeast1-docker.pkg.dev/mystic-subject-478902-i5/users/prod
+      repository: asia-southeast1-docker.pkg.dev/gigglegram-491420/users/prod
       tag: latest
       pullPolicy: IfNotPresent
     service:
@@ -183,7 +183,7 @@ apps:
     name: web
     replicaCount: 1
     image:
-      repository: asia-southeast1-docker.pkg.dev/mystic-subject-478902-i5/web/prod
+      repository: asia-southeast1-docker.pkg.dev/gigglegram-491420/web/prod
       tag: latest
       pullPolicy: IfNotPresent
     service:

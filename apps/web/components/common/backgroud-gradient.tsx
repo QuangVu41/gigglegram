@@ -22,8 +22,8 @@ const BackgroundGradient = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <div className={`min-h-screen w-full ${bgStyle} relative`}>
-      <div className="absolute inset-0 z-0 bg-grid-fade dark:bg-grid-dark" />
-      <div className="relative z-1">{children}</div>
+      <div className="absolute inset-0 z-10 bg-grid-fade dark:bg-grid-dark" />
+      <div className="relative z-10">{children}</div>
     </div>
   );
 };

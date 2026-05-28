@@ -4,6 +4,7 @@ import { PostsService } from '@/src/posts.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { DatabaseModule } from '@repo/database';
 import {
+  ModerationModule,
   PermGuard,
   TransformResponseInterceptor,
   UploadModule,
@@ -18,14 +19,16 @@ import {
   SYSTEM_SETTINGS_SERVICE_NAME,
 } from '@repo/types';
 import { join } from 'path';
-import { PostsRepository } from '@repo/database';
+import { PostsRepository, PostMediaRepository } from '@repo/database';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { StoriesModule } from '@/src/stories/stories.module';
 import { CollectionsModule } from '@/src/collections/collections.module';
-import { PostReportsModule } from '@/src/post-reports/post-reports.module';
+import { ContentReportsModule } from '@/src/content-reports/content-reports.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { PostsSyncService } from '@/src/posts-sync.service';
 import { LocationsModule } from '@/src/locations/localtions.module';
+import { LikesModule } from '@/src/likes/likes.module';
+import { HighlightsModule } from '@/src/highlights/highlights.module';
 
 @Module({
   imports: [
@@ -85,8 +88,11 @@ import { LocationsModule } from '@/src/locations/localtions.module';
     UploadModule,
     StoriesModule,
     CollectionsModule,
-    PostReportsModule,
+    ContentReportsModule,
     LocationsModule,
+    LikesModule,
+    HighlightsModule,
+    ModerationModule,
   ],
   controllers: [PostsController],
   providers: [
@@ -100,6 +106,7 @@ import { LocationsModule } from '@/src/locations/localtions.module';
     },
     PostsService,
     PostsRepository,
+    PostMediaRepository,
     PostsSyncService,
   ],
 })

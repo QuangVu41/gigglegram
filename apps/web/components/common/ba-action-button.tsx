@@ -45,7 +45,11 @@ const BAActionButton = ({
   };
 
   return (
-    <Button {...props} disabled={isPending || props.disabled} onClick={handleSubmit}>
+    <Button
+      {...props}
+      disabled={isPending || props.disabled}
+      onClick={handleSubmit}
+    >
       <LoadingSwap isLoading={isPending}>{children}</LoadingSwap>
     </Button>
   );

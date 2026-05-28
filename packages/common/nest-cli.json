@@ -12,6 +12,10 @@
       {
         "include": "./upload/*.json",
         "watchAssets": true
+      },
+      {
+        "include": "./moderation/*.json",
+        "watchAssets": true
       }
     ]
   }

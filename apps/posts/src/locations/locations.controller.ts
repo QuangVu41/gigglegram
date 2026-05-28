@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   Delete,
   Get,
@@ -11,6 +12,7 @@ import { LocationsService } from '@/src/locations/locations.service';
 import { FindManyLocationsDto } from '@/src/locations/dto/find-many-locations.dto';
 import { CreateLocationDto } from '@/src/locations/dto/create-location.dto';
 import { UpdateLocationDto } from '@/src/locations/dto/update-location.dto';
+import { DeleteManyLocationsDto } from '@/src/locations/dto/delete-many-locations.dto';
 
 @Controller('locations')
 export class LocationsController {
@@ -21,9 +23,28 @@ export class LocationsController {
     return this.locationsService.findManyLocations(findManyLocationsDto);
   }
 
+  @Get('stats')
+  async getLocationsStats() {
+    return this.locationsService.getLocationsStats();
+  }
+
   @Post()
-  async createLocation(createLocationDto: CreateLocationDto) {
+  async createLocation(@Body() createLocationDto: CreateLocationDto) {
     return this.locationsService.createLocation(createLocationDto);
+  }
+
+  @Delete('bulk')
+  async deleteManyLocations(
+    @Body() deleteManyLocationsDto: DeleteManyLocationsDto,
+  ) {
+    return this.locationsService.deleteManyLocations(
+      deleteManyLocationsDto.ids,
+    );
+  }
+
+  @Delete('by/{:locationId}')
+  async deleteLocationById(@Param('locationId') locationId: string) {
+    return this.locationsService.deleteLocation(locationId);
   }
 
   @Get('{:locationId}')
@@ -34,7 +55,7 @@ export class LocationsController {
   @Patch('{:locationId}')
   async updateLocation(
     @Param('locationId') locationId: string,
-    updateLocationDto: UpdateLocationDto,
+    @Body() updateLocationDto: UpdateLocationDto,
   ) {
     return this.locationsService.updateLocation(locationId, updateLocationDto);
   }

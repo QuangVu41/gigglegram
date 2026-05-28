@@ -23,12 +23,26 @@ import {
   SYSTEM_SETTINGS_SERVICE_NAME,
   SystemSettingsServiceClient,
   SystemWideErrorCodes,
+  KAFKA_SERVICE_NAME,
+  POSTS_TOPIC_STORY_CREATED,
+  StoryCreatedEvent,
 } from '@repo/types';
-import { type ClientGrpc } from '@nestjs/microservices';
+import { type ClientGrpc, ClientKafka } from '@nestjs/microservices';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { ConfigService } from '@nestjs/config';
 import { formatDateWithLocale, UploadService } from '@repo/common';
-import { eq } from 'drizzle-orm';
+import {
+  and,
+  eq,
+  lt,
+  or,
+  exists,
+  like,
+  gte,
+  lte,
+  sum,
+  count,
+} from 'drizzle-orm';
 
 @Injectable()
 export class StoriesService implements OnModuleInit {
@@ -43,6 +57,8 @@ export class StoriesService implements OnModuleInit {
     private readonly storiesRepository: StoriesRepository,
     @Inject(SYSTEM_SETTINGS_SERVICE_NAME)
     private readonly systemSettingsClient: ClientGrpc,
+    @Inject(KAFKA_SERVICE_NAME)
+    private readonly kafkaClient: ClientKafka,
   ) {}
 
   onModuleInit() {
@@ -53,7 +69,79 @@ export class StoriesService implements OnModuleInit {
   }
 
   async findManyStories(findManyStoriesDto: FindManyStoriesDto) {
-    return await this.storiesRepository.findMany({}, findManyStoriesDto);
+    const { keyword, isExpired, startDate, endDate } = findManyStoriesDto;
+    const whereConditions: any[] = [];
+
+    if (keyword) {
+      whereConditions.push(
+        exists(
+          this.db
+            .select()
+            .from(users)
+            .where(
+              and(
+                eq(users.id, stories.userId),
+                or(
+                  like(users.username, `%${keyword}%`),
+                  like(users.name, `%${keyword}%`),
+                ),
+              ),
+            ),
+        ),
+      );
+    }
+
+    if (isExpired !== undefined) {
+      const now = new Date();
+      if (isExpired) {
+        whereConditions.push(lt(stories.expiresAt, now));
+      } else {
+        whereConditions.push(gte(stories.expiresAt, now));
+      }
+    }
+
+    if (startDate) {
+      whereConditions.push(gte(stories.createdAt, startDate));
+    }
+
+    if (endDate) {
+      whereConditions.push(lte(stories.createdAt, endDate));
+    }
+
+    return await this.storiesRepository.findMany(
+      {
+        where: whereConditions.length > 0 ? and(...whereConditions) : undefined,
+        with: { user: true },
+      },
+      findManyStoriesDto,
+    );
+  }
+
+  async findManyUserStories(
+    findManyStoriesDto: FindManyStoriesDto,
+    user: typeof users.$inferSelect,
+  ) {
+    return await this.storiesRepository.findMany(
+      {
+        where: eq(stories.userId, user.id),
+      },
+      findManyStoriesDto,
+    );
+  }
+
+  async findManyUserArchivedStories(
+    findManyStoriesDto: FindManyStoriesDto,
+    user: typeof users.$inferSelect,
+  ) {
+    return await this.storiesRepository.findMany(
+      {
+        where: and(
+          eq(stories.userId, user.id),
+          lt(stories.expiresAt, new Date()),
+        ),
+      },
+      findManyStoriesDto,
+    );
   }
 
   async createStory(
@@ -152,8 +240,13 @@ export class StoriesService implements OnModuleInit {
                 code: SystemWideErrorCodes.UPLOAD_REEL_VIDEO_DURATION_EXCEEDED,
               });
 
-            const inputVideoWidth = metadata.streams[0]?.width;
-            const inputVideoHeight = metadata.streams[0]?.height;
+            const inputVideoWidth =
+              metadata.streams[0]?.width || metadata.streams[1]?.width;
+            const inputVideoHeight =
+              metadata.streams[0]?.height || metadata.streams[1]?.height;
+            const hasAudio = metadata.streams.some(
+              (stream) => stream.codec_type === 'audio',
+            );
 
             if (!inputVideoWidth || !inputVideoHeight)
               throw new BadRequestException({
@@ -165,6 +258,8 @@ export class StoriesService implements OnModuleInit {
 
             media.buffer = await this.uploadService.preprocessVideoFile(
               media.buffer,
+              width,
+              height,
             );
 
             resultUrlObj = await this.uploadService.uploadFile(
@@ -177,6 +272,7 @@ export class StoriesService implements OnModuleInit {
                 inputVideoWidth: inputVideoWidth!.toString(),
                 inputVideoHeight: inputVideoHeight!.toString(),
                 storyId: newStory!.id,
+                hasAudio: hasAudio.toString(),
               },
             );
 
@@ -214,8 +310,8 @@ export class StoriesService implements OnModuleInit {
             : `A thumbnail image of a video story by ${user.name} on ${formatDateWithLocale(new Date())}.`;
 
           const expiresAt = new Date();
-          expiresAt.setDate(
-            expiresAt.getDate() +
+          expiresAt.setHours(
+            expiresAt.getHours() +
               (settings['story.expiration_hours']?.intValue ||
                 parseInt(
                   this.configService.getOrThrow<string>(
@@ -253,6 +349,12 @@ export class StoriesService implements OnModuleInit {
           throw error;
         }
       });
+
+      if (createdStory) {
+        this.kafkaClient.emit(POSTS_TOPIC_STORY_CREATED, {
+          storyId: createdStory.id,
+        } as StoryCreatedEvent);
+      }
 
       return createdStory;
     } catch (error) {
@@ -322,5 +424,114 @@ export class StoriesService implements OnModuleInit {
         code: SystemWideErrorCodes.DELETION_FAILED,
       });
     }
+  }
+
+  async getStoriesStats(findManyStoriesDto: FindManyStoriesDto) {
+    const { keyword, isExpired, startDate, endDate } = findManyStoriesDto;
+    const whereConditions: any[] = [];
+
+    if (keyword) {
+      whereConditions.push(
+        exists(
+          this.db
+            .select()
+            .from(users)
+            .where(
+              and(
+                eq(users.id, stories.userId),
+                or(
+                  like(users.username, `%${keyword}%`),
+                  like(users.name, `%${keyword}%`),
+                ),
+              ),
+            ),
+        ),
+      );
+    }
+
+    if (isExpired !== undefined) {
+      const now = new Date();
+      if (isExpired) {
+        whereConditions.push(lt(stories.expiresAt, now));
+      } else {
+        whereConditions.push(gte(stories.expiresAt, now));
+      }
+    }
+
+    if (startDate) {
+      whereConditions.push(gte(stories.createdAt, startDate));
+    }
+
+    if (endDate) {
+      whereConditions.push(lte(stories.createdAt, endDate));
+    }
+
+    const where =
+      whereConditions.length > 0 ? and(...whereConditions) : undefined;
+    const now = new Date();
+
+    const [total, active, expired, viewsRes] = await Promise.all([
+      this.db
+        .select({ count: count() })
+        .from(stories)
+        .where(where)
+        .then((res) => res[0]?.count ?? 0),
+      this.db
+        .select({ count: count() })
+        .from(stories)
+        .where(
+          and(
+            where,
+            eq(stories.status, 'published'),
+            gte(stories.expiresAt, now),
+          ),
+        )
+        .then((res) => res[0]?.count ?? 0),
+      this.db
+        .select({ count: count() })
+        .from(stories)
+        .where(
+          and(
+            where,
+            eq(stories.status, 'published'),
+            lt(stories.expiresAt, now),
+          ),
+        )
+        .then((res) => res[0]?.count ?? 0),
+      this.db
+        .select({
+          totalViews: sum(stories.viewsCount),
+        })
+        .from(stories)
+        .where(where)
+        .then((res) => res[0]),
+    ]);
+
+    const totalStories = Number(total);
+    const avgViewsPerStory =
+      totalStories > 0 ? Number(viewsRes?.totalViews || 0) / totalStories : 0;
+
+    return {
+      totalStories,
+      activeStories: Number(active),
+      expiredStories: Number(expired),
+      avgViewsPerStory,
+    };
+  }
+
+  async deleteManyStories(storyIds: string[]) {
+    const results: any[] = [];
+    for (const storyId of storyIds) {
+      try {
+        const result = await this.deleteStory(storyId);
+        if (result) results.push(result);
+      } catch (error) {
+        this.logger.error(
+          `Error deleting story ${storyId} in bulk operation.`,
+          error,
+        );
+      }
+    }
+    return results;
   }
 }

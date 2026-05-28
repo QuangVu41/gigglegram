@@ -1,0 +1,99 @@
+@startuml Gigglegram Use Case Diagram
+
+' Clean, professional UML theme matching the aesthetic of the component diagram
+skinparam BackgroundColor #FFFFFF
+skinparam Shadowing false
+skinparam DefaultFontName "Segoe UI"
+skinparam DefaultFontSize 12
+
+' Actor formatting
+skinparam actor {
+    BackgroundColor #FFFFFF
+    BorderColor #404040
+    BorderThickness 1.5
+}
+
+' Usecase formatting
+skinparam usecase {
+    BackgroundColor #FFFFFF
+    BorderColor #404040
+    BorderThickness 1.2
+    ArrowColor #555555
+    ArrowThickness 1.2
+}
+
+' Package formatting
+skinparam package {
+    BackgroundColor #FAF6F0
+    BorderColor #A0A0A0
+    BorderThickness 1.2
+}
+
+left to right direction
+
+actor "Khách\n(Guest)" as Guest
+actor "Thành viên\n(User)" as User
+actor "Quản trị viên\n(Admin)" as Admin
+
+rectangle "Hệ thống Gigglegram" as System {
+    
+    package "Xác thực & Tài khoản" {
+        usecase "UC-01: Đăng ký tài khoản" as UC_Register
+        usecase "UC-02: Đăng nhập" as UC_Login
+        usecase "UC-03: Khôi phục mật khẩu" as UC_ResetPwd
+        usecase "UC-04: Quản lý trang cá nhân" as UC_Profile
+        usecase "UC-05: Theo dõi người dùng" as UC_Follow
+    }
+    
+    package "Đăng tải & Bảng tin" {
+        usecase "UC-06: Đăng bài viết (3:4)" as UC_CreatePost
+        usecase "UC-07: Biên tập hình ảnh/video" as UC_EditMedia
+        usecase "UC-08: Xem Bảng tin & Reels" as UC_ViewFeed
+        
+        UC_CreatePost .down.> UC_EditMedia : <<include>>
+    }
+    
+    package "Tương tác & Báo cáo" {
+        usecase "UC-09: Tương tác bài viết\n(Thích, Bình luận, Lưu)" as UC_Interact
+        usecase "UC-10: Báo cáo vi phạm" as UC_Report
+    }
+    
+    package "Tin nhắn & Thông báo" {
+        usecase "UC-11: Nhắn tin trực tiếp" as UC_Chat
+        usecase "UC-12: Nhận thông báo" as UC_Notify
+    }
+    
+    package "Dashboard Quản trị" {
+        usecase "UC-13: Quản lý báo cáo vi phạm" as UC_ManageReports
+        usecase "UC-14: Quản lý Thư viện âm thanh" as UC_ManageAudio
+        usecase "UC-15: Quản lý Hashtags" as UC_ManageHashtags
+        usecase "UC-16: Xem báo cáo thống kê" as UC_ViewStats
+        usecase "UC-17: Cấu hình hệ thống" as UC_Settings
+    }
+}
+
+' Guest connections
+Guest --> UC_Register
+Guest --> UC_Login
+Guest --> UC_ResetPwd
+
+' User connections
+User --> UC_Login
+User --> UC_Profile
+User --> UC_Follow
+User --> UC_CreatePost
+User --> UC_ViewFeed
+User --> UC_Interact
+User --> UC_Report
+User --> UC_Chat
+User --> UC_Notify
+
+' Admin connections
+Admin --> UC_Login
+Admin --> UC_ManageReports
+Admin --> UC_ManageAudio
+Admin --> UC_ManageHashtags
+Admin --> UC_ViewStats
+Admin --> UC_Settings
+
+@enduml

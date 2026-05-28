@@ -10,11 +10,19 @@ export const authClient = createAuthClient({
           type: "string",
           required: true,
         },
+        bio: {
+          type: "string",
+          required: false,
+        },
+        gender: {
+          type: "string",
+          required: false,
+        },
       },
     }),
     adminClient(),
     organizationClient({
-      ac,
+      ac: ac as any,
       dynamicAccessControl: {
         enabled: true,
       },

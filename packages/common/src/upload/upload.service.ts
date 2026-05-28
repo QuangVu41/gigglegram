@@ -13,6 +13,8 @@ import { Readable, PassThrough } from 'stream';
 import { SystemWideErrorCodes } from '@repo/types';
 import { randomUUID } from 'crypto';
 import { join } from 'path';
+import { tmpdir } from 'os';
+import { writeFile, readFile, unlink } from 'fs/promises';
 
 @Injectable()
 export class UploadService implements OnModuleInit {
@@ -22,12 +24,18 @@ export class UploadService implements OnModuleInit {
   constructor(private readonly configService: ConfigService) {}
 
   onModuleInit() {
+    const saKeyFile = this.configService.get<string>(
+      'GOOGLE_CS_SA_KEY_FILE_NAME',
+    );
+    let keyFilename: string | undefined = undefined;
+
+    if (saKeyFile) {
+      keyFilename = join(__dirname, saKeyFile);
+    }
+
     this.storage = new Storage({
       projectId: this.configService.getOrThrow('GOOGLE_PROJECT_ID'),
-      keyFilename: join(
-        __dirname,
-        this.configService.getOrThrow('GOOGLE_CS_SA_KEY_FILE_NAME')!,
-      ),
+      keyFilename: keyFilename,
     });
   }
 
@@ -65,10 +73,7 @@ export class UploadService implements OnModuleInit {
         chunks.push(chunk);
       });
 
-      passThrough.on('end', () => {
-        this.logger.log('Thumbnail extraction finished.');
-        resolve(Buffer.concat(chunks));
-      });
+      let resolved = false;
 
       const command = ffmpeg(bufferStream)
         .seekInput(timeInMilliseconds / 1000)
@@ -82,8 +87,18 @@ export class UploadService implements OnModuleInit {
 
       command
         .on('error', (err) => {
-          this.logger.error('Error extracting thumbnail.', err);
-          reject(err);
+          if (!resolved) {
+            resolved = true;
+            this.logger.error('Error extracting thumbnail.', err);
+            reject(err);
+          }
+        })
+        .on('end', () => {
+          if (!resolved) {
+            resolved = true;
+            this.logger.log('Thumbnail extraction finished.');
+            resolve(Buffer.concat(chunks));
+          }
         })
         .pipe(passThrough, { end: true });
     });
@@ -139,44 +154,72 @@ export class UploadService implements OnModuleInit {
     });
   }
 
-  async preprocessVideoFile(buffer: Buffer<ArrayBufferLike>) {
-    return await new Promise<Buffer>((resolve, reject) => {
-      const bufferStream = Readable.from(buffer);
-      const passThrough = new PassThrough();
-      const chunks: Buffer[] = [];
+  async preprocessVideoFile(
+    buffer: Buffer<ArrayBufferLike>,
+    width?: number,
+    height?: number,
+  ) {
+    const tempInputId = randomUUID();
+    const tempInputPath = join(tmpdir(), `input-${tempInputId}.mp4`);
+    const tempOutputPath = join(tmpdir(), `output-${tempInputId}.mp4`);
 
-      passThrough.on('data', (chunk: Buffer) => {
-        chunks.push(chunk);
-      });
+    try {
+      await writeFile(tempInputPath, buffer);
 
-      passThrough.on('end', () => {
-        this.logger.log('Processing video finished.');
-        resolve(Buffer.concat(chunks));
-      });
+      await new Promise<void>((resolve, reject) => {
+        const command = ffmpeg(tempInputPath)
+          .videoCodec('libx264')
+          .audioCodec('aac');
 
-      ffmpeg(bufferStream)
-        .outputFormat('mp4')
-        .videoCodec('libx264')
-        .audioCodec('aac')
-        .outputOptions([
-          '-preset veryfast', // Fast processing, decent compression
-          '-crf 28', // Good compression ratio
-          '-maxrate 4M', // Cap bitrate
-          '-bufsize 3M',
-          '-b:a 96k', // Reduce audio bitrate
-          '-movflags frag_keyframe+empty_moov',
-          '-pix_fmt yuv420p',
-        ])
-        .on('error', (error) => {
-          this.logger.error('Error processing video file.', error);
-          reject(
-            new InternalServerErrorException({
-              code: SystemWideErrorCodes.UPLOAD_PROCESSING_FILE_FAILED,
-            }),
+        // Build video filters: scale down if dimensions provided, always ensure even dimensions
+        const videoFilters: string[] = [];
+        if (width && height) {
+          // Scale to fit within target dimensions, maintain aspect ratio
+          videoFilters.push(
+            `scale='min(${width},iw)':'min(${height},ih)':force_original_aspect_ratio=decrease`,
           );
-        })
-        .pipe(passThrough, { end: true });
-    });
+        }
+        // Ensure dimensions are divisible by 2 (required by libx264)
+        videoFilters.push(`pad=ceil(iw/2)*2:ceil(ih/2)*2`);
+
+        if (videoFilters.length > 0) {
+          command.videoFilters(videoFilters);
+        }
+
+        command
+          .outputOptions([
+            '-preset ultrafast', // Fastest encoding with minimal quality loss at this CRF
+            '-crf 23', // Visually lossless for most content (x264 default)
+            '-maxrate 4M', // Cap bitrate
+            '-bufsize 8M', // Larger buffer for smoother bitrate distribution
+            '-b:a 128k', // Good audio quality
+            '-ac 2', // Stereo audio
+            '-movflags +faststart', // Suitable for streaming immediately
+            '-pix_fmt yuv420p',
+            '-threads 0', // Use all available CPU cores
+          ])
+          .output(tempOutputPath)
+          .on('error', (error) => {
+            this.logger.error('Error processing video file.', error);
+            reject(
+              new InternalServerErrorException({
+                code: SystemWideErrorCodes.UPLOAD_PROCESSING_FILE_FAILED,
+              }),
+            );
+          })
+          .on('end', () => {
+            this.logger.log('Processing video finished.');
+            resolve();
+          })
+          .run();
+      });
+
+      const processedBuffer = await readFile(tempOutputPath);
+      return processedBuffer;
+    } finally {
+      await unlink(tempInputPath).catch(() => {});
+      await unlink(tempOutputPath).catch(() => {});
+    }
   }
 
   async uploadFile(
@@ -243,14 +286,55 @@ export class UploadService implements OnModuleInit {
         code: SystemWideErrorCodes.UPLOAD_UNSUPPORTED_FILE_TYPE,
       });
 
+    // Clean fileName to remove bucket name or host domain if present
+    let cleanPath = fileName;
+
+    // If it's a full URL, extract the path
+    if (cleanPath.startsWith('http://') || cleanPath.startsWith('https://')) {
+      try {
+        const url = new URL(cleanPath);
+        cleanPath = url.pathname;
+      } catch (e) {
+        // Ignore URL parsing errors
+      }
+    }
+
+    // Remove leading slash
+    if (cleanPath.startsWith('/')) {
+      cleanPath = cleanPath.substring(1);
+    }
+
+    // If it starts with the bucket name, remove it (e.g. "image-st/avatars/...")
+    if (cleanPath.startsWith(bucketName + '/')) {
+      cleanPath = cleanPath.substring(bucketName.length + 1);
+    }
+
     try {
-      await this.storage.bucket(bucketName).file(fileName).delete();
+      await this.storage.bucket(bucketName).file(cleanPath).delete();
       this.logger.log(
-        `File gs://${bucketName}/${fileName} deleted successfully.`,
+        `File gs://${bucketName}/${cleanPath} deleted successfully.`,
       );
-    } catch (error) {
+    } catch (error: any) {
+      const isNotFoundError =
+        error?.code === 404 ||
+        error?.code === '404' ||
+        error?.statusCode === 404 ||
+        error?.statusCode === '404' ||
+        error?.message?.includes('notFound') ||
+        error?.message?.includes('No such object') ||
+        error?.errors?.some(
+          (e: any) =>
+            e.reason === 'notFound' || e.message?.includes('No such object'),
+        );
+
+      if (isNotFoundError) {
+        this.logger.warn(
+          `File gs://${bucketName}/${cleanPath} not found for deletion. Ignoring.`,
+        );
+        return;
+      }
       this.logger.error(
-        `ERROR deleting file gs://${bucketName}/${fileName}.`,
+        `ERROR deleting file gs://${bucketName}/${cleanPath}.`,
         error,
       );
       throw new InternalServerErrorException({

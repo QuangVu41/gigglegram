@@ -20,6 +20,7 @@ import { SettingsService } from '@/src/settings.service';
 import { CreateSettingDto } from '@/src/dto/create-setting.dto';
 import { UpdateSettingDto } from '@/src/dto/update-setting.dto';
 import { FindManySettingsDto } from '@/src/dto/find-many-settings.dto';
+import { DeleteManySettingsDto } from '@/src/dto/delete-many-settings.dto';
 import { PermGuard, Perms } from '@repo/common';
 
 @UseGuards(PermGuard)
@@ -34,6 +35,11 @@ export class SettingsController implements SystemSettingsServiceController {
 
   async findSettingsByPrefix(settingPrefix: SettingPrefix, metadata: Metadata) {
     return this.settingsService.findSettingsByPrefix(settingPrefix, metadata);
+  }
+
+  @Get('stats')
+  async getSettingsStats() {
+    return await this.settingsService.getSettingsStats();
   }
 
   @Get('{:settingId}')
@@ -61,6 +67,16 @@ export class SettingsController implements SystemSettingsServiceController {
     return await this.settingsService.updateSetting(
       settingId,
       updateSettingDto,
+    );
+  }
+
+  @Perms({ setting: ['delete'] })
+  @Delete('bulk')
+  async deleteManySettings(
+    @Body() deleteManySettingsDto: DeleteManySettingsDto,
+  ) {
+    return await this.settingsService.deleteManySettings(
+      deleteManySettingsDto.ids,
     );
   }
 

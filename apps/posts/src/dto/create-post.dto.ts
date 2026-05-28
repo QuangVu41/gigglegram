@@ -1,4 +1,4 @@
-import { plainToClass, Transform, Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
   IsArray,
   IsBoolean,
@@ -26,12 +26,16 @@ export class CreatePostDto {
 
   @IsBoolean()
   @IsOptional()
-  @Type(() => Boolean)
+  @Transform(({ value }) =>
+    value === 'true' ? true : value === 'false' ? false : value,
+  )
   commentsDisabled?: boolean;
 
   @IsBoolean()
   @IsOptional()
-  @Type(() => Boolean)
+  @Transform(({ value }) =>
+    value === 'true' ? true : value === 'false' ? false : value,
+  )
   likesHidden?: boolean;
 
   @IsString({ each: true })
@@ -52,30 +56,12 @@ export class CreatePostDto {
   @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })
-  @Transform(({ value }) => {
-    if (typeof value === 'string') {
-      try {
-        return plainToClass(VideoMetadataDto, JSON.parse(value));
-      } catch {
-        return plainToClass(VideoMetadataDto, value);
-      }
-    }
-    return plainToClass(VideoMetadataDto, value);
-  })
+  @Type(() => VideoMetadataDto)
   videoMetadata?: VideoMetadataDto[];
 
   @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })
-  @Transform(({ value }) => {
-    if (typeof value === 'string') {
-      try {
-        return plainToClass(CreatePostUserTagDto, JSON.parse(value));
-      } catch {
-        return plainToClass(CreatePostUserTagDto, value);
-      }
-    }
-    return plainToClass(CreatePostUserTagDto, value);
-  })
+  @Type(() => CreatePostUserTagDto)
   taggedUsers?: CreatePostUserTagDto[];
 }

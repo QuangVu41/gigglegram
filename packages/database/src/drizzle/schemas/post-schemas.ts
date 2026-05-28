@@ -1,6 +1,7 @@
 import { relations } from 'drizzle-orm';
 import {
   boolean,
+  check,
   decimal,
   index,
   integer,
@@ -27,13 +28,25 @@ export const postCollaboratorsStatusEnum = pgEnum(
   postUserTagsStatusEnum.enumValues,
 );
 
-export const postStatus = pgEnum('post_status', [
+export const postMediaStatus = pgEnum('post_status', [
   'pending',
   'published',
   'failed',
 ]);
 
-export const storyStatus = pgEnum('story_status', postStatus.enumValues);
+export const languageEnum = pgEnum('language', ['en', 'vi']);
+
+export const postMediaModerationStatus = pgEnum(
+  'post_media_moderation_status',
+  ['pending', 'approved', 'flagged'],
+);
+
+export const contentReportsType = pgEnum('content_reports_type', [
+  'post',
+  'story',
+]);
+
+export const storyStatus = pgEnum('story_status', postMediaStatus.enumValues);
 
 export const reportReasonsCategoryEnum = pgEnum('report_reasons_category', [
   'spam',
@@ -42,21 +55,20 @@ export const reportReasonsCategoryEnum = pgEnum('report_reasons_category', [
   'hate_speech',
   'misinformation',
   'copyright',
+  'adult',
 ]);
 
-export const postReportsStatusEnum = pgEnum('post_reports_status', [
+export const contentReportsStatusEnum = pgEnum('content_reports_status', [
   'pending',
   'under_review',
   'resolved',
   'dismissed',
 ]);
 
-export const postReportsActionTakenEnum = pgEnum('post_reports_action_taken', [
-  'post_removed',
-  'account_warned',
-  'account_suspended',
-  'no_action',
-]);
+export const contentReportsActionTakenEnum = pgEnum(
+  'content_reports_action_taken',
+  ['post_removed', 'account_warned', 'account_suspended', 'no_action'],
+);
 
 export const posts = pgTable(
   'posts',
@@ -82,12 +94,11 @@ export const posts = pgTable(
     playsCount: integer('plays_count').default(0).notNull(),
     isReel: boolean('is_reel').default(false).notNull(),
     isArchived: boolean('is_archived').default(false).notNull(),
-    status: postStatus('status').default('pending').notNull(),
-    transcoderJobName: varchar('transcoder_job_name').unique(),
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at')
       .$onUpdate(() => new Date())
       .notNull(),
+    language: languageEnum('language').default('en').notNull(),
   },
   (table) => [
     index('posts_userId_idx').on(table.userId),
@@ -117,6 +128,12 @@ export const postMedia = pgTable(
     duration: integer('duration'),
     altText: text('alt_text'),
     createdAt: timestamp('created_at').defaultNow().notNull(),
+    transcoderJobName: varchar('transcoder_job_name').unique(),
+    status: postMediaStatus('status').default('pending').notNull(),
+    moderationStatus: postMediaModerationStatus('moderation_status')
+      .default('pending')
+      .notNull(),
+    moderationReason: text('moderation_reason'),
   },
   (table) => [index('postMedia_postId_idx').on(table.postId)],
 );
@@ -208,6 +225,10 @@ export const stories = pgTable(
     status: storyStatus('status').default('pending').notNull(),
     transcoderJobName: varchar('transcoder_job_name').unique(),
     viewsCount: integer('views_count').default(0).notNull(),
+    moderationStatus: postMediaModerationStatus('moderation_status')
+      .default('pending')
+      .notNull(),
+    moderationReason: text('moderation_reason'),
     altText: text('alt_text'),
     createdAt: timestamp('created_at').defaultNow().notNull(),
     expiresAt: timestamp('expires_at'),
@@ -297,6 +318,28 @@ export const savedPosts = pgTable(
   ],
 );
 
+export const savedAudioTracks = pgTable(
+  'saved_audio_tracks',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    audioTrackId: uuid('audio_track_id')
+      .notNull()
+      .references(() => audioTracks.id, { onDelete: 'cascade' }),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+  },
+  (table) => [
+    index('savedAudioTracks_userId_idx').on(table.userId),
+    index('savedAudioTracks_audioTrackId_idx').on(table.audioTrackId),
+    unique('savedAudioTracks_userId_audioTrackId_unique').on(
+      table.userId,
+      table.audioTrackId,
+    ),
+  ],
+);
+
 export const postCollaborators = pgTable(
   'post_collaborators',
   {
@@ -363,8 +406,8 @@ export const reportReasons = pgTable('report_reasons', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
-export const postReports = pgTable(
-  'post_reports',
+export const contentReports = pgTable(
+  'content_reports',
   {
     id: uuid('id').primaryKey().defaultRandom(),
     reporterId: text('reporter_id')
@@ -373,29 +416,41 @@ export const postReports = pgTable(
     reportedUserId: text('reported_user_id')
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
-    postId: uuid('post_id')
-      .notNull()
-      .references(() => posts.id, { onDelete: 'cascade' }),
+    postId: uuid('post_id').references(() => posts.id, { onDelete: 'cascade' }),
+    storyId: uuid('story_id').references(() => stories.id, {
+      onDelete: 'cascade',
+    }),
     reasonId: uuid('reason_id')
       .notNull()
-      .references(() => reportReasons.id, { onDelete: 'set null' }),
+      .references(() => reportReasons.id, {
+        onDelete: 'set null',
+      }),
     additionalInfo: text('additional_info'),
-    status: postReportsStatusEnum('status').default('pending').notNull(),
+    status: contentReportsStatusEnum('status').default('pending').notNull(),
+    type: contentReportsType('type').notNull().default('post'),
     reviewedBy: text('reviewed_by').references(() => users.id, {
       onDelete: 'set null',
     }),
     reviewerNotes: text('reviewer_notes'),
-    actionTaken: postReportsActionTakenEnum('action_taken'),
+    actionTaken: contentReportsActionTakenEnum('action_taken'),
     reportedAt: timestamp('reported_at').defaultNow().notNull(),
     resolvedAt: timestamp('resolved_at'),
     reviewedAt: timestamp('reviewed_at'),
   },
   (table) => [
-    index('postReports_reporterId_idx').on(table.reporterId),
-    index('postReports_reportedUserId_idx').on(table.reportedUserId),
-    index('postReports_postId_idx').on(table.postId),
-    index('postReports_reasonId_idx').on(table.reasonId),
-    index('postReports_status_idx').on(table.status),
+    index('contentReports_reporterId_idx').on(table.reporterId),
+    index('contentReports_reportedUserId_idx').on(table.reportedUserId),
+    index('contentReports_postId_idx').on(table.postId),
+    index('contentReports_storyId_idx').on(table.storyId),
+    index('contentReports_reasonId_idx').on(table.reasonId),
+    index('contentReports_status_idx').on(table.status),
+    check(
+      'content_reports_one_ref_check',
+      sql`(
+            (post_id IS NOT NULL)::int + 
+            (story_id IS NOT NULL)::int
+          ) <= 1`,
+    ),
   ],
 );
 
@@ -437,7 +492,7 @@ export const postsRelations = relations(posts, ({ one, many }) => ({
   postHashtags: many(postHashtags),
   postMedia: many(postMedia),
   savedPosts: many(savedPosts),
-  postReports: many(postReports),
+  contentReports: many(contentReports),
   likes: many(likes),
   comments: many(comments),
 }));
@@ -479,6 +534,17 @@ export const savedPostsRelations = relations(savedPosts, ({ one }) => ({
   }),
 }));
 
+export const savedAudioTracksRelations = relations(savedAudioTracks, ({ one }) => ({
+  user: one(users, {
+    fields: [savedAudioTracks.userId],
+    references: [users.id],
+  }),
+  audioTrack: one(audioTracks, {
+    fields: [savedAudioTracks.audioTrackId],
+    references: [audioTracks.id],
+  }),
+}));
+
 export const postUserTagsRelations = relations(postUserTags, ({ one }) => ({
   post: one(posts, {
     fields: [postUserTags.postId],
@@ -514,6 +580,7 @@ export const audioTracksRelations = relations(audioTracks, ({ one, many }) => ({
     references: [users.id],
   }),
   posts: many(posts),
+  savedAudioTracks: many(savedAudioTracks),
 }));
 
 export const locationsRelations = relations(locations, ({ many }) => ({
@@ -580,25 +647,29 @@ export const storyHighlightItemsRelations = relations(
   }),
 );
 
-export const postReportsRelations = relations(postReports, ({ one }) => ({
+export const contentReportsRelations = relations(contentReports, ({ one }) => ({
   reporter: one(users, {
-    fields: [postReports.reporterId],
+    fields: [contentReports.reporterId],
     references: [users.id],
   }),
   reportedUser: one(users, {
-    fields: [postReports.reportedUserId],
+    fields: [contentReports.reportedUserId],
     references: [users.id],
   }),
   post: one(posts, {
-    fields: [postReports.postId],
+    fields: [contentReports.postId],
     references: [posts.id],
   }),
+  story: one(stories, {
+    fields: [contentReports.storyId],
+    references: [stories.id],
+  }),
   reason: one(reportReasons, {
-    fields: [postReports.reasonId],
+    fields: [contentReports.reasonId],
     references: [reportReasons.id],
   }),
   reviewer: one(users, {
-    fields: [postReports.reviewedBy],
+    fields: [contentReports.reviewedBy],
     references: [users.id],
   }),
 }));

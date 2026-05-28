@@ -5,8 +5,10 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 
 const AppLayout = ({
   children,
+  modal,
 }: Readonly<{
   children: React.ReactNode;
+  modal: React.ReactNode;
 }>) => {
   return (
     <SidebarProvider
@@ -17,9 +19,10 @@ const AppLayout = ({
       }
     >
       <AppSidebar />
-      <SidebarInset className="bg-background/70">
+      <SidebarInset className="bg-transparent">
         <HeaderMobile />
         {children}
+        {modal}
         <NavBottom />
       </SidebarInset>
     </SidebarProvider>

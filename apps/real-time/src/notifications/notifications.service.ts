@@ -3,8 +3,10 @@ import {
   notifications,
   notificationsTypeEnum,
   organizations,
-  postReportsActionTakenEnum,
+  contentReportsActionTakenEnum,
   posts,
+  postCollaborators,
+  postUserTags,
   schema,
   users,
 } from '@repo/database';
@@ -13,19 +15,19 @@ import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { NotificationsRepository } from '@/src/notifications/notifications.repository';
 import {
   FindManyQueryDto,
+  MediaViolationEvent,
   NEW_NOTIFICATION_EVENT,
   PostCollaboratorAcceptedEvent,
   PostCreatedEvent,
   PostLikedEvent,
+  PostUpdatedEvent,
   ReportUpdatedEvent,
   ReviewerAssignedEvent,
   UserFollowAcceptedEvent,
   UserFollowedEvent,
 } from '@repo/types';
 import { EventsGateway } from '@/src/events/providers/events.gateway';
-import { eq } from 'drizzle-orm';
-import { desc } from 'drizzle-orm';
-import { and } from 'drizzle-orm';
+import { and, desc, eq, inArray } from 'drizzle-orm';
 
 @Injectable()
 export class NotificationsService {
@@ -206,7 +208,11 @@ export class NotificationsService {
       const createdNotification = await this.notificationsRepository.findFirst({
         where: eq(notifications.id, newNotification.id),
         with: {
-          postCollab: true,
+          postCollab: {
+            with: {
+              post: true,
+            },
+          },
         },
       });
 
@@ -239,6 +245,91 @@ export class NotificationsService {
     });
   }
 
+  async handlePostUpdated(data: PostUpdatedEvent) {
+    const existingPost = await this.db.query.posts.findFirst({
+      where: eq(posts.id, data.postId),
+    });
+
+    if (!existingPost) return;
+
+    // Handle new collaborators
+    if (data.newCollaboratorIds && data.newCollaboratorIds.length > 0) {
+      const newCollabs = await this.db.query.postCollaborators.findMany({
+        where: and(
+          eq(postCollaborators.postId, data.postId),
+          inArray(postCollaborators.userId, data.newCollaboratorIds),
+        ),
+      });
+
+      newCollabs.map(async (collaborator) => {
+        const newNotification = await this.notificationsRepository.create({
+          userId: collaborator.userId,
+          actorId: existingPost.userId,
+          type: notificationsTypeEnum.enumValues[10], // collab_invite
+          postCollabId: collaborator.id,
+          content: `invited you as a collaborator to their post.`,
+        });
+
+        const createdNotification =
+          await this.notificationsRepository.findFirst({
+            where: eq(notifications.id, newNotification.id),
+            with: {
+              postCollab: {
+                with: {
+                  post: true,
+                },
+              },
+              actor: true,
+            },
+          });
+
+        this.eventsGateWay.server
+          .to(`user-${collaborator.userId}`)
+          .emit(NEW_NOTIFICATION_EVENT, createdNotification);
+      });
+    }
+
+    // Handle new tagged users
+    if (data.newPostUserTagsIds && data.newPostUserTagsIds.length > 0) {
+      const newUserTags = await this.db.query.postUserTags.findMany({
+        where: inArray(postUserTags.id, data.newPostUserTagsIds),
+        with: {
+          user: {
+            with: {
+              userNotificationSetting: true,
+            },
+          },
+        },
+      });
+
+      newUserTags.map(async (userTag) => {
+        if (!userTag.user.userNotificationSetting?.mentionsNotifications)
+          return;
+
+        const newNotification = await this.notificationsRepository.create({
+          userId: userTag.userId,
+          actorId: existingPost.userId,
+          type: notificationsTypeEnum.enumValues[8], // tag
+          postUserTagId: userTag.id,
+          content: `tagged you in their post.`,
+        });
+
+        const createdNotification =
+          await this.notificationsRepository.findFirst({
+            where: eq(notifications.id, newNotification.id),
+            with: {
+              postUserTag: true,
+              actor: true,
+            },
+          });
+
+        this.eventsGateWay.server
+          .to(`user-${userTag.userId}`)
+          .emit(NEW_NOTIFICATION_EVENT, createdNotification);
+      });
+    }
+  }
+
   async handlePostCollaboratorAccepted(data: PostCollaboratorAcceptedEvent) {
     const existingPostCollab = await this.db.query.postCollaborators.findFirst({
       where: eq(schema.postCollaborators.id, data.postCollabId),
@@ -261,7 +352,7 @@ export class NotificationsService {
     const createdNotification = await this.notificationsRepository.findFirst({
       where: eq(notifications.id, newNotification.id),
       with: {
-        postCollab: true,
+        postCollab: { with: { post: true } },
       },
     });
 
@@ -273,8 +364,8 @@ export class NotificationsService {
   async handleReviewerAssigned(data: ReviewerAssignedEvent) {
     const { reportId, assignerId, reviewerId } = data;
 
-    const existingReport = await this.db.query.postReports.findFirst({
-      where: eq(schema.postReports.id, reportId),
+    const existingReport = await this.db.query.contentReports.findFirst({
+      where: eq(schema.contentReports.id, reportId),
     });
 
     if (!existingReport) return;
@@ -301,11 +392,12 @@ export class NotificationsService {
   }
 
   async handleReportUpdated(data: ReportUpdatedEvent) {
-    const existingReport = await this.db.query.postReports.findFirst({
-      where: eq(schema.postReports.id, data.reportId),
+    const existingReport = await this.db.query.contentReports.findFirst({
+      where: eq(schema.contentReports.id, data.reportId),
       with: {
         reporter: true,
         post: true,
+        story: true,
       },
     });
     const contentTriageMembers = await this.db.query.organizations.findFirst({
@@ -318,11 +410,11 @@ export class NotificationsService {
     if (!existingReport) return;
 
     if (
-      existingReport.actionTaken === postReportsActionTakenEnum.enumValues[1]
+      existingReport.actionTaken === contentReportsActionTakenEnum.enumValues[1]
     ) {
       // "account_warned"
       const newNotification = await this.notificationsRepository.create({
-        userId: existingReport.post.userId,
+        userId: existingReport.post?.userId! || existingReport.story?.userId!,
         actorId: existingReport.reviewedBy || existingReport.reporterId,
         type: notificationsTypeEnum.enumValues[15], // report_updated
         postId: existingReport.postId,
@@ -337,7 +429,9 @@ export class NotificationsService {
       });
 
       this.eventsGateWay.server
-        .to(`user-${existingReport.post.userId}`)
+        .to(
+          `user-${existingReport.post?.userId || existingReport.story?.userId}`,
+        )
         .emit(NEW_NOTIFICATION_EVENT, createdNotification);
     }
 
@@ -347,7 +441,7 @@ export class NotificationsService {
     triageMembers.map(async (triageMemberId) => {
       const newNotification = await this.notificationsRepository.create({
         userId: triageMemberId,
-        actorId: existingReport.reporter.id,
+        actorId: data.reviewerId,
         type: notificationsTypeEnum.enumValues[15], // report_updated
         reportId: existingReport.id,
         content: `has updated a post report "action taken" to ${existingReport.actionTaken}.`,
@@ -367,6 +461,31 @@ export class NotificationsService {
     });
   }
 
+  async handleMediaViolation(data: MediaViolationEvent) {
+    const { postId, storyId, userId, reason } = data;
+
+    const newNotification = await this.notificationsRepository.create({
+      userId: userId,
+      type: 'media_violation',
+      postId: postId,
+      storyId: storyId,
+      content: `Media in your ${postId ? 'post' : 'story'} has been flagged for: ${reason}. It will be hidden from the feed.`,
+      actorId: userId,
+    });
+
+    const createdNotification = await this.notificationsRepository.findFirst({
+      where: eq(notifications.id, newNotification.id),
+      with: {
+        post: true,
+        story: true,
+      },
+    });
+
+    this.eventsGateWay.server
+      .to(`user-${userId}`)
+      .emit(NEW_NOTIFICATION_EVENT, createdNotification);
+  }
+
   async findUserNotifications(
     findManyQueryDto: FindManyQueryDto,
     user: typeof users.$inferSelect,
@@ -378,10 +497,15 @@ export class NotificationsService {
         with: {
           actor: true,
           post: true,
-          postCollab: true,
+          postCollab: {
+            with: {
+              post: true,
+            },
+          },
           postUserTag: true,
           report: true,
           comment: true,
+          follow: true,
         },
       },
       findManyQueryDto,
@@ -403,5 +527,24 @@ export class NotificationsService {
       throw new NotFoundException('Notification not found.');
 
     await this.notificationsRepository.delete(notificationId);
+  }
+
+  async markNotificationAsRead(
+    notificationId: string,
+    user: typeof users.$inferSelect,
+  ) {
+    const existingNotification = await this.notificationsRepository.findFirst({
+      where: and(
+        eq(notifications.id, notificationId),
+        eq(notifications.userId, user.id),
+      ),
+    });
+
+    if (!existingNotification)
+      throw new NotFoundException('Notification not found.');
+
+    await this.notificationsRepository.update(notificationId, {
+      isRead: true,
+    });
   }
 }

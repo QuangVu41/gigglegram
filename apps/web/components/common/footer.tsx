@@ -16,7 +16,9 @@ const Footer = () => {
         <ThemeToggle variant="ghost" />
         <LocaleSwitcher variant="ghost" />
       </FieldDescription>
-      <FieldDescription>{t("copyright", { year: new Date().getFullYear() })}</FieldDescription>
+      <FieldDescription>
+        {t("copyright", { year: new Date().getFullYear() })}
+      </FieldDescription>
     </footer>
   );
 };

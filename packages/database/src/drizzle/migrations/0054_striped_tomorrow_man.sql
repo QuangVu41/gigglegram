@@ -1,0 +1,1 @@
+ALTER TABLE "conversation_participants" ADD COLUMN "is_deleted" boolean DEFAULT false NOT NULL;

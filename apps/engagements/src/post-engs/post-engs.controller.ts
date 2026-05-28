@@ -1,13 +1,15 @@
 import { Controller } from '@nestjs/common';
 import { PostEngsService } from '@/src/post-engs/post-engs.service';
-import { EventPattern } from '@nestjs/microservices';
+import { Ctx, EventPattern, KafkaContext } from '@nestjs/microservices';
 import {
   PostCreatedEvent,
   PostDeletedEvent,
   POSTS_TOPIC_POST_CREATED,
   POSTS_TOPIC_POST_DELETED,
   POSTS_TOPIC_POST_UPDATED,
+  POSTS_TOPIC_POST_VIEWED,
   PostUpdatedEvent,
+  type PostViewedEvent,
 } from '@repo/types';
 import { postMedia } from '@repo/database';
 
@@ -16,8 +18,11 @@ export class PostEngsController {
   constructor(private readonly postEngsService: PostEngsService) {}
 
   @EventPattern(POSTS_TOPIC_POST_CREATED)
-  async handlePostCreated(data: PostCreatedEvent) {
-    await this.postEngsService.handlePostCreated(data);
+  async handlePostCreated(
+    data: PostCreatedEvent,
+    @Ctx() context: KafkaContext,
+  ) {
+    await this.postEngsService.handlePostCreated(data, context);
   }
 
   @EventPattern(POSTS_TOPIC_POST_UPDATED)
@@ -32,5 +37,10 @@ export class PostEngsController {
     >,
   ) {
     await this.postEngsService.handlePostDeleted(data);
+  }
+
+  @EventPattern(POSTS_TOPIC_POST_VIEWED)
+  async handlePostViewed(data: PostViewedEvent) {
+    await this.postEngsService.handlePostViewed(data);
   }
 }

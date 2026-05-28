@@ -24,6 +24,7 @@ export class FilesValidatorInterceptor
   implements NestInterceptor, OnModuleInit
 {
   private systemSettingsService!: SystemSettingsServiceClient;
+  static fileIsRequired?: boolean;
 
   constructor(
     private readonly configService: ConfigService,
@@ -41,7 +42,7 @@ export class FilesValidatorInterceptor
   async intercept(context: ExecutionContext, next: CallHandler) {
     const req = context.switchToHttp().getRequest();
     const files = req.files as Array<Express.Multer.File>;
-    const file = req.file as Express.Multer.File;
+    const file = req.file;
 
     const { settings } = await firstValueFrom(
       this.systemSettingsService.findSettingsByPrefix(
@@ -79,6 +80,7 @@ export class FilesValidatorInterceptor
         }),
       )
       .build({
+        fileIsRequired: FilesValidatorInterceptor.fileIsRequired,
         exceptionFactory: (error) => {
           return new UnprocessableEntityException({
             code: SystemWideErrorCodes.UPLOAD_PROCESSING_FILE_FAILED,
@@ -89,5 +91,10 @@ export class FilesValidatorInterceptor
       .transform(files || file);
 
     return next.handle();
+  }
+
+  static setOptions(options: { fileIsRequired?: boolean }) {
+    FilesValidatorInterceptor.fileIsRequired = options.fileIsRequired;
+    return FilesValidatorInterceptor;
   }
 }

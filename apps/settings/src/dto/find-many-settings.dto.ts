@@ -10,4 +10,11 @@ export class FindManySettingsDto extends FindManyQueryDto {
   @IsArray()
   @IsOptional()
   prefixes?: string[];
+
+  @IsString()
+  @IsOptional()
+  type?: string;
+
+  @IsOptional()
+  isPublic?: string | boolean;
 }

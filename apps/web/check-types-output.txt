@@ -1,0 +1,53 @@
+
+> web@0.1.0 check-types
+> tsc --noEmit
+
+components/ui/calendar.tsx(91,9): error TS2353: Object literal may only specify known properties, and 'table' does not exist in type 'Partial<ClassNames>'.
+components/ui/date-range-picker.tsx(57,13): error TS2322: Type '{ initialFocus: true; mode: "range"; defaultMonth: Date | undefined; selected: DateRange | undefined; onSelect: (date: DateRange | undefined) => void; numberOfMonths: number; }' is not assignable to type 'IntrinsicAttributes & (DayPickerProps & { buttonVariant?: "link" | "default" | "destructive" | "outline" | "secondary" | "ghost" | null | undefined; })'.
+  Property 'initialFocus' does not exist on type '(IntrinsicAttributes & PropsBase & PropsRange & { buttonVariant?: "link" | "default" | "destructive" | "outline" | "secondary" | "ghost" | null | undefined; }) | (IntrinsicAttributes & ... 2 more ... & { ...; })'.
+../../packages/database/src/abstract.repository.ts(70,19): error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type 'PgTable<TableConfig>'.
+  No index signature with a parameter of type 'string' was found on type 'PgTable<TableConfig>'.
+../../packages/database/src/abstract.repository.ts(71,18): error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type 'PgTable<TableConfig>'.
+  No index signature with a parameter of type 'string' was found on type 'PgTable<TableConfig>'.
+../../packages/database/src/abstract.repository.ts(74,8): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{ users: RelationalQueryBuilder<ExtractTablesWithRelations<typeof import("/home/quangvu41/workspace/gigglegram/packages/database/src/drizzle/schemas/index")>, { tsName: "users"; dbName: "users"; columns: { ...; }; relations: { ...; }; primaryKey: AnyColumn[]; }>; ... 33 more ...; readonly messageMedia: RelationalQue...'.
+../../packages/database/src/abstract.repository.ts(80,8): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{ users: RelationalQueryBuilder<ExtractTablesWithRelations<typeof import("/home/quangvu41/workspace/gigglegram/packages/database/src/drizzle/schemas/index")>, { tsName: "users"; dbName: "users"; columns: { ...; }; relations: { ...; }; primaryKey: AnyColumn[]; }>; ... 33 more ...; readonly messageMedia: RelationalQue...'.
+../../packages/database/src/abstract.repository.ts(124,7): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{ users: RelationalQueryBuilder<ExtractTablesWithRelations<typeof import("/home/quangvu41/workspace/gigglegram/packages/database/src/drizzle/schemas/index")>, { tsName: "users"; dbName: "users"; columns: { ...; }; relations: { ...; }; primaryKey: AnyColumn[]; }>; ... 33 more ...; readonly messageMedia: RelationalQue...'.
+../../packages/database/src/abstract.repository.ts(161,7): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{ users: RelationalQueryBuilder<ExtractTablesWithRelations<typeof import("/home/quangvu41/workspace/gigglegram/packages/database/src/drizzle/schemas/index")>, { tsName: "users"; dbName: "users"; columns: { ...; }; relations: { ...; }; primaryKey: AnyColumn[]; }>; ... 33 more ...; readonly messageMedia: RelationalQue...'.
+../../packages/database/src/drizzle/db.ts(7,22): error TS7016: Could not find a declaration file for module 'pg'. '/home/quangvu41/workspace/gigglegram/node_modules/pg/esm/index.mjs' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/pg` if it exists or add a new declaration (.d.ts) file containing `declare module 'pg';`
+../../packages/database/src/repositories/posts.repository.ts(11,5): error TS1206: Decorators are not valid here.
+../../packages/types/src/common/find-many-query.dto.ts(5,4): error TS1240: Unable to resolve signature of property decorator when called as an expression.
+  Argument of type 'undefined' is not assignable to parameter of type 'Object'.
+../../packages/types/src/common/find-many-query.dto.ts(6,4): error TS1240: Unable to resolve signature of property decorator when called as an expression.
+  Argument of type 'undefined' is not assignable to parameter of type 'Object'.
+../../packages/types/src/common/find-many-query.dto.ts(9,4): error TS1240: Unable to resolve signature of property decorator when called as an expression.
+  Argument of type 'undefined' is not assignable to parameter of type 'Object'.
+../../packages/types/src/common/find-many-query.dto.ts(10,4): error TS1240: Unable to resolve signature of property decorator when called as an expression.
+  Argument of type 'undefined' is not assignable to parameter of type 'Object'.
+../../packages/types/src/common/find-many-query.dto.ts(13,4): error TS1240: Unable to resolve signature of property decorator when called as an expression.
+  Argument of type 'undefined' is not assignable to parameter of type 'Object'.
+../../packages/types/src/common/find-many-query.dto.ts(14,4): error TS1240: Unable to resolve signature of property decorator when called as an expression.
+  Argument of type 'undefined' is not assignable to parameter of type 'Object'.
+../../packages/types/src/common/find-many-query.dto.ts(15,4): error TS1240: Unable to resolve signature of property decorator when called as an expression.
+  Argument of type 'undefined' is not assignable to parameter of type 'Object'.
+../../packages/types/src/common/find-many-query.dto.ts(18,4): error TS1240: Unable to resolve signature of property decorator when called as an expression.
+  Argument of type 'undefined' is not assignable to parameter of type 'Object'.
+../../packages/types/src/common/find-many-query.dto.ts(19,4): error TS1240: Unable to resolve signature of property decorator when called as an expression.
+  Argument of type 'undefined' is not assignable to parameter of type 'Object'.
+../../packages/types/src/common/find-many-query.dto.ts(20,4): error TS1240: Unable to resolve signature of property decorator when called as an expression.
+  Argument of type 'undefined' is not assignable to parameter of type 'Object'.
+../../packages/types/src/common/find-many-query.dto.ts(23,4): error TS1240: Unable to resolve signature of property decorator when called as an expression.
+  Argument of type 'undefined' is not assignable to parameter of type 'Object'.
+../../packages/types/src/common/find-many-query.dto.ts(24,4): error TS1240: Unable to resolve signature of property decorator when called as an expression.
+  Argument of type 'undefined' is not assignable to parameter of type 'Object'.
+../../packages/types/src/kafka/engagements/events/media-violation.event.ts(4,3): error TS2564: Property 'mediaId' has no initializer and is not definitely assigned in the constructor.
+../../packages/types/src/kafka/engagements/events/media-violation.event.ts(5,3): error TS2564: Property 'userId' has no initializer and is not definitely assigned in the constructor.
+../../packages/types/src/kafka/engagements/events/media-violation.event.ts(6,3): error TS2564: Property 'reason' has no initializer and is not definitely assigned in the constructor.
+../../packages/types/src/kafka/posts/events/story-created.event.ts(2,3): error TS2564: Property 'storyId' has no initializer and is not definitely assigned in the constructor.
+npm error Lifecycle script `check-types` failed with error:
+npm error code 2
+npm error path /home/quangvu41/workspace/gigglegram/apps/web
+npm error workspace web@0.1.0
+npm error location /home/quangvu41/workspace/gigglegram/apps/web
+npm error command failed
+npm error command sh -c tsc --noEmit

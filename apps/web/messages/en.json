@@ -19,9 +19,224 @@
     "privacyPolicy": "Privacy",
     "copyright": "© {year} Gigglegram. All rights reserved."
   },
+  "Common": {
+    "imageEditor": {
+      "title": "Filters",
+      "errors": {
+        "unableToLoad": "Unable to load image for editing"
+      },
+      "filters": {
+        "original": "Original",
+        "aden": "Aden",
+        "clarendon": "Clarendon",
+        "crema": "Crema",
+        "gingham": "Gingham",
+        "juno": "Juno",
+        "lark": "Lark",
+        "ludwig": "Ludwig",
+        "moon": "Moon",
+        "perpetua": "Perpetua",
+        "reyes": "Reyes",
+        "slumber": "Slumber"
+      }
+    },
+    "videoEditor": {
+      "errors": {
+        "failedToGetMetadata": "Failed to get video metadata"
+      }
+    },
+    "videoFramePicker": {
+      "title": "Cover photo",
+      "frameAlt": "Frame at {time}",
+      "empty": "No frames available",
+      "errors": {
+        "failedToExtractFrames": "Failed to extract video frames"
+      }
+    },
+    "videoAudioToggle": {
+      "toggleAudio": "Toggle audio",
+      "noAudioAvailable": "No audio available"
+    },
+    "relativeTime": {
+      "now": "Just now",
+      "minutes": "{count}m",
+      "hours": "{count}h",
+      "days": "{count}d",
+      "weeks": "{count}w"
+    },
+    "errors": {
+      "somethingWentWrong": "Something went wrong!",
+      "tryAgain": "Try again",
+      "goHome": "Go back home"
+    },
+    "sensitiveContent": {
+      "title": "Sensitive Content",
+      "description": "This media contains content that some people may find upsetting."
+    }
+  },
   "HomePage": {
     "maxCaption": "Caption must be at most 2200 characters.",
-    "atLeastOneMedia": "Please select at least one media file."
+    "atLeastOneMedia": "Please select at least one media file.",
+    "feed": {
+      "noMorePosts": "No more posts to show",
+      "noPosts": "No posts available",
+      "loading": "Loading feed...",
+      "loadMore": "Load more",
+      "error": "Failed to load feed",
+      "originalSound": "original sound",
+      "actions": {
+        "like": "Like",
+        "comment": "Comment",
+        "share": "Share",
+        "save": "Save"
+      },
+      "post": {
+        "more": "more",
+        "less": "less",
+        "viewComments": "View all {count} comments",
+        "viewNoComments": "No comments yet",
+        "likes": "{count} likes",
+        "oneLike": "1 like",
+        "noLikes": "No likes yet",
+        "views": "{count} views",
+        "oneView": "1 view",
+        "likedByAndOthers": "Liked by {username} and others",
+        "liked": "Post liked",
+        "unliked": "Post unliked",
+        "seeTranslation": "See translation",
+        "seeOriginal": "See original",
+        "copied": "Link copied to clipboard",
+        "shareError": "Could not share post",
+        "likeError": "Could not like post",
+        "saved": "Post saved",
+        "unsaved": "Post unsaved",
+        "saveError": "Could not save post",
+        "and": "and",
+        "othersCount": "{count} others",
+        "taggedTitle": "Tagged",
+        "noTags": "No people tagged",
+        "follow": "Follow",
+        "unfollow": "Unfollow",
+        "reply": "Reply",
+        "addComment": "Add a comment...",
+        "postAction": "Post",
+        "delete": "Delete",
+        "deleteConfirmTitle": "Delete comment?",
+        "deleteConfirmDescription": "Are you sure you want to delete this comment?",
+        "cancel": "Cancel",
+        "editPost": "Edit Post",
+        "deletePost": "Delete Post",
+        "postDeleted": "Post deleted successfully",
+        "deleteError": "Could not delete post",
+        "postUpdated": "Post updated successfully",
+        "updateError": "Could not update post",
+        "deletePostConfirmTitle": "Delete post?",
+        "deletePostConfirmDescription": "Are you sure you want to delete this post? This action cannot be undone.",
+        "saveChanges": "Save changes",
+        "archive": "Archive",
+        "unarchive": "Unarchive",
+        "archived": "Post archived",
+        "unarchived": "Post unarchived",
+        "archiveError": "Could not archive post"
+      }
+    },
+    "sidebar": {
+      "topHashtags": "Top Hashtags",
+      "postsCount": "{count} posts",
+      "suggestions": "Suggestion",
+      "follow": "Follow",
+      "followed": "User followed",
+      "followError": "Could not follow user"
+    }
+  },
+  "CreatePostStepper": {
+    "navigation": {
+      "back": "Back",
+      "next": "Next"
+    },
+    "actions": {
+      "tagPeople": "Tag people",
+      "share": "Share",
+      "generateHashtags": "Generate hashtags",
+      "generateCaption": "Generate caption",
+      "hashtagsGenerated": "Hashtags generated!",
+      "captionGenerated": "Caption generated!",
+      "noHashtagsSuggested": "No hashtags suggested",
+      "failedToGenerateHashtags": "Failed to generate hashtags",
+      "failedToGenerateCaption": "Failed to generate caption"
+    },
+    "form": {
+      "captionPlaceholder": "Enter caption",
+      "locationPlaceholder": "Select a location",
+      "collaboratorsPlaceholder": "Add collaborators",
+      "tagPeoplePlaceholder": "Search people to tag",
+      "emptyLocations": "No locations found.",
+      "emptyCollaborators": "No collaborators found.",
+      "emptyUsers": "No users found.",
+      "advancedSettings": "Advanced settings",
+      "likesHiddenTitle": "Hide like counts on this post",
+      "likesHiddenDescription": "Only you will see the total number of likes on this post.",
+      "commentsDisabledTitle": "Disable comments on this post",
+      "commentsDisabledDescription": "Only you will be able to view and manage comments on this post.",
+      "successMessage": "Post created successfully.",
+      "selectAudio": "Select audio",
+      "searchAudioPlaceholder": "Search audio...",
+      "selectedAudio": "Selected Audio",
+      "removeAudio": "Remove",
+      "noAudioFound": "No audio found.",
+      "audioTabs": {
+        "all": "For you",
+        "trending": "Trending",
+        "original": "Original",
+        "saved": "Saved"
+      }
+    },
+    "validation": {
+      "maxCaption": "Caption must be at most 2200 characters.",
+      "atLeastOneMedia": "Please select at least one media file."
+    },
+    "upload": {
+      "title": "Upload your photos and videos",
+      "description": "Drag photos and videos here or click to browse",
+      "selectFromComputer": "Select from computer",
+      "clearAll": "Clear all",
+      "stats": {
+        "title": "Upload Progress",
+        "completed": "Completed: {count}",
+        "failed": "Failed: {count}",
+        "uploading": "Uploading: {count}"
+      },
+      "errors": {
+        "title": "File upload error(s)"
+      }
+    }
+  },
+  "CreateStoryStepper": {
+    "navigation": {
+      "back": "Back",
+      "next": "Next"
+    },
+    "actions": {
+      "share": "Share"
+    },
+    "upload": {
+      "title": "Upload your photo or video",
+      "description": "Drag photo or video here or click to browse",
+      "selectFromComputer": "Select from computer",
+      "clearAll": "Clear all",
+      "stats": {
+        "title": "Upload Progress",
+        "completed": "Completed: {count}",
+        "failed": "Failed: {count}",
+        "uploading": "Uploading: {count}"
+      },
+      "errors": {
+        "title": "File upload error(s)"
+      }
+    },
+    "successMessage": "Story shared successfully.",
+    "errorMessage": "Failed to share story",
+    "invalidFileFormat": "Invalid file format"
   },
   "NavMain": {
     "home": "Home",
@@ -43,6 +258,9 @@
     "account": "Account",
     "archived": "Archived",
     "saved": "Saved",
+    "organizations": "Organizations",
+    "personalAccount": "Personal Account",
+    "dashboard": "Dashboard",
     "logOut": "Log out"
   },
   "SignupPage": {
@@ -109,6 +327,7 @@
   "BetterAuthErrorCodes": {
     "GENERAL_ERROR": "An error occurred. Please try again.",
     "USER_NOT_FOUND": "User not found.",
+    "BANNED_USER": "You have been banned from this application. Please contact support if you believe this is an error.",
     "FAILED_TO_CREATE_USER": "Failed to create user.",
     "FAILED_TO_CREATE_SESSION": "Failed to create session.",
     "FAILED_TO_UPDATE_USER": "Failed to update user.",
@@ -137,7 +356,7 @@
   },
   "SystemWideErrorCodes": {
     "GENERAL_CLIENT_ERROR": "Some client errors occurred. Check the description for details.",
-    "INTERNAL_SERVER_ERROR": "Internal server error.",
+    "INTERNAL_SERVER_ERROR": "Something went wrong. Please try again later.",
     "AUTH_UNAUTHORIZED": "Unauthorized.",
     "BAD_REQUEST": "Bad request.",
     "NOT_ALLOWED": "You are not allowed to do this action.",
@@ -150,6 +369,7 @@
     "FOLLOW_SELF": "You cannot follow yourself.",
     "UNFOLLOW_SELF": "You cannot unfollow yourself.",
     "CANNOT_REPORT_OWN_POST": "You cannot report your own post.",
+    "CANNOT_REPORT_OWN_STORY": "You cannot report your own story.",
     "UPLOAD_FILE_FAILED": "Failed to upload file.",
     "UPLOAD_UNSUPPORTED_FILE_TYPE": "The current file type is not supported. Supported types are: {supportedTypes}.",
     "UPLOAD_PROCESSING_FILE_FAILED": "Failed to process file.",
@@ -160,5 +380,1568 @@
     "UPLOAD_STORY_VIDEO_DURATION_EXCEEDED": "One or more videos exceed the maximum allowed duration of {maxStoryDuration} seconds for stories.",
     "UPLOAD_POST_VIDEOS_TOO_LONG_IN_DURATION": "One or more videos were too long to be uploaded.",
     "UPLOAD_POST_MAX_MULTI_VIDEOS_DURATION": "If any videos are longer than {maxMultiVideoDuration} seconds, you can only post one video at a time."
+  },
+  "ProfilePage": {
+    "posts": "{count} posts",
+    "followers": "{count} followers",
+    "following": "{count} following",
+    "editProfile": "Edit profile",
+    "follow": "Follow",
+    "unfollow": "Unfollow",
+    "unfollowing": "Following",
+    "message": "Message",
+    "privateAccountTitle": "This account is private",
+    "privateAccountDescription": "Follow to see their photos and videos.",
+    "noPostsYet": "No posts yet",
+    "noSavedPosts": "No saved posts",
+    "noTaggedPosts": "No tagged posts",
+    "tagged": "Tagged",
+    "reels": "Reels",
+    "viewArchive": "View archive",
+    "newHighlight": "New",
+    "savedCollections": {
+      "title": "Saved",
+      "allSaved": "All Posts",
+      "newCollection": "New Collection",
+      "collectionName": "Collection Name",
+      "collectionNamePlaceholder": "Enter collection name...",
+      "nameRequired": "Collection name is required",
+      "createCollection": "Create Collection",
+      "editCollection": "Edit Collection",
+      "deleteCollection": "Delete Collection",
+      "deleteConfirm": "Are you sure you want to delete this collection?",
+      "deleteWarning": "This will delete the collection but keep the saved posts.",
+      "deleteBtn": "Delete",
+      "editName": "Edit Name",
+      "removePosts": "Remove from collection",
+      "addPosts": "Add posts",
+      "addItems": "Add from saved",
+      "noCollections": "No collections yet",
+      "noSavedPostsInCollection": "No saved posts in this collection",
+      "postsCount": "{count, plural, =0 {0 posts} =1 {1 post} other {{count} posts}}",
+      "itemsSelected": "{count, plural, =0 {0 selected} =1 {1 selected} other {{count} selected}}",
+      "selectPosts": "Select posts",
+      "addedSuccess": "Added to collection",
+      "removedSuccess": "Removed from collection",
+      "createdSuccess": "Collection created successfully",
+      "updatedSuccess": "Collection updated successfully",
+      "deletedSuccess": "Collection deleted successfully",
+      "save": "Save",
+      "cancel": "Cancel",
+      "create": "Create",
+      "next": "Next",
+      "back": "Back"
+    },
+    "requested": "Requested",
+    "acceptRequest": "Accept",
+    "requestAccepted": "Request accepted",
+    "followError": "Failed to update follow status",
+    "suggestedFollowing": {
+      "title": "Suggestions for you",
+      "seeAll": "See all",
+      "follow": "Follow",
+      "followed": "Followed successfully!",
+      "followError": "Failed to follow user.",
+      "toggleLabel": "Show suggested users"
+    },
+    "settingsDropdown": {
+      "notifications": "Notifications",
+      "settingsAndPrivacy": "Settings and Privacy",
+      "logout": "Log out"
+    }
+  },
+  "Notifications": {
+    "title": "Notifications",
+    "empty": "No notifications yet",
+    "emptyDescription": "When someone likes or comments on your posts, you'll see it here.",
+    "error": "Failed to load notifications",
+    "retry": "Try again",
+    "loading": "Loading...",
+    "loadMore": "Load more",
+    "accept": "Accept",
+    "reject": "Reject",
+    "follow_request_content": "sent you a follow request",
+    "accepted": "Accepted",
+    "rejected": "Rejected",
+    "more": "more",
+    "less": "less",
+    "tabs": {
+      "all": "All",
+      "comments": "Comments",
+      "requests": "Requests",
+      "settings": "Settings"
+    },
+    "settings": {
+      "title": "Push Notifications",
+      "likes": "Likes",
+      "comments": "Comments",
+      "newFollowers": "New Followers",
+      "mentions": "Mentions",
+      "messages": "Messages",
+      "videoCalls": "Video Calls",
+      "on": "On",
+      "off": "Off",
+      "description": "Managing these settings allows you to control which push notifications you receive from Gigglegram.",
+      "success": "Settings updated",
+      "error": "Failed to update settings"
+    },
+    "followRequests": {
+      "empty": "No follow requests",
+      "emptyDescription": "When people ask to follow you, you'll see their requests here."
+    },
+    "time": {
+      "thisWeek": "This week",
+      "earlier": "Earlier"
+    },
+    "errors": {
+      "failedToUpdateFollowRequest": "Failed to update follow request",
+      "failedToUpdateFollowStatus": "Failed to update follow status",
+      "postNotFound": "Could not find post associated with this item",
+      "failedToUpdateCollabStatus": "Failed to update collaboration status",
+      "failedToUpdateTagStatus": "Failed to update tag status"
+    }
+  },
+  "ExplorePage": {
+    "title": "Explore",
+    "noPosts": "No posts yet",
+    "views": "{count} views",
+    "oneView": "1 view"
+  },
+  "LocationPage": {
+    "posts": "posts"
+  },
+  "AudioPage": {
+    "posts": "posts",
+    "saveAudio": "Save audio",
+    "savedAudio": "Saved",
+    "originalSound": "original sound",
+    "saveSuccess": "Audio track saved successfully",
+    "unsaveSuccess": "Audio track removed from saved",
+    "saveError": "Failed to save audio track"
+  },
+  "NotFoundPage": {
+    "title": "Sorry, this page isn't available.",
+    "description": "The link you followed may be broken, or the page may have been removed.",
+    "goBack": "Go back to Gigglegram"
+  },
+  "ReelsPage": {
+    "title": "Reels",
+    "noReels": "No reels to show",
+    "loading": "Loading reels...",
+    "error": "Failed to load reels",
+    "follow": "Follow",
+    "following": "Following",
+    "unfollow": "Unfollow"
+  },
+  "CreateHighlight": {
+    "title": "New highlight",
+    "namePlaceholder": "Highlight name",
+    "next": "Next",
+    "stories": "Stories",
+    "chooseCover": "Choose cover",
+    "done": "Done",
+    "success": "Highlight created successfully.",
+    "error": "Failed to create highlight",
+    "noStories": "No stories available",
+    "selectStories": "Select stories for your highlight",
+    "mustSelectOne": "You must select at least one story",
+    "nameRequired": "Please enter a name",
+    "removeStorySuccess": "Story removed from highlight",
+    "removeStoryError": "Failed to remove story",
+    "highlightDeleted": "Highlight deleted"
+  },
+  "Report": {
+    "title": "Report",
+    "itemLabel": "Report",
+    "reasonPlaceholder": "Why are you reporting this?",
+    "submit": "Submit report",
+    "success": "Report submitted. Thank you for helping us keep the community safe.",
+    "error": "Failed to submit report. Please try again later.",
+    "reasonsTitle": "Please select a reason",
+    "description": "If you see something that goes against our community guidelines, please let us know.",
+    "submitting": "Submitting...",
+    "others": "Other"
+  },
+  "AccountsPage": {
+    "editProfile": {
+      "title": "Edit profile",
+      "changePhoto": "Change photo",
+      "usernameDescription": "In most cases, you'll be able to change your username back to {username} for another 14 days.",
+      "website": "Website",
+      "websitePlaceholder": "Website",
+      "bio": "Bio",
+      "bioPlaceholder": "Bio",
+      "showThreadsBadge": "Show Threads badge",
+      "gender": "Gender",
+      "genderPlaceholder": "Select gender",
+      "genderDescription": "This won't be part of your public profile.",
+      "showSuggestions": "Show account suggestions on profile",
+      "showSuggestionsDescription": "Choose whether people can see similar account suggestions on your profile, and whether your account can be suggested on others'.",
+      "submit": "Submit",
+      "success": "Profile updated successfully",
+      "error": "Failed to update profile",
+      "genders": {
+        "male": "Male",
+        "female": "Female",
+        "none": "None"
+      },
+      "avatarEditor": {
+        "title": "Change profile photo",
+        "uploadPhoto": "Upload photo",
+        "save": "Save",
+        "cancel": "Cancel",
+        "zoom": "Zoom",
+        "saveSuccess": "Avatar updated successfully",
+        "errors": {
+          "noImage": "Please select an image first",
+          "uploadFailed": "Failed to upload photo"
+        }
+      }
+    },
+    "privacy": {
+      "title": "Account privacy",
+      "privateAccount": "Private account",
+      "description1": "When your account is public, anyone on or off Instagram can see your profile and posts, even if they don't have an Instagram account.",
+      "description2": "When your account is private, only the followers you approve can see what you share, including your photos or videos on location and hashtag pages, and your follower and following lists. Some information on your profile (like your profile photo and username) will show to anyone on and off Instagram.",
+      "learnMore": "Learn more",
+      "success": "Privacy settings updated",
+      "error": "Failed to update privacy settings"
+    },
+    "sidebar": {
+      "settings": "Settings",
+      "yourAccount": "Your account",
+      "accountCenter": "Account Center",
+      "accountCenterDescription": "Manage your connected experiences and account settings across Meta technologies.",
+      "accountCenterDetails": "Personal details, password and security, ad preferences",
+      "howYouUse": "How you use Gigglegram",
+      "editProfile": "Edit profile",
+      "notifications": "Notifications",
+      "whoCanSee": "Who can see your content",
+      "accountPrivacy": "Account privacy",
+      "closeFriends": "Close Friends",
+      "blocked": "Blocked",
+      "messagesAndLocation": "Messages and location",
+      "howOthersInteract": "How others can interact with you",
+      "messagesAndReplies": "Messages and story replies",
+      "tagsAndMentions": "Tags and mentions",
+      "comments": "Comments",
+      "sharing": "Sharing",
+      "likesAndShares": "Like and share counts",
+      "contentYouSee": "What you see"
+    },
+    "messagesAndReplies": {
+      "title": "Messages and story replies",
+      "contactHeader": "How people can contact you",
+      "messageControls": "Message controls",
+      "storyReplies": "Story replies",
+      "onlineHeader": "Who can see when you are online",
+      "activityStatus": "Show activity status",
+      "messageRequests": {
+        "title": "Message requests",
+        "description": "Message requests from people you don't follow or haven't chatted with will be sent to your message requests.",
+        "learnMore": "Learn more about who can message you",
+        "whoCanSend": "People who can send message requests to you",
+        "options": {
+          "everyone": "Everyone",
+          "followers": "People you follow",
+          "no_one": "No one"
+        }
+      },
+      "activityStatusPage": {
+        "title": "Activity status",
+        "toggleLabel": "Show activity status",
+        "description": "Allow accounts you follow and anyone you message to see when you were last active or are currently active on Instagram apps. When this is turned off, you won't be able to see the activity status of other accounts.",
+        "learnMore": "Learn more",
+        "footer": "You can continue to use our services even if activity status is off."
+      },
+      "success": "Settings updated",
+      "error": "Failed to update settings"
+    },
+    "tagsAndMentions": {
+      "title": "Tags and mentions",
+      "tagsHeader": "Who can tag you",
+      "tagsDescription": "Choose who can tag you in their photos and videos. When someone tries to tag you, they'll see if you allow tags from them.",
+      "mentionsHeader": "Who can @mention you",
+      "mentionsDescription": "Choose who can @mention you to link your profile in their stories, comments, live videos and captions. When someone tries to @mention you, they'll see if you allow mentions from them.",
+      "options": {
+        "everyone": "Allow tags from everyone",
+        "followers": "Allow tags from people you follow",
+        "no_one": "Don't allow tags"
+      },
+      "mentionOptions": {
+        "everyone": "Allow mentions from everyone",
+        "followers": "Allow mentions from people you follow",
+        "no_one": "Don't allow mentions"
+      },
+      "manualApprove": "Manually approve tags",
+      "off": "Off"
+    },
+    "comments": {
+      "title": "Comments",
+      "allowHeader": "Allow comments from",
+      "options": {
+        "everyone": "Everyone",
+        "followers": "People you follow",
+        "no_one": "No one"
+      },
+      "peopleCount": "{count} people",
+      "allowGifs": "Allow GIF comments",
+      "gifsDescription": "People can comment with a GIF on your posts and reels."
+    },
+    "likesAndShares": {
+      "title": "Like and share counts",
+      "hideCounts": "Hide like and share counts",
+      "description1": "On Gigglegram, the like count on posts and reels from other accounts will be hidden. You can hide the like count on your own posts and reels by going to Advanced Settings before sharing.",
+      "learnMore": "Learn more"
+    }
+  },
+  "MessagesPage": {
+    "title": "Messages",
+    "yourMessages": "Your messages",
+    "description": "Send photos and private messages to a friend or group.",
+    "sendMessage": "Send message",
+    "details": "Details",
+    "members": "Members",
+    "nickname": "Nickname",
+    "block": "Block",
+    "report": "Report",
+    "deleteChat": "Delete Chat",
+    "mute": "Mute",
+    "unmute": "Unmute",
+    "pin": "Pin",
+    "unpin": "Unpin",
+    "markAsUnread": "Mark as unread",
+    "markAsRead": "Mark as read",
+    "delete": "Delete",
+    "typeMessage": "Message...",
+    "noConversations": "No conversations yet",
+    "loading": "Loading messages...",
+    "online": "Active now",
+    "active": "Active {time} ago",
+    "systemMessages": {
+      "added": "added {name} to the group",
+      "removed": "removed {name} from the group",
+      "left": "{name} left the group"
+    },
+    "send": "Send",
+    "newMessage": "New message",
+    "to": "To",
+    "searchPlaceholder": "Search...",
+    "searching": "Searching...",
+    "noUsersFound": "No users found",
+    "searchPrompt": "No recent conversations",
+    "suggestedUsers": "Suggested",
+    "chat": "Chat",
+    "youPrefix": "You",
+    "startConversationError": "Failed to start conversation",
+    "sending": "Sending...",
+    "mutedSuccess": "Conversation muted",
+    "mutedError": "Failed to mute conversation",
+    "unmutedSuccess": "Conversation unmuted",
+    "unmutedError": "Failed to unmute conversation",
+    "deletedSuccess": "Conversation deleted",
+    "deletedError": "Failed to delete conversation",
+    "confirmDelete": "Are you sure you want to delete this conversation?",
+    "confirmDeleteTitle": "Delete conversation",
+    "cancel": "Cancel",
+    "viewProfile": "View profile",
+    "createdGroup": "You created this group",
+    "groupChat": "Group chat"
+  },
+  "ArchivePage": {
+    "title": "Archive",
+    "stories": "Stories",
+    "posts": "Posts",
+    "savedAudio": "Saved Audio",
+    "storiesArchiveInfo": "Archived stories are only visible to you unless you share them.",
+    "noStories": "No archived stories",
+    "noPosts": "No archived posts",
+    "noAudio": "No saved audio",
+    "deleteStoryConfirmTitle": "Delete story?",
+    "deleteStoryConfirmDescription": "Are you sure you want to delete this story? This action cannot be undone and it will be permanently removed from your archive."
+  },
+  "StoryViewer": {
+    "removeHighlightTitle": "Remove from highlight?",
+    "removeHighlightDescription": "This story will be removed from this highlight. It will still be available in your story archive."
+  },
+  "ActivityPage": {
+    "title": "Your activity",
+    "sidebar": {
+      "interactions": "Interactions",
+      "likes": "Likes",
+      "comments": "Comments",
+      "photosAndVideos": "Photos and videos",
+      "accountHistory": "Account history",
+      "posts": "Posts",
+      "reels": "Reels",
+      "highlights": "Highlights"
+    },
+    "likes": {
+      "title": "Likes",
+      "description": "You can view and remove likes from here.",
+      "empty": "No liked posts yet"
+    },
+    "comments": {
+      "title": "Comments",
+      "description": "You can view and delete your comments from here.",
+      "empty": "No comments yet"
+    },
+    "photosAndVideos": {
+      "title": "Photos and videos",
+      "description": "View, archive or delete photos and videos you've shared.",
+      "empty": "No posts yet"
+    }
+  },
+  "Dashboard": {
+    "sidebar": {
+      "platform": "Platform",
+      "nav": {
+        "dashboard": "Dashboard",
+        "overview": "Overview",
+        "analytics": "Analytics",
+        "postsAndStories": "Posts & Stories",
+        "allPosts": "All Posts",
+        "reels": "Reels",
+        "stories": "Stories",
+        "highlights": "Highlights",
+        "contentDiscovery": "Content Discovery",
+        "collections": "Collections",
+        "hashtags": "Hashtags",
+        "audioLibrary": "Audio Library",
+        "locationRegistry": "Location Registry",
+        "moderation": "Moderation",
+        "reports": "Reports",
+        "violationReview": "Violation Review",
+        "reviewers": "Reviewers",
+        "organizations": "Organizations",
+        "manageOrgs": "Manage Orgs",
+        "members": "Members",
+        "invitations": "Invitations",
+        "systemControl": "System Control",
+        "globalSettings": "Global Settings",
+        "featureToggles": "Feature Toggles",
+        "userManagement": "User Management"
+      }
+    },
+    "search": {
+      "placeholder": "Search dashboard...",
+      "dialogPlaceholder": "Type a command or search users, posts, reports...",
+      "navigation": "Navigation",
+      "management": "Management",
+      "settings": "Settings",
+      "searchUsers": "Search Users",
+      "reviewReports": "Review Reports",
+      "globalSettings": "Global Settings",
+      "noResults": "No results found."
+    },
+    "posts": {
+      "title": "All Posts",
+      "description": "Manage and moderate all multimedia content across the platform.",
+      "export": "Export",
+      "deleteSelected": "Delete",
+      "newPost": "New Post",
+      "searchPlaceholder": "Search by caption...",
+      "clearSearch": "Clear search",
+      "moreFilters": "More Filters",
+      "columns": "Customize Columns",
+      "rowsPerPage": "Rows per page",
+      "tabs": {
+        "all": "All Posts",
+        "reel": "Reels Only",
+        "post": "Posts Only",
+        "published": "Published",
+        "archived": "Archived"
+      },
+      "filterStatus": "Filter by Status",
+      "filterDate": "Filter by Date",
+      "stats": {
+        "totalPosts": "Total Posts",
+        "reelPosts": "Reel Posts",
+        "normalPosts": "Normal Posts",
+        "engagementPerPost": "Engagement per Post"
+      },
+      "table": {
+        "post": "Post",
+        "type": "Type",
+        "author": "Author",
+        "date": "Date",
+        "status": "Status",
+        "engagement": "Engagement",
+        "actions": "Actions"
+      },
+      "actions": {
+        "title": "Post Actions",
+        "edit": "Edit Details",
+        "insights": "View Insights",
+        "delete": "Delete Post"
+      },
+      "status": {
+        "published": "Published",
+        "archived": "Archived"
+      },
+      "visibleColumns": "Visible Columns",
+      "noResults": "No results found.",
+      "selection": "{count} of {total} row(s) selected",
+      "pagination": {
+        "page": "Page",
+        "of": "of"
+      },
+      "noCaption": "No caption",
+      "deleteSuccess": "Post deleted successfully",
+      "deleteManySuccess": "Selected posts deleted successfully",
+      "deleteError": "Failed to delete post(s)",
+      "confirmDeleteTitle": "Are you absolutely sure?",
+      "confirmDeleteDescription": "This action cannot be undone. This will permanently delete the post and remove it from our servers.",
+      "confirmBulkDeleteTitle": "Delete selected posts?",
+      "confirmBulkDeleteDescription": "Are you sure you want to delete {count} selected posts? This action cannot be undone.",
+      "cancel": "Cancel",
+      "confirm": "Confirm"
+    },
+    "settings": {
+      "title": "Global Settings",
+      "description": "Manage and configure system-wide settings and thresholds.",
+      "export": "Export",
+      "deleteSelected": "Delete",
+      "newSetting": "New Setting",
+      "searchPlaceholder": "Search key or description...",
+      "clearSearch": "Clear search",
+      "moreFilters": "More Filters",
+      "columns": "Customize Columns",
+      "visibleColumns": "Visible Columns",
+      "rowsPerPage": "Rows per page",
+      "filterType": "Filter by Type",
+      "filterAccess": "Filter by Access",
+      "filterAll": "All",
+      "noResults": "No settings found",
+      "stats": {
+        "totalSettings": "Total Settings",
+        "publicSettings": "Public Settings",
+        "privateSettings": "Private Settings",
+        "typesMix": "Types Mix",
+        "entries": "Entries",
+        "registered": "Registered in settings",
+        "publicCount": "Client Accessible",
+        "publicDesc": "IsPublic evaluates to true",
+        "privateCount": "Secret Configs",
+        "privateDesc": "Secure backend variables",
+        "typesBreakdown": "Configuration Types Mix",
+        "types": {
+          "bool": "Boolean",
+          "json": "JSON",
+          "intFloat": "Int/Float",
+          "string": "String"
+        }
+      },
+      "table": {
+        "key": "Setting Key",
+        "type": "Type",
+        "value": "Value",
+        "access": "Access",
+        "description": "Description",
+        "updatedAt": "Last Updated",
+        "actions": "Actions",
+        "public": "Public",
+        "private": "Secret"
+      },
+      "dialog": {
+        "createTitle": "Create New System Setting",
+        "editTitle": "Edit System Setting",
+        "keyLabel": "Setting Key ID",
+        "keyDescription": "Namespace keys with dots to automatically group settings (e.g. api.limit).",
+        "typeLabel": "Value Type",
+        "accessLabel": "Client Access",
+        "accessDescription": "Secret (Backend Only) configurations are hidden from the frontend client.",
+        "valueLabel": "Setting Value",
+        "valuePlaceholder": "Enter value...",
+        "valueDescription": "Please input a valid format matching the selected value type.",
+        "descriptionLabel": "Description Context",
+        "descriptionPlaceholder": "Explain the purpose of this setting...",
+        "submitCreate": "Create Setting",
+        "submitUpdate": "Update Setting",
+        "saving": "Saving...",
+        "errors": {
+          "required": "This field is required",
+          "invalidJson": "Value must be valid JSON syntax",
+          "invalidInt": "Value must be a valid integer",
+          "invalidFloat": "Value must be a valid float number",
+          "createFailed": "Failed to create setting",
+          "updateFailed": "Failed to update setting"
+        },
+        "types": {
+          "string": "String (Plain Text)",
+          "int": "Integer (Whole Number)",
+          "float": "Float (Decimal Number)",
+          "bool": "Boolean (True/False)",
+          "json": "JSON (Structured Configuration)"
+        },
+        "true": "True",
+        "false": "False"
+      },
+      "actions": {
+        "title": "Actions",
+        "edit": "Edit",
+        "delete": "Delete"
+      },
+      "deleteSuccess": "Setting deleted successfully",
+      "deleteManySuccess": "Selected settings deleted successfully",
+      "deleteError": "Failed to delete setting(s)",
+      "confirmDeleteTitle": "Are you absolutely sure?",
+      "confirmDeleteDescription": "This action cannot be undone. This will permanently delete the setting and remove it from the system.",
+      "confirmBulkDeleteTitle": "Delete selected settings?",
+      "confirmBulkDeleteDescription": "Are you sure you want to delete {count} selected settings? This action cannot be undone.",
+      "selection": "{count} of {total} row(s) selected",
+      "pagination": {
+        "page": "Page",
+        "of": "of"
+      },
+      "cancel": "Cancel",
+      "confirm": "Confirm"
+    },
+    "stories": {
+      "title": "Stories",
+      "description": "Manage and moderate all shared stories across the platform.",
+      "export": "Export",
+      "deleteSelected": "Delete",
+      "newStory": "New Story",
+      "searchPlaceholder": "Search by username...",
+      "clearSearch": "Clear search",
+      "moreFilters": "More Filters",
+      "columns": "Customize Columns",
+      "rowsPerPage": "Rows per page",
+      "tabs": {
+        "all": "All Stories",
+        "published": "Active",
+        "archived": "Expired"
+      },
+      "filterStatus": "Filter by Status",
+      "filterDate": "Filter by Date",
+      "stats": {
+        "totalStories": "Total Stories",
+        "activeStories": "Active Stories",
+        "expiredStories": "Expired Stories",
+        "avgViewsPerStory": "Avg Views per Story"
+      },
+      "table": {
+        "story": "Story",
+        "metadata": "Metadata",
+        "type": "Type",
+        "author": "Author",
+        "date": "Date",
+        "status": "Status",
+        "views": "Views",
+        "static": "Static",
+        "actions": "Actions"
+      },
+      "actions": {
+        "title": "Story Actions",
+        "delete": "Delete Story"
+      },
+      "status": {
+        "published": "Active",
+        "archived": "Expired"
+      },
+      "visibleColumns": "Visible Columns",
+      "noResults": "No results found.",
+      "selection": "{count} of {total} row(s) selected",
+      "pagination": {
+        "page": "Page",
+        "of": "of"
+      },
+      "noCaption": "No caption",
+      "deleteSuccess": "Story deleted successfully",
+      "deleteManySuccess": "Selected stories deleted successfully",
+      "deleteError": "Failed to delete story(s)",
+      "confirmDeleteTitle": "Are you absolutely sure?",
+      "confirmDeleteDescription": "This action cannot be undone. This will permanently delete the story and remove it from our servers.",
+      "confirmBulkDeleteTitle": "Delete selected stories?",
+      "confirmBulkDeleteDescription": "Are you sure you want to delete {count} selected stories? This action cannot be undone.",
+      "cancel": "Cancel",
+      "confirm": "Confirm"
+    },
+    "highlights": {
+      "title": "Highlights",
+      "description": "Manage and moderate all story highlights shared across the platform.",
+      "export": "Export",
+      "deleteSelected": "Delete",
+      "searchPlaceholder": "Search by highlight title...",
+      "clearSearch": "Clear search",
+      "moreFilters": "More Filters",
+      "columns": "Customize Columns",
+      "rowsPerPage": "Rows per page",
+      "tabs": {
+        "all": "All Highlights"
+      },
+      "filterDate": "Filter by Date",
+      "stats": {
+        "totalHighlights": "Total Highlights",
+        "totalStoriesCount": "Stories in Highlights",
+        "withCovers": "Cover Stories",
+        "avgStoriesCount": "Avg Stories per Highlight"
+      },
+      "table": {
+        "highlight": "Highlight",
+        "coverStory": "Cover Story",
+        "title": "Title",
+        "author": "Author",
+        "storiesCount": "Stories Count",
+        "date": "Created Date",
+        "actions": "Actions"
+      },
+      "actions": {
+        "title": "Highlight Actions",
+        "delete": "Delete Highlight"
+      },
+      "visibleColumns": "Visible Columns",
+      "noResults": "No results found.",
+      "selection": "{count} of {total} row(s) selected",
+      "pagination": {
+        "page": "Page",
+        "of": "of"
+      },
+      "deleteSuccess": "Highlight deleted successfully",
+      "deleteManySuccess": "Selected highlights deleted successfully",
+      "deleteError": "Failed to delete highlight(s)",
+      "confirmDeleteTitle": "Are you absolutely sure?",
+      "confirmDeleteDescription": "This action cannot be undone. This will permanently delete the story highlight and remove it from our servers.",
+      "confirmBulkDeleteTitle": "Delete selected highlights?",
+      "confirmBulkDeleteDescription": "Are you sure you want to delete {count} selected highlights? This action cannot be undone.",
+      "cancel": "Cancel",
+      "confirm": "Confirm"
+    },
+    "hashtags": {
+      "title": "Hashtags",
+      "description": "Manage and moderate all shared hashtags across the platform.",
+      "export": "Export",
+      "deleteSelected": "Delete",
+      "filterDate": "Filter by Date",
+      "searchPlaceholder": "Search by hashtag name...",
+      "clearSearch": "Clear search",
+      "columns": "Customize Columns",
+      "rowsPerPage": "Rows per page",
+      "tabs": {
+        "all": "All Hashtags"
+      },
+      "stats": {
+        "totalHashtags": "Total Hashtags",
+        "totalPostsCount": "Total Post Associations",
+        "avgPostsPerHashtag": "Avg Posts per Hashtag",
+        "maxPostsCount": "Max Posts on Single Tag"
+      },
+      "table": {
+        "name": "Hashtag",
+        "postsCount": "Posts Count",
+        "date": "Created Date",
+        "actions": "Actions"
+      },
+      "actions": {
+        "title": "Hashtag Actions",
+        "edit": "Edit Details",
+        "delete": "Delete Hashtag"
+      },
+      "newHashtag": "New Hashtag",
+      "createDialog": {
+        "title": "Create New Hashtag",
+        "nameLabel": "Hashtag Name",
+        "namePlaceholder": "e.g. photography",
+        "submit": "Create"
+      },
+      "editDialog": {
+        "title": "Edit Hashtag",
+        "nameLabel": "Hashtag Name",
+        "namePlaceholder": "e.g. photography",
+        "submit": "Save Changes"
+      },
+      "createSuccess": "Hashtag created successfully",
+      "createError": "Failed to create hashtag",
+      "updateSuccess": "Hashtag updated successfully",
+      "updateError": "Failed to update hashtag",
+      "validation": {
+        "nameRequired": "Hashtag name is required",
+        "nameInvalid": "Hashtag name is invalid (alphanumeric and underscores only)"
+      },
+      "visibleColumns": "Visible Columns",
+      "noResults": "No results found.",
+      "selection": "{count} of {total} row(s) selected",
+      "pagination": {
+        "page": "Page",
+        "of": "of"
+      },
+      "deleteSuccess": "Hashtag deleted successfully",
+      "deleteManySuccess": "Selected hashtags deleted successfully",
+      "deleteError": "Failed to delete hashtag(s)",
+      "confirmDeleteTitle": "Are you absolutely sure?",
+      "confirmDeleteDescription": "This action cannot be undone. This will permanently delete the hashtag and remove it from all associated posts.",
+      "confirmBulkDeleteTitle": "Delete selected hashtags?",
+      "confirmBulkDeleteDescription": "Are you sure you want to delete {count} selected hashtags? This action cannot be undone.",
+      "cancel": "Cancel",
+      "confirm": "Confirm"
+    },
+    "audio": {
+      "title": "Audio Library",
+      "description": "Manage and moderate all audio tracks across the platform.",
+      "export": "Export",
+      "deleteSelected": "Delete",
+      "filterDate": "Filter by Date",
+      "searchPlaceholder": "Search by audio title...",
+      "clearSearch": "Clear search",
+      "columns": "Customize Columns",
+      "rowsPerPage": "Rows per page",
+      "tabs": {
+        "all": "All Audio Tracks"
+      },
+      "stats": {
+        "totalTracks": "Total Audio Tracks",
+        "trendingTracks": "Trending Tracks",
+        "avgDuration": "Avg Duration",
+        "totalUsageCount": "Total Usage"
+      },
+      "table": {
+        "title": "Audio Track",
+        "duration": "Duration",
+        "uploader": "Uploader",
+        "isOriginal": "Original",
+        "isTrending": "Trending",
+        "usageCount": "Usage Count",
+        "date": "Created Date",
+        "actions": "Actions"
+      },
+      "actions": {
+        "title": "Audio Actions",
+        "delete": "Delete Track",
+        "edit": "Edit Track"
+      },
+      "visibleColumns": "Visible Columns",
+      "noResults": "No results found.",
+      "selection": "{count} of {total} row(s) selected",
+      "pagination": {
+        "page": "Page",
+        "of": "of"
+      },
+      "deleteSuccess": "Audio track deleted successfully",
+      "deleteManySuccess": "Selected audio tracks deleted successfully",
+      "deleteError": "Failed to delete audio track(s)",
+      "updateSuccess": "Audio track updated successfully",
+      "updateError": "Failed to update audio track",
+      "confirmDeleteTitle": "Are you absolutely sure?",
+      "confirmDeleteDescription": "This action cannot be undone. This will permanently delete the audio track and remove it from all associated posts.",
+      "confirmBulkDeleteTitle": "Delete selected audio tracks?",
+      "confirmBulkDeleteDescription": "Are you sure you want to delete {count} selected audio tracks? This action cannot be undone.",
+      "cancel": "Cancel",
+      "confirm": "Confirm",
+      "audioPlayError": "Audio file not found or failed to load.",
+      "editDialog": {
+        "title": "Edit Audio Track",
+        "titleLabel": "Track Title",
+        "titlePlaceholder": "Enter audio track title",
+        "isOriginalLabel": "Mark as Original Track",
+        "isTrendingLabel": "Mark as Trending Track",
+        "submit": "Save Changes"
+      },
+      "validation": {
+        "titleRequired": "Title is required"
+      }
+    },
+    "locations": {
+      "title": "Location Registry",
+      "description": "Manage and moderate all locations mapped across the platform.",
+      "export": "Export",
+      "deleteSelected": "Delete",
+      "filterDate": "Filter by Date",
+      "searchPlaceholder": "Search locations by name, city or country...",
+      "clearSearch": "Clear search",
+      "columns": "Customize Columns",
+      "rowsPerPage": "Rows per page",
+      "tabs": {
+        "all": "All Registered Locations"
+      },
+      "stats": {
+        "totalLocations": "Total Locations",
+        "uniqueCities": "Unique Cities",
+        "uniqueCountries": "Unique Countries"
+      },
+      "table": {
+        "name": "Location Name",
+        "city": "City",
+        "country": "Country",
+        "latitude": "Latitude",
+        "longitude": "Longitude",
+        "postsCount": "Posts Mapped",
+        "date": "Created Date",
+        "actions": "Actions"
+      },
+      "actions": {
+        "title": "Location Actions",
+        "viewMap": "View Map",
+        "edit": "Edit Details",
+        "delete": "Delete Location"
+      },
+      "newLocation": "New Location",
+      "createDialog": {
+        "title": "Create New Location",
+        "nameLabel": "Location Name",
+        "namePlaceholder": "e.g. Central Park",
+        "cityLabel": "City",
+        "cityPlaceholder": "e.g. New York",
+        "countryLabel": "Country",
+        "countryPlaceholder": "e.g. United States",
+        "latitudeLabel": "Latitude",
+        "latitudePlaceholder": "e.g. 40.785091",
+        "longitudeLabel": "Longitude",
+        "longitudePlaceholder": "e.g. -73.968285",
+        "submit": "Create"
+      },
+      "editDialog": {
+        "title": "Edit Location",
+        "nameLabel": "Location Name",
+        "namePlaceholder": "e.g. Central Park",
+        "cityLabel": "City",
+        "cityPlaceholder": "e.g. New York",
+        "countryLabel": "Country",
+        "countryPlaceholder": "e.g. United States",
+        "latitudeLabel": "Latitude",
+        "latitudePlaceholder": "e.g. 40.785091",
+        "longitudeLabel": "Longitude",
+        "longitudePlaceholder": "e.g. -73.968285",
+        "submit": "Save Changes"
+      },
+      "createSuccess": "Location created successfully",
+      "createError": "Failed to create location",
+      "updateSuccess": "Location updated successfully",
+      "updateError": "Failed to update location",
+      "validation": {
+        "nameRequired": "Location name is required",
+        "cityRequired": "City is required",
+        "countryRequired": "Country is required",
+        "latitudeRequired": "Latitude is required",
+        "latitudeInvalid": "Latitude must be a valid number between -90 and 90",
+        "longitudeRequired": "Longitude is required",
+        "longitudeInvalid": "Longitude must be a valid number between -180 and 180"
+      },
+      "visibleColumns": "Visible Columns",
+      "noResults": "No results found.",
+      "selection": "{count} of {total} row(s) selected",
+      "pagination": {
+        "page": "Page",
+        "of": "of"
+      },
+      "deleteSuccess": "Location deleted successfully",
+      "deleteManySuccess": "Selected locations deleted successfully",
+      "deleteError": "Failed to delete location(s)",
+      "confirmDeleteTitle": "Are you absolutely sure?",
+      "confirmDeleteDescription": "This action cannot be undone. This will permanently delete the location record from the registry.",
+      "confirmBulkDeleteTitle": "Delete selected locations?",
+      "confirmBulkDeleteDescription": "Are you sure you want to delete {count} selected locations? This action cannot be undone.",
+      "cancel": "Cancel",
+      "confirm": "Confirm",
+      "mapModalTitle": "Map View - {name}"
+    },
+    "collections": {
+      "title": "Saved Collections",
+      "description": "Manage and organize your saved post collections and playlists.",
+      "export": "Export",
+      "deleteSelected": "Delete",
+      "filterDate": "Filter by Date",
+      "searchPlaceholder": "Search by collection name...",
+      "clearSearch": "Clear search",
+      "columns": "Customize Columns",
+      "rowsPerPage": "Rows per page",
+      "tabs": {
+        "all": "All Collections"
+      },
+      "table": {
+        "name": "Collection Name",
+        "postsCount": "Posts Count",
+        "owner": "Owner",
+        "date": "Created Date",
+        "actions": "Actions"
+      },
+      "actions": {
+        "title": "Collection Actions",
+        "delete": "Delete Collection"
+      },
+      "visibleColumns": "Visible Columns",
+      "noResults": "No results found.",
+      "selection": "{count} of {total} row(s) selected",
+      "pagination": {
+        "page": "Page",
+        "of": "of"
+      },
+      "deleteSuccess": "Collection deleted successfully",
+      "deleteManySuccess": "Selected collections deleted successfully",
+      "deleteError": "Failed to delete collection(s)",
+      "confirmDeleteTitle": "Are you absolutely sure?",
+      "confirmDeleteDescription": "This action cannot be undone. This will permanently delete the collection. Post items saved inside this collection will not be deleted, but will be removed from this collection.",
+      "confirmBulkDeleteTitle": "Delete selected collections?",
+      "confirmBulkDeleteDescription": "Are you sure you want to delete {count} selected collections? This action cannot be undone.",
+      "cancel": "Cancel",
+      "confirm": "Confirm"
+    },
+    "moderation": {
+      "title": "Violation Review",
+      "description": "Review and manage post media flagged by the system or moderators.",
+      "export": "Export",
+      "deleteSelected": "Delete",
+      "searchPlaceholder": "Search flagged media...",
+      "clearSearch": "Clear search",
+      "columns": "Customize Columns",
+      "rowsPerPage": "Rows per page",
+      "noResults": "No flagged media found.",
+      "selection": "{count} of {total} media items selected",
+      "pagination": {
+        "page": "Page",
+        "of": "of"
+      },
+      "tabs": {
+        "all": "All Statuses",
+        "pending": "Pending Review",
+        "approved": "Approved",
+        "flagged": "Flagged"
+      },
+      "filterStatus": "Filter by Status",
+      "stats": {
+        "totalMedia": "Total Media",
+        "pendingCount": "Pending Review",
+        "approvedCount": "Approved",
+        "flaggedCount": "Flagged"
+      },
+      "table": {
+        "media": "Media",
+        "post": "Post Caption",
+        "author": "Author",
+        "status": "Status",
+        "reason": "Moderation Reason",
+        "metadata": "Metadata",
+        "static": "Static",
+        "reviewer": "Reviewer",
+        "date": "Uploaded Date",
+        "actions": "Actions"
+      },
+      "actions": {
+        "title": "Moderation Actions",
+        "approve": "Approve",
+        "flag": "Flag",
+        "pending": "Set Pending",
+        "review": "Review Media"
+      },
+      "status": {
+        "pending": "Pending",
+        "approved": "Approved",
+        "flagged": "Flagged"
+      },
+      "dialog": {
+        "title": "Review Media Moderation",
+        "description": "Set the moderation status and reason for this media content.",
+        "statusLabel": "Moderation Status",
+        "reasonLabel": "Reason",
+        "notesPlaceholder": "Enter reason or details...",
+        "submit": "Submit Decisions",
+        "success": "Media moderation status updated successfully",
+        "error": "Failed to update media moderation status"
+      },
+      "cancel": "Cancel",
+      "confirm": "Confirm",
+      "confirmBulkTitle": "Confirm Bulk Action",
+      "confirmBulkDescription": "Are you sure you want to perform this action on {count} selected media item(s)?"
+    },
+    "reports": {
+      "post": "Post",
+      "story": "Story",
+      "title": "Content Reports",
+      "description": "Manage and resolve content reports submitted by users.",
+      "unassigned": "Unassigned",
+      "searchReviewer": "Search reviewer...",
+      "export": "Export",
+      "deleteSelected": "Delete",
+      "searchPlaceholder": "Search reports...",
+      "clearSearch": "Clear search",
+      "columns": "Customize Columns",
+      "rowsPerPage": "Rows per page",
+      "noResults": "No reports found.",
+      "selection": "{count} of {total} report(s) selected",
+      "pagination": {
+        "page": "Page",
+        "of": "of"
+      },
+      "tabs": {
+        "all": "All Reports",
+        "pending": "Pending",
+        "under_review": "Under Review",
+        "resolved": "Resolved",
+        "dismissed": "Dismissed"
+      },
+      "filterStatus": "Filter by Status",
+      "filterAction": "Filter by Action",
+      "filterReviewer": "Filter by Reviewer",
+      "allStatuses": "All Statuses",
+      "allActions": "All Actions",
+      "allReasons": "All Reasons",
+      "allReviewers": "All Reviewers",
+      "stats": {
+        "totalReports": "Total Reports",
+        "pendingReports": "Pending Reports",
+        "resolvedReports": "Resolved Reports",
+        "efficiencyRate": "Efficiency Rate"
+      },
+      "table": {
+        "reportId": "Report ID",
+        "media": "Media",
+        "type": "Type",
+        "reporter": "Reporter",
+        "reportedUser": "Reported",
+        "reason": "Reason",
+        "status": "Status",
+        "action": "Action",
+        "reviewer": "Reviewer",
+        "date": "Reported Date",
+        "resolvedAt": "Resolved Date",
+        "actions": "Actions"
+      },
+      "actions": {
+        "title": "Report Actions",
+        "assign": "Assign to Me",
+        "review": "Review Report",
+        "delete": "Delete Report"
+      },
+      "status": {
+        "pending": "Pending",
+        "under_review": "Under Review",
+        "resolved": "Resolved",
+        "dismissed": "Dismissed"
+      },
+      "actionTaken": {
+        "post_removed": "Post Removed",
+        "account_warned": "Account Warned",
+        "account_suspended": "Account Suspended",
+        "no_action": "No Action"
+      },
+      "dialog": {
+        "title": "Review Content Report",
+        "description": "Evaluate the report details and take appropriate action.",
+        "reporter": "Reporter",
+        "reported": "Reported User",
+        "additionalInfo": "Additional Information",
+        "none": "None",
+        "statusLabel": "Status",
+        "actionLabel": "Action Taken",
+        "notesLabel": "Reviewer Notes",
+        "notesPlaceholder": "Enter reviewer notes...",
+        "submit": "Submit Review",
+        "success": "Report reviewed successfully",
+        "error": "Failed to update report",
+        "assignSuccess": "Report assigned successfully",
+        "assignError": "Failed to assign report"
+      },
+      "deleteSuccess": "Report deleted successfully",
+      "deleteManySuccess": "Selected reports deleted successfully",
+      "deleteError": "Failed to delete report(s)",
+      "confirmDeleteTitle": "Are you absolutely sure?",
+      "confirmDeleteDescription": "This action cannot be undone. This will permanently delete the report record.",
+      "confirmBulkDeleteTitle": "Delete selected reports?",
+      "confirmBulkDeleteDescription": "Are you sure you want to delete {count} selected reports? This action cannot be undone.",
+      "cancel": "Cancel",
+      "confirm": "Confirm"
+    },
+    "users": {
+      "title": "User Management",
+      "description": "Manage and moderate all platform users.",
+      "filterStatus": "Filter by Status",
+      "filterOrg": "Filter by Organization",
+      "allOrgs": "All Organizations",
+      "searchPlaceholder": "Search users...",
+      "clearSearch": "Clear search",
+      "moreFilters": "More Filters",
+      "columns": "Customize Columns",
+      "rowsPerPage": "Rows per page",
+      "searchField": "Search field",
+      "searchFields": {
+        "email": "Email",
+        "name": "Full Name"
+      },
+      "tabs": {
+        "all": "All Users",
+        "active": "Active Only",
+        "banned": "Banned Only"
+      },
+      "stats": {
+        "totalUsers": "Total Users",
+        "activeUsers": "Active Users",
+        "bannedUsers": "Banned Users",
+        "verificationRate": "Verification Rate"
+      },
+      "table": {
+        "user": "User",
+        "email": "Email",
+        "role": "Role",
+        "organization": "Organization",
+        "status": "Status",
+        "joinedDate": "Joined Date",
+        "actions": "Actions"
+      },
+      "status": {
+        "active": "Active",
+        "banned": "Banned",
+        "verified": "Verified",
+        "unverified": "Unverified"
+      },
+      "actions": {
+        "title": "Actions",
+        "ban": "Ban User",
+        "unban": "Unban User",
+        "delete": "Delete User",
+        "edit": "Edit Details",
+        "setPassword": "Set Password",
+        "sessions": "Manage Sessions",
+        "newUser": "Create User",
+        "revokeSelected": "Revoke Selected"
+      },
+      "banDialog": {
+        "title": "Ban User",
+        "description": "Are you sure you want to ban this user? Banned users will not be able to log in.",
+        "reasonLabel": "Ban Reason",
+        "reasonPlaceholder": "Enter reason for ban...",
+        "cancel": "Cancel",
+        "confirm": "Ban"
+      },
+      "unbanDialog": {
+        "title": "Unban User",
+        "description": "Are you sure you want to unban this user? They will be able to log in again.",
+        "cancel": "Cancel",
+        "confirm": "Unban"
+      },
+      "deleteDialog": {
+        "title": "Delete User",
+        "description": "Are you sure you want to permanently delete this user? This action cannot be undone.",
+        "cancel": "Cancel",
+        "confirm": "Delete"
+      },
+      "validation": {
+        "nameInvalid": "Name must be at least 2 characters.",
+        "emailInvalid": "Invalid email address.",
+        "emailTaken": "Email is already taken.",
+        "usernameInvalid": "Username must be at least 3 characters and contain only alphanumeric characters and underscores.",
+        "usernameTaken": "Username is already taken.",
+        "passwordInvalid": "Password must be at least 8 characters.",
+        "organizationRequired": "At least one organization is required."
+      },
+      "createDialog": {
+        "title": "Create New User",
+        "description": "Fill out the form below to create a new user account.",
+        "nameLabel": "Full Name",
+        "namePlaceholder": "John Doe",
+        "emailLabel": "Email Address",
+        "emailPlaceholder": "john.doe@example.com",
+        "usernameLabel": "Username",
+        "usernamePlaceholder": "johndoe",
+        "passwordLabel": "Password",
+        "passwordPlaceholder": "Enter password...",
+        "roleLabel": "System Role",
+        "rolePlaceholder": "Select a role...",
+        "roleUser": "User",
+        "roleAdmin": "Admin",
+        "organizationLabel": "Organization",
+        "organizationPlaceholder": "Select organization...",
+        "noOrganization": "No Organization",
+        "cancel": "Cancel",
+        "confirm": "Create User",
+        "changePhoto": "Change photo"
+      },
+      "editDialog": {
+        "title": "Edit User Details",
+        "description": "Update the profile and system options for this user.",
+        "nameLabel": "Full Name",
+        "namePlaceholder": "John Doe",
+        "emailLabel": "Email Address",
+        "emailPlaceholder": "john.doe@example.com",
+        "usernameLabel": "Username",
+        "usernamePlaceholder": "johndoe",
+        "roleLabel": "System Role",
+        "rolePlaceholder": "Select a role...",
+        "organizationLabel": "Organization",
+        "organizationPlaceholder": "Select organization...",
+        "noOrganization": "No Organization",
+        "bioLabel": "Biography (Optional)",
+        "bioPlaceholder": "Tell us about this user...",
+        "genderLabel": "Gender (Optional)",
+        "genderPlaceholder": "Select gender...",
+        "genderMale": "Male",
+        "genderFemale": "Female",
+        "genderOther": "Other",
+        "cancel": "Cancel",
+        "confirm": "Save Changes",
+        "changePhoto": "Change photo"
+      },
+      "setPasswordDialog": {
+        "title": "Set User Password",
+        "description": "Enter a new password for this user. This overrides their existing password.",
+        "passwordLabel": "New Password",
+        "passwordPlaceholder": "Enter new password...",
+        "cancel": "Cancel",
+        "confirm": "Update Password"
+      },
+      "sessionsDialog": {
+        "title": "Active Sessions for {name}",
+        "description": "Review and revoke active sessions for this user account.",
+        "device": "Device",
+        "ipAddress": "IP Address",
+        "expires": "Expires",
+        "revoke": "Revoke",
+        "revokeAll": "Revoke All Sessions",
+        "noSessions": "No active sessions found for this user.",
+        "close": "Close"
+      },
+      "bulkRevokeDialog": {
+        "title": "Revoke Selected Sessions",
+        "description": "Are you sure you want to revoke all active sessions for the {count} selected user(s)?",
+        "cancel": "Cancel",
+        "confirm": "Revoke Sessions"
+      },
+      "roles": {
+        "user": "User",
+        "admin": "Admin"
+      },
+      "genders": {
+        "male": "Male",
+        "female": "Female",
+        "other": "Other"
+      },
+      "banSuccess": "User banned successfully",
+      "banError": "Failed to ban user",
+      "unbanSuccess": "User unbanned successfully",
+      "unbanError": "Failed to unban user",
+      "deleteSuccess": "User deleted successfully",
+      "deleteError": "Failed to delete user",
+      "createSuccess": "User created successfully",
+      "createError": "Failed to create user",
+      "updateSuccess": "User updated successfully",
+      "updateError": "Failed to update user",
+      "setPasswordSuccess": "Password set successfully",
+      "setPasswordError": "Failed to set password",
+      "revokeSessionSuccess": "Session revoked successfully",
+      "revokeSessionError": "Failed to revoke session",
+      "revokeSessionsSuccess": "All user sessions revoked successfully",
+      "revokeSessionsError": "Failed to revoke user sessions",
+      "bulkRevokeSuccess": "All sessions for selected users revoked successfully",
+      "bulkRevokeError": "Failed to revoke sessions for some users",
+      "noResults": "No users found.",
+      "selection": "{count} of {total} user(s) selected",
+      "pagination": {
+        "page": "Page",
+        "of": "of"
+      }
+    },
+    "organizations": {
+      "title": "Organization Management",
+      "description": "Manage and moderate all platform organizations.",
+      "searchPlaceholder": "Search organizations...",
+      "stats": {
+        "totalOrgs": "Total Organizations",
+        "totalMembers": "Total Members",
+        "avgMembersPerOrg": "Members per Org",
+        "recentOrgs": "Recent (30 days)"
+      },
+      "clearSearch": "Clear search",
+      "columns": "Customize Columns",
+      "rowsPerPage": "Rows per page",
+      "table": {
+        "logo": "Logo",
+        "name": "Name",
+        "slug": "Slug",
+        "createdAt": "Created At",
+        "metadata": "Metadata",
+        "actions": "Actions"
+      },
+      "actions": {
+        "title": "Actions",
+        "edit": "Edit Details",
+        "delete": "Delete Organization",
+        "newOrg": "Create Organization",
+        "permissions": "Manage Permissions"
+      },
+      "createDialog": {
+        "title": "Create New Organization",
+        "description": "Fill out the form below to create a new organization.",
+        "nameLabel": "Organization Name",
+        "namePlaceholder": "e.g., Acme Corp",
+        "slugLabel": "Slug",
+        "slugPlaceholder": "e.g., acme-corp",
+        "logoLabel": "Logo",
+        "changePhoto": "Change logo",
+        "cancel": "Cancel",
+        "confirm": "Create Organization"
+      },
+      "editDialog": {
+        "title": "Edit Organization",
+        "description": "Update the details for this organization.",
+        "nameLabel": "Organization Name",
+        "namePlaceholder": "e.g., Acme Corp",
+        "slugLabel": "Slug",
+        "slugPlaceholder": "e.g., acme-corp",
+        "logoLabel": "Logo",
+        "changePhoto": "Change logo",
+        "cancel": "Cancel",
+        "confirm": "Save Changes"
+      },
+      "deleteDialog": {
+        "title": "Delete Organization",
+        "description": "Are you sure you want to permanently delete this organization? All associated data, including members and roles, will be removed. This action cannot be undone.",
+        "cancel": "Cancel",
+        "confirm": "Delete"
+      },
+      "permissionsDialog": {
+        "title": "Manage Roles & Permissions",
+        "description": "Configure dynamic roles and resource-level permissions for this organization.",
+        "roleLabel": "Select Role",
+        "rolePlaceholder": "Select or enter a role name...",
+        "addRoleButton": "Add Custom Role",
+        "newRolePlaceholder": "e.g., Editor",
+        "resourceHeader": "Resource",
+        "actionsHeader": "Permissions / Actions",
+        "cancel": "Cancel",
+        "confirm": "Save Permissions",
+        "deleteRole": "Delete Role",
+        "deleteRoleConfirm": "Are you sure you want to delete this custom role?"
+      },
+      "validation": {
+        "nameRequired": "Name is required.",
+        "nameInvalid": "Name must be at least 2 characters.",
+        "slugRequired": "Slug is required.",
+        "slugInvalid": "Slug must contain only lowercase letters, numbers, and hyphens."
+      },
+      "createSuccess": "Organization created successfully",
+      "createError": "Failed to create organization",
+      "updateSuccess": "Organization updated successfully",
+      "updateError": "Failed to update organization",
+      "deleteSuccess": "Organization deleted successfully",
+      "deleteError": "Failed to delete organization",
+      "updatePermissionsSuccess": "Permissions updated successfully",
+      "updatePermissionsError": "Failed to update permissions",
+      "deleteRoleSuccess": "Role deleted successfully",
+      "deleteRoleError": "Failed to delete role",
+      "noResults": "No organizations found.",
+      "selection": "{count} of {total} organization(s) selected",
+      "deleteSelected": "Delete Selected",
+      "deleteManySuccess": "Selected organizations deleted successfully",
+      "confirmBulkDeleteTitle": "Delete selected organizations?",
+      "confirmBulkDeleteDescription": "Are you sure you want to permanently delete the {count} selected organization(s)? All associated data, including members and roles, will be removed. This action cannot be undone.",
+      "cancel": "Cancel",
+      "confirm": "Confirm",
+      "pagination": {
+        "page": "Page",
+        "of": "of"
+      }
+    }
+  },
+  "DashboardPage": {
+    "date": "Date",
+    "title": "Dashboard",
+    "totalUsers": "Total Users",
+    "activeUsers": "Active Users",
+    "newSignups": "New Signups",
+    "retentionRate": "Retention Rate",
+    "mediaVolume": "Media Volume",
+    "engagement": "Engagement",
+    "popularContent": "Popular Content",
+    "storageUsage": "Storage Usage",
+    "kafkaLag": "Kafka Lag",
+    "dauMauStickiness": "DAU/MAU Stickiness",
+    "posts": "Posts",
+    "stories": "Stories",
+    "reels": "Reels",
+    "likes": "Likes",
+    "comments": "Comments",
+    "saves": "Saves",
+    "avgEngagement": "Avg. Engagement/Post",
+    "last30Days": "Last 30 Days",
+    "currentPeriod": "Current Period",
+    "previousPeriod": "Previous Period",
+    "trend": "Trend",
+    "healthy": "Healthy",
+    "warning": "Warning",
+    "critical": "Critical",
+    "alert": "Alert",
+    "topic": "Topic",
+    "lag": "Lag",
+    "partitions": "Partitions",
+    "status": "Status",
+    "pageTitle": "Dashboard",
+    "pageDescription": "Admin overview and statistics",
+    "timeframeFilterPlaceholder": "Select timeframe",
+    "timeframe7d": "Last 7 days",
+    "timeframe30d": "Last 30 days",
+    "timeframeAll": "All time",
+    "fromLastMonth": "from last month",
+    "mediaUploadsTitle": "Total Media Uploads",
+    "platformCapacity": "Platform capacity",
+    "engagementBreakdown": "Engagement Breakdown",
+    "activityOverview": "Activity overview",
+    "averageEngagement": "Average Engagement",
+    "averageEngagementStatus": "Current status",
+    "highInteraction": "Of posts receive high interaction",
+    "interactionBasedOn": "Based on aggregated interaction metrics",
+    "kafkaLagTracker": "Kafka Lag Tracker",
+    "criticalQueues": "Critical queues",
+    "leftToProcess": "Left to process",
+    "msgs": "msgs",
+    "name": "Name",
+    "score": "Score",
+    "engagementTipTitle": "Average Engagement is looking strong",
+    "engagementTipDesc": "Users are highly active. Encourage more video posts to boost metrics further.",
+    "quickActions": "Quick Actions",
+    "quickActionsManage": "Manage system tasks",
+    "backupDatabase": "Backup Database",
+    "backupDatabaseDesc": "Last backup: 2 days ago",
+    "deployUpdate": "Deploy Update",
+    "deployUpdateDesc": "Version 2.4.1 ready",
+    "viewErrorLogs": "View Error Logs",
+    "viewErrorLogsDesc": "3 new errors today",
+    "backup": "Backup",
+    "deploy": "Deploy",
+    "logs": "Logs",
+    "more": "More",
+    "activeAdmins": "Active Admins",
+    "admin": "Admin",
+    "noCaption": "No caption",
+    "avgResponseTime": "Avg. Response Time",
+    "moderationEfficiency": "Moderation Efficiency",
+    "fromLastPeriod": "from last period",
+    "resolutionSpeed": "Resolution Speed",
+    "optimal": "Optimal",
+    "delayed": "Delayed",
+    "targetResolution": "Target resolution",
+    "mins": "mins"
+  },
+  "AnalyticsPage": {
+    "pageTitle": "Analytics",
+    "pageSubtitle": "Advanced platform usage & engagement matrices",
+    "timeframe": {
+      "year": "This year",
+      "month": "Month",
+      "week": "Week"
+    },
+    "growthVelocity": "Growth Velocity",
+    "signupsTrajectory": "User acquisition trajectory",
+    "avgEngagement": "Average Engagement",
+    "retentionRate": "Retention Rate",
+    "uploadHeatmap": "Upload Frequency Grid",
+    "heatmapDesc": "Weekly media distribution matrix",
+    "trendingCreators": "Trending Creators",
+    "salesCount": "{count} Reach",
+    "popularContent": "Popular Content Leaderboard",
+    "interactionBreakdown": "Interaction Breakdown",
+    "totalInteractions": "Total Interactions",
+    "likes": "Likes",
+    "comments": "Comments",
+    "saves": "Saves",
+    "multiFormatDistribution": "Format Distribution",
+    "posts": "Posts",
+    "stories": "Stories",
+    "reels": "Reels",
+    "columns": {
+      "id": "ID",
+      "creator": "Creator",
+      "caption": "Caption",
+      "score": "Score",
+      "metrics": "Metrics"
+    }
   }
 }

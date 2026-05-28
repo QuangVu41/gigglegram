@@ -29,6 +29,10 @@ export abstract class AbstractRepository<
     protected readonly tableName: TTableName,
   ) {}
 
+  getDb() {
+    return this.db;
+  }
+
   async findMany<
     TConfig extends DBQueryConfig<
       'many',
@@ -59,24 +63,29 @@ export abstract class AbstractRepository<
     let orderBy: any;
     const { page, limit, sort } = findManyQueryDto;
     const offset = (page - 1) * limit;
-    const [sortField, sortOrder] = sort.split(',');
-    if (sortField && sortOrder && sortField in this.table)
-      orderBy =
-        sortOrder === 'desc'
-          ? [desc(this.table[sortField])]
-          : [asc(this.table[sortField])];
+    if (sort) {
+      const [sortField, sortOrder] = sort.split(',');
+      if (sortField && sortOrder && sortField in this.table) {
+        orderBy =
+          sortOrder === 'desc'
+            ? [desc((this.table as any)[sortField])]
+            : [asc((this.table as any)[sortField])];
+      }
+    }
 
     const [data, dataCount] = await Promise.all([
-      (this.db.query[this.tableName as any] as any).findMany({
+      ((this.db.query as any)[this.tableName as any] as any).findMany({
         offset,
         limit,
         orderBy,
         ...config,
       }),
-      this.db.select({ count: count() }).from(this.table),
+      ((this.db.query as any)[this.tableName as any] as any).findMany({
+        where: config?.where,
+      }),
     ]);
 
-    const totalCount = Number(dataCount[0]?.count ?? 0);
+    const totalCount = Number(dataCount.length ?? 0);
 
     data['_totalCount'] = totalCount;
 
@@ -115,7 +124,7 @@ export abstract class AbstractRepository<
     | undefined
   > {
     const result = await (
-      this.db.query[this.tableName as any] as any
+      (this.db.query as any)[this.tableName as any] as any
     ).findFirst(config);
 
     if (!result)
@@ -125,10 +134,10 @@ export abstract class AbstractRepository<
   }
 
   async create(item: TInsert): Promise<TSelect> {
-    const [result] = await this.db
+    const [result] = (await this.db
       .insert(this.table)
       .values(item as any)
-      .returning();
+      .returning()) as any;
     return result as TSelect;
   }
 
@@ -138,12 +147,12 @@ export abstract class AbstractRepository<
   ): Promise<TSelect | undefined> {
     if (!Object.values(item).some((value) => value !== undefined)) return;
 
-    const [result] = await this.db
+    const [result] = (await this.db
       .update(this.table)
       .set(item as any)
       // @ts-expect-error - Drizzle's internal table ID mapping can be strict;
       .where(eq(this.table.id, id))
-      .returning();
+      .returning()) as any;
 
     return result as TSelect;
   }
@@ -152,17 +161,17 @@ export abstract class AbstractRepository<
     id: TSelect[keyof TSelect & 'id'],
   ): Promise<TSelect | undefined> {
     const existingRecord = await (
-      this.db.query[this.tableName as any] as any
+      (this.db.query as any)[this.tableName as any] as any
     ).findFirst({ where: eq((this.table as any).id, id) });
 
     if (!existingRecord)
       throw new NotFoundException({ code: SystemWideErrorCodes.NOT_FOUND });
 
-    const [result] = await this.db
+    const [result] = (await this.db
       .delete(this.table)
       // @ts-expect-error - Drizzle's internal table ID mapping can be strict;
       .where(eq(this.table.id, id))
-      .returning();
+      .returning()) as any;
 
     return result as TSelect;
   }

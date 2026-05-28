@@ -3,6 +3,7 @@ import { PostEngsModule } from '@/src/post-engs/post-engs.module';
 import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from '@repo/database';
 import { UserEngsModule } from '@/src/user-engs/user-engs.module';
+import { StoryEngsModule } from '@/src/story-engs/story-engs.module';
 import { join } from 'path';
 
 @Module({
@@ -14,6 +15,7 @@ import { join } from 'path';
     DatabaseModule,
     PostEngsModule,
     UserEngsModule,
+    StoryEngsModule,
   ],
 })
 export class EngagementsModule {}

@@ -13,19 +13,19 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }));
   app.useGlobalFilters(new SystemWideHttpExceptionFilter());
   app.setGlobalPrefix('/api/real-time');
-  // app.connectMicroservice<MicroserviceOptions>({
-  //   transport: Transport.KAFKA,
-  //   options: {
-  //     client: {
-  //       brokers: [configService.getOrThrow<string>('KAFKA_BROKER_LISTENER')],
-  //     },
-  //     consumer: {
-  //       groupId: REALTIME_SERVICE_GROUP_ID,
-  //     },
-  //   },
-  // });
+  app.connectMicroservice<MicroserviceOptions>({
+    transport: Transport.KAFKA,
+    options: {
+      client: {
+        brokers: [configService.getOrThrow<string>('KAFKA_BROKER_LISTENER')],
+      },
+      consumer: {
+        groupId: REALTIME_SERVICE_GROUP_ID,
+      },
+    },
+  });
 
-  // await app.startAllMicroservices();
+  await app.startAllMicroservices();
   await app.listen(process.env.PORT ?? 3007);
 }
 bootstrap();

@@ -2,7 +2,7 @@ import {
   comments,
   DATABASE_CONNECTION,
   likes,
-  postReports,
+  contentReports,
   posts,
   savedPosts,
   schema,
@@ -11,7 +11,7 @@ import {
 } from '@repo/database';
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { and, desc, gte, lte, sql } from 'drizzle-orm';
+import { and, desc, gte, lte, sql, type SQL } from 'drizzle-orm';
 import { DateRangeQueryDto } from '@/src/admin/dto/date-range-query.dto';
 import { KAFKA_SERVICE_NAME, LagLevel, TrendEnum } from '@repo/types';
 import { SystemWideErrorCodes, KAFKA_LAG_CONFIG } from '@repo/types';
@@ -26,6 +26,16 @@ export class AdminService {
   private static readonly HOURLY_WINDOW_MS = 60 * 60 * 1000;
   private static readonly LAST_30_DAYS_BUCKETS = 30;
 
+  // ── Static Utilities ───────────────────────────────────
+
+  private static round2(value: number): number {
+    return Math.round(value * 100) / 100;
+  }
+
+  private static safeRatio(numerator: number, denominator: number): number {
+    return denominator === 0 ? 0 : numerator / denominator;
+  }
+
   constructor(
     @Inject(DATABASE_CONNECTION)
     private readonly db: NodePgDatabase<typeof schema>,
@@ -34,6 +44,7 @@ export class AdminService {
     private readonly kafkaClient: ClientKafkaProxy,
   ) {}
 
+  /** DAU/MAU stickiness ratio with period-over-period comparison. */
   async getActiveUsersStats(dateRangeQueryDto: DateRangeQueryDto) {
     const { from, to } = this.resolveDateRange(
       dateRangeQueryDto,
@@ -44,19 +55,26 @@ export class AdminService {
         ),
     );
 
-    const currentRangeMs = to.getTime() - from.getTime();
-    const previousTo = new Date(from.getTime());
-    const previousFrom = new Date(from.getTime() - currentRangeMs);
+    const previousPeriod = from
+      ? this.buildPreviousPeriod(from, to)
+      : { previousFrom: undefined, previousTo: undefined };
+    const { previousFrom, previousTo } = previousPeriod;
+
     const dailyFrom = new Date(
-      Math.max(from.getTime(), to.getTime() - AdminService.DAILY_WINDOW_MS),
+      from
+        ? Math.max(from.getTime(), to.getTime() - AdminService.DAILY_WINDOW_MS)
+        : to.getTime() - AdminService.DAILY_WINDOW_MS,
     );
-    const previousDailyTo = previousTo;
-    const previousDailyFrom = new Date(
-      Math.max(
-        previousFrom.getTime(),
-        previousTo.getTime() - AdminService.DAILY_WINDOW_MS,
-      ),
-    );
+
+    const previousDailyFrom =
+      previousFrom && previousTo
+        ? new Date(
+            Math.max(
+              previousFrom.getTime(),
+              previousTo.getTime() - AdminService.DAILY_WINDOW_MS,
+            ),
+          )
+        : undefined;
 
     const [
       dailyActiveUsers,
@@ -66,31 +84,37 @@ export class AdminService {
     ] = await Promise.all([
       this.countUsersActiveBetween(dailyFrom, to),
       this.countUsersActiveBetween(from, to),
-      this.countUsersActiveBetween(previousDailyFrom, previousDailyTo),
-      this.countUsersActiveBetween(previousFrom, previousTo),
+      previousDailyFrom && previousTo
+        ? this.countUsersActiveBetween(previousDailyFrom, previousTo)
+        : Promise.resolve(0),
+      previousFrom && previousTo
+        ? this.countUsersActiveBetween(previousFrom, previousTo)
+        : Promise.resolve(0),
     ]);
 
-    const stickinessRatio =
-      monthlyActiveUsers === 0 ? 0 : dailyActiveUsers / monthlyActiveUsers;
-    const previousStickinessRatio =
-      previousMonthlyActiveUsers === 0
-        ? 0
-        : previousDailyActiveUsers / previousMonthlyActiveUsers;
-    const stickinessPercentage = Number((stickinessRatio * 100).toFixed(2));
-    const previousStickinessPercentage = Number(
-      (previousStickinessRatio * 100).toFixed(2),
+    const stickinessRatio = AdminService.safeRatio(
+      dailyActiveUsers,
+      monthlyActiveUsers,
     );
-    const stickinessPercentageChange = Number(
-      (stickinessPercentage - previousStickinessPercentage).toFixed(2),
+    const previousStickinessRatio = AdminService.safeRatio(
+      previousDailyActiveUsers,
+      previousMonthlyActiveUsers,
     );
-    const trend = this.getTrend(stickinessPercentageChange);
+    const stickinessPercentage = AdminService.round2(stickinessRatio * 100);
+    const previousStickinessPercentage = AdminService.round2(
+      previousStickinessRatio * 100,
+    );
+    const { change: stickinessPercentageChange, trend } = this.computeChange(
+      stickinessPercentage,
+      previousStickinessPercentage,
+    );
 
     return {
-      from,
+      from: from ?? null,
       to,
       dailyFrom,
-      previousFrom,
-      previousTo,
+      previousFrom: previousFrom ?? null,
+      previousTo: previousTo ?? null,
       dailyActiveUsers,
       monthlyActiveUsers,
       stickinessRatio,
@@ -104,7 +128,23 @@ export class AdminService {
     };
   }
 
-  async getTotalUsersStats() {
+  /** Aggregate user counts by verification/ban status. */
+  async getTotalUsersStats(dateRangeQueryDto: DateRangeQueryDto) {
+    const { from, to } = this.resolveDateRange(
+      dateRangeQueryDto,
+      (rangeTo) =>
+        new Date(
+          rangeTo.getTime() -
+            AdminService.DEFAULT_RANGE_DAYS * AdminService.DAILY_WINDOW_MS,
+        ),
+    );
+
+    const previousPeriod = from
+      ? this.buildPreviousPeriod(from, to)
+      : { previousFrom: undefined, previousTo: undefined };
+    const { previousFrom, previousTo } = previousPeriod;
+
+    // Current totals (global snapshot)
     const [result] = await this.db
       .select({
         totalUsers: sql<number>`count(*)::int`,
@@ -115,15 +155,30 @@ export class AdminService {
       })
       .from(users);
 
+    // New users in current period vs previous period to calculate growth trend
+    const currentPeriodNewUsers = await this.countUsersCreatedBetween(from, to);
+    const previousPeriodNewUsers =
+      previousFrom && previousTo
+        ? await this.countUsersCreatedBetween(previousFrom, previousTo)
+        : 0;
+
+    const { change: userChange, trend: userTrend } = this.computeChange(
+      currentPeriodNewUsers,
+      previousPeriodNewUsers,
+    );
+
     return {
       totalUsers: result?.totalUsers ?? 0,
       activeUsers: result?.activeUsers ?? 0,
       pendingOrBannedUsers: result?.pendingOrBannedUsers ?? 0,
       pendingUsers: result?.pendingUsers ?? 0,
       bannedUsers: result?.bannedUsers ?? 0,
+      userChange,
+      userTrend,
     };
   }
 
+  /** New user signups with bucketed time series and period-over-period change. */
   async getNewSignupsStats(dateRangeQueryDto: DateRangeQueryDto) {
     const { from, to } = this.resolveDateRange(
       dateRangeQueryDto,
@@ -133,8 +188,24 @@ export class AdminService {
             AdminService.LAST_30_DAYS_BUCKETS * AdminService.DAILY_WINDOW_MS,
         ),
     );
-    const rangeMs = to.getTime() - from.getTime();
-    const earliestDate = new Date(from.getTime() - rangeMs);
+
+    let resolvedFrom = from;
+    if (!resolvedFrom) {
+      const [earliestUser] = await this.db
+        .select({ createdAt: users.createdAt })
+        .from(users)
+        .orderBy(users.createdAt)
+        .limit(1);
+      resolvedFrom =
+        earliestUser?.createdAt ??
+        new Date(
+          to.getTime() -
+            AdminService.LAST_30_DAYS_BUCKETS * AdminService.DAILY_WINDOW_MS,
+        );
+    }
+
+    const rangeMs = to.getTime() - resolvedFrom.getTime();
+    const earliestDate = new Date(resolvedFrom.getTime() - rangeMs);
 
     const signupRows = await this.db
       .select({ createdAt: users.createdAt })
@@ -146,11 +217,12 @@ export class AdminService {
     const signupDates = signupRows.map((row) => row.createdAt);
 
     return this.buildSignupSeries(signupDates, {
-      rangeFrom: from,
+      rangeFrom: resolvedFrom,
       rangeTo: to,
     });
   }
 
+  /** Cohort-based retention rate with period-over-period comparison. */
   async getUserRetentionRateStats(dateRangeQueryDto: DateRangeQueryDto) {
     const now = new Date();
     const currentMonthStart = new Date(
@@ -160,10 +232,28 @@ export class AdminService {
       dateRangeQueryDto,
       () => currentMonthStart,
     );
-    const rangeMs = to.getTime() - from.getTime();
-    const signupCohortFrom = new Date(from.getTime() - rangeMs);
-    const previousActivePeriodFrom = new Date(from.getTime() - rangeMs);
-    const previousSignupCohortFrom = new Date(from.getTime() - rangeMs * 2);
+
+    let resolvedFrom = from;
+    if (!resolvedFrom) {
+      const [earliestUser] = await this.db
+        .select({ createdAt: users.createdAt })
+        .from(users)
+        .orderBy(users.createdAt)
+        .limit(1);
+      resolvedFrom =
+        earliestUser?.createdAt ??
+        new Date(
+          to.getTime() -
+            AdminService.DEFAULT_RANGE_DAYS * AdminService.DAILY_WINDOW_MS,
+        );
+    }
+
+    const rangeMs = to.getTime() - resolvedFrom.getTime();
+    const signupCohortFrom = new Date(resolvedFrom.getTime() - rangeMs);
+    const previousActivePeriodFrom = new Date(resolvedFrom.getTime() - rangeMs);
+    const previousSignupCohortFrom = new Date(
+      resolvedFrom.getTime() - rangeMs * 2,
+    );
 
     const [
       currentCohortSize,
@@ -171,8 +261,8 @@ export class AdminService {
       previousCohortSize,
       previousRetainedUsers,
     ] = await Promise.all([
-      this.countUsersCreatedBetween(signupCohortFrom, from),
-      this.countRetainedUsers(signupCohortFrom, from, from, to),
+      this.countUsersCreatedBetween(signupCohortFrom, resolvedFrom),
+      this.countRetainedUsers(signupCohortFrom, resolvedFrom, resolvedFrom, to),
       this.countUsersCreatedBetween(
         previousSignupCohortFrom,
         previousActivePeriodFrom,
@@ -181,31 +271,25 @@ export class AdminService {
         previousSignupCohortFrom,
         previousActivePeriodFrom,
         previousActivePeriodFrom,
-        from,
+        resolvedFrom,
       ),
     ]);
 
-    const retentionRate =
-      currentCohortSize === 0
-        ? 0
-        : (currentRetainedUsers / currentCohortSize) * 100;
-    const previousRetentionRate =
-      previousCohortSize === 0
-        ? 0
-        : (previousRetainedUsers / previousCohortSize) * 100;
-    const retentionRatePercentage = Number(retentionRate.toFixed(2));
-    const previousRetentionRatePercentage = Number(
-      previousRetentionRate.toFixed(2),
+    const retentionRatePercentage = AdminService.round2(
+      AdminService.safeRatio(currentRetainedUsers, currentCohortSize) * 100,
     );
-    const retentionRateChange = Number(
-      (retentionRatePercentage - previousRetentionRatePercentage).toFixed(2),
+    const previousRetentionRatePercentage = AdminService.round2(
+      AdminService.safeRatio(previousRetainedUsers, previousCohortSize) * 100,
     );
-    const trend = this.getTrend(retentionRateChange);
+    const { change: retentionRateChange, trend } = this.computeChange(
+      retentionRatePercentage,
+      previousRetentionRatePercentage,
+    );
 
     return {
       signupCohortFrom,
-      signupCohortTo: from,
-      activePeriodFrom: from,
+      signupCohortTo: resolvedFrom,
+      activePeriodFrom: resolvedFrom,
       activePeriodTo: to,
       currentCohortSize,
       currentRetainedUsers,
@@ -213,7 +297,7 @@ export class AdminService {
       previousSignupCohortFrom,
       previousSignupCohortTo: previousActivePeriodFrom,
       previousActivePeriodFrom,
-      previousActivePeriodTo: from,
+      previousActivePeriodTo: resolvedFrom,
       previousCohortSize,
       previousRetainedUsers,
       previousRetentionRatePercentage,
@@ -222,6 +306,7 @@ export class AdminService {
     };
   }
 
+  /** Daily media volume breakdown (posts, stories, reels) over the date range. */
   async getMediaVolumeStats(dateRangeQueryDto: DateRangeQueryDto) {
     const { from, to } = this.resolveDateRange(
       dateRangeQueryDto,
@@ -232,74 +317,80 @@ export class AdminService {
         ),
     );
 
+    let resolvedFrom = from;
+    if (!resolvedFrom) {
+      const [earliestUser] = await this.db
+        .select({ createdAt: users.createdAt })
+        .from(users)
+        .orderBy(users.createdAt)
+        .limit(1);
+      resolvedFrom =
+        earliestUser?.createdAt ??
+        new Date(
+          to.getTime() -
+            AdminService.DEFAULT_RANGE_DAYS * AdminService.DAILY_WINDOW_MS,
+        );
+    }
+
     const [postRows, storyRows] = await Promise.all([
       this.db
         .select({ createdAt: posts.createdAt, isReel: posts.isReel })
         .from(posts)
         .where(
-          sql`${posts.createdAt} >= ${from} and ${posts.createdAt} <= ${to}`,
+          sql`${posts.createdAt} >= ${resolvedFrom} and ${posts.createdAt} <= ${to}`,
         ),
       this.db
         .select({ createdAt: stories.createdAt })
         .from(stories)
         .where(
-          sql`${stories.createdAt} >= ${from} and ${stories.createdAt} <= ${to}`,
+          sql`${stories.createdAt} >= ${resolvedFrom} and ${stories.createdAt} <= ${to}`,
         ),
     ]);
 
-    const days = this.buildDailyTimeBuckets(from, to);
-    const series = days.map((day) => ({
+    const series = this.buildDailyTimeBuckets(resolvedFrom, to).map((day) => ({
       day,
       posts: 0,
       stories: 0,
       reels: 0,
       totalUploads: 0,
     }));
-    const bucketIndexByDay = new Map(
-      series.map((bucket, index) => [bucket.day, index]),
-    );
+    const bucketMap = new Map(series.map((b) => [b.day, b]));
 
-    for (const row of postRows) {
-      const day = this.toUtcDateKey(row.createdAt);
-      const bucketIndex = bucketIndexByDay.get(day);
-      if (bucketIndex === undefined) continue;
-
-      const bucket = series[bucketIndex];
-      if (!bucket) continue;
-
-      if (row.isReel) {
-        bucket.reels += 1;
-      } else {
-        bucket.posts += 1;
+    postRows.forEach((row) => {
+      const bucket = bucketMap.get(this.toUtcDateKey(row.createdAt));
+      if (bucket) {
+        if (row.isReel) bucket.reels++;
+        else bucket.posts++;
+        bucket.totalUploads++;
       }
-      bucket.totalUploads += 1;
-    }
+    });
 
-    for (const row of storyRows) {
-      const day = this.toUtcDateKey(row.createdAt);
-      const bucketIndex = bucketIndexByDay.get(day);
-      if (bucketIndex === undefined) continue;
-
-      const bucket = series[bucketIndex];
-      if (!bucket) continue;
-
-      bucket.stories += 1;
-      bucket.totalUploads += 1;
-    }
+    storyRows.forEach((row) => {
+      const bucket = bucketMap.get(this.toUtcDateKey(row.createdAt));
+      if (bucket) {
+        bucket.stories++;
+        bucket.totalUploads++;
+      }
+    });
 
     return {
-      from,
+      from: from ?? null,
       to,
-      totals: {
-        posts: series.reduce((acc, item) => acc + item.posts, 0),
-        stories: series.reduce((acc, item) => acc + item.stories, 0),
-        reels: series.reduce((acc, item) => acc + item.reels, 0),
-        totalUploads: series.reduce((acc, item) => acc + item.totalUploads, 0),
-      },
       data: series,
+      totals: series.reduce(
+        (acc, b) => ({
+          posts: acc.posts + b.posts,
+          stories: acc.stories + b.stories,
+          reels: acc.reels + b.reels,
+          totalUploads: acc.totalUploads + b.totalUploads,
+        }),
+        { posts: 0, stories: 0, reels: 0, totalUploads: 0 },
+      ),
     };
   }
 
+  /** Likes, comments, and saves breakdown with period-over-period comparison. */
+  /** Likes, comments, and saves breakdown with period-over-period comparison. */
   async getEngagementBreakdownStats(dateRangeQueryDto: DateRangeQueryDto) {
     const { from, to } = this.resolveDateRange(
       dateRangeQueryDto,
@@ -310,9 +401,10 @@ export class AdminService {
         ),
     );
 
-    const currentRangeMs = to.getTime() - from.getTime();
-    const previousFrom = new Date(from.getTime() - currentRangeMs);
-    const previousTo = new Date(from.getTime());
+    const previousPeriod = from
+      ? this.buildPreviousPeriod(from, to)
+      : { previousFrom: undefined, previousTo: undefined };
+    const { previousFrom, previousTo } = previousPeriod;
 
     const [
       likesCount,
@@ -325,51 +417,47 @@ export class AdminService {
       this.countRowsBetween(likes, likes.createdAt, from, to),
       this.countRowsBetween(comments, comments.createdAt, from, to),
       this.countRowsBetween(savedPosts, savedPosts.createdAt, from, to),
-      this.countRowsBetween(likes, likes.createdAt, previousFrom, previousTo),
-      this.countRowsBetween(
-        comments,
-        comments.createdAt,
-        previousFrom,
-        previousTo,
-      ),
-      this.countRowsBetween(
-        savedPosts,
-        savedPosts.createdAt,
-        previousFrom,
-        previousTo,
-      ),
+      previousFrom && previousTo
+        ? this.countRowsBetween(
+            likes,
+            likes.createdAt,
+            previousFrom,
+            previousTo,
+          )
+        : Promise.resolve(0),
+      previousFrom && previousTo
+        ? this.countRowsBetween(
+            comments,
+            comments.createdAt,
+            previousFrom,
+            previousTo,
+          )
+        : Promise.resolve(0),
+      previousFrom && previousTo
+        ? this.countRowsBetween(
+            savedPosts,
+            savedPosts.createdAt,
+            previousFrom,
+            previousTo,
+          )
+        : Promise.resolve(0),
     ]);
 
-    const likesChange = likesCount - previousLikesCount;
-    const commentsChange = commentsCount - previousCommentsCount;
-    const savesChange = savesCount - previousSavesCount;
-
     return {
-      from,
+      from: from ?? null,
       to,
-      previousFrom,
-      previousTo,
-      likes: {
-        count: likesCount,
-        previousCount: previousLikesCount,
-        change: likesChange,
-        trend: this.getTrend(likesChange),
-      },
-      comments: {
-        count: commentsCount,
-        previousCount: previousCommentsCount,
-        change: commentsChange,
-        trend: this.getTrend(commentsChange),
-      },
-      saves: {
-        count: savesCount,
-        previousCount: previousSavesCount,
-        change: savesChange,
-        trend: this.getTrend(savesChange),
-      },
+      previousFrom: previousFrom ?? null,
+      previousTo: previousTo ?? null,
+      likes: this.buildEngagementMetric(likesCount, previousLikesCount),
+      comments: this.buildEngagementMetric(
+        commentsCount,
+        previousCommentsCount,
+      ),
+      saves: this.buildEngagementMetric(savesCount, previousSavesCount),
     };
   }
 
+  /** Average interactions per post with period-over-period comparison. */
   async getAverageEngagementPerPostStats(dateRangeQueryDto: DateRangeQueryDto) {
     const { from, to } = this.resolveDateRange(
       dateRangeQueryDto,
@@ -380,9 +468,10 @@ export class AdminService {
         ),
     );
 
-    const currentRangeMs = to.getTime() - from.getTime();
-    const previousFrom = new Date(from.getTime() - currentRangeMs);
-    const previousTo = new Date(from.getTime());
+    const previousPeriod = from
+      ? this.buildPreviousPeriod(from, to)
+      : { previousFrom: undefined, previousTo: undefined };
+    const { previousFrom, previousTo } = previousPeriod;
 
     const [
       currentPostsCount,
@@ -398,62 +487,120 @@ export class AdminService {
       this.countRowsBetween(likes, likes.createdAt, from, to),
       this.countRowsBetween(comments, comments.createdAt, from, to),
       this.countRowsBetween(savedPosts, savedPosts.createdAt, from, to),
-      this.countRowsBetween(posts, posts.createdAt, previousFrom, previousTo),
-      this.countRowsBetween(likes, likes.createdAt, previousFrom, previousTo),
-      this.countRowsBetween(
-        comments,
-        comments.createdAt,
-        previousFrom,
-        previousTo,
-      ),
-      this.countRowsBetween(
-        savedPosts,
-        savedPosts.createdAt,
-        previousFrom,
-        previousTo,
-      ),
+      previousFrom && previousTo
+        ? this.countRowsBetween(
+            posts,
+            posts.createdAt,
+            previousFrom,
+            previousTo,
+          )
+        : Promise.resolve(0),
+      previousFrom && previousTo
+        ? this.countRowsBetween(
+            likes,
+            likes.createdAt,
+            previousFrom,
+            previousTo,
+          )
+        : Promise.resolve(0),
+      previousFrom && previousTo
+        ? this.countRowsBetween(
+            comments,
+            comments.createdAt,
+            previousFrom,
+            previousTo,
+          )
+        : Promise.resolve(0),
+      previousFrom && previousTo
+        ? this.countRowsBetween(
+            savedPosts,
+            savedPosts.createdAt,
+            previousFrom,
+            previousTo,
+          )
+        : Promise.resolve(0),
     ]);
 
     const currentInteractions =
       currentLikesCount + currentCommentsCount + currentSavesCount;
     const previousInteractions =
       previousLikesCount + previousCommentsCount + previousSavesCount;
-    const averageEngagementPerPost =
-      currentPostsCount === 0
-        ? 0
-        : Number((currentInteractions / currentPostsCount).toFixed(2));
-    const previousAverageEngagementPerPost =
-      previousPostsCount === 0
-        ? 0
-        : Number((previousInteractions / previousPostsCount).toFixed(2));
-    const change = Number(
-      (averageEngagementPerPost - previousAverageEngagementPerPost).toFixed(2),
+    const averageEngagementPerPost = AdminService.round2(
+      AdminService.safeRatio(currentInteractions, currentPostsCount),
+    );
+    const previousAverageEngagementPerPost = AdminService.round2(
+      AdminService.safeRatio(previousInteractions, previousPostsCount),
+    );
+    const { change, trend } = this.computeChange(
+      averageEngagementPerPost,
+      previousAverageEngagementPerPost,
+    );
+
+    // Calculate percentage of posts that have at least one interaction
+    const conditions: SQL[] = [];
+    if (from) {
+      conditions.push(gte(posts.createdAt, from));
+    }
+    if (to) {
+      conditions.push(lte(posts.createdAt, to));
+    }
+    conditions.push(
+      sql`${posts.likesCount} + ${posts.commentsCount} + ${posts.savesCount} > 0`,
+    );
+
+    const [highInteractionCountResult] = await this.db
+      .select({ count: sql<number>`count(*)::int` })
+      .from(posts)
+      .where(and(...conditions));
+
+    const highInteractionRate = AdminService.round2(
+      AdminService.safeRatio(
+        highInteractionCountResult?.count || 0,
+        currentPostsCount,
+      ) * 100,
     );
 
     return {
-      from,
+      from: from ?? null,
       to,
-      previousFrom,
-      previousTo,
+      previousFrom: previousFrom ?? null,
+      previousTo: previousTo ?? null,
       totalInteractions: currentInteractions,
       totalPosts: currentPostsCount,
       averageEngagementPerPost,
+      highInteractionRate,
       previousTotalInteractions: previousInteractions,
       previousTotalPosts: previousPostsCount,
       previousAverageEngagementPerPost,
       change,
-      trend: this.getTrend(change),
+      trend,
     };
   }
 
-  async getPopularContentStats() {
-    const to = new Date();
-    const from = new Date(to.getTime() - AdminService.DAILY_WINDOW_MS);
+  async getPopularContentStats(dateRangeQueryDto: DateRangeQueryDto) {
+    const { from, to } = this.resolveDateRange(dateRangeQueryDto, (rangeTo) => {
+      return new Date(rangeTo.getTime() - AdminService.DAILY_WINDOW_MS);
+    });
+
+    const conditions: SQL[] = [];
+    if (from) {
+      conditions.push(gte(posts.createdAt, from));
+    }
+    if (to) {
+      conditions.push(lte(posts.createdAt, to));
+    }
 
     const top = await this.db.query.posts.findMany({
-      where: and(gte(posts.createdAt, from), lte(posts.createdAt, to)),
+      where: conditions.length > 0 ? and(...conditions) : undefined,
       with: {
         postMedia: true,
+        user: {
+          columns: {
+            username: true,
+            image: true,
+            name: true,
+          },
+        },
       },
       orderBy: desc(sql`${posts.likesCount} + ${posts.sharesCount}`),
       limit: 10,
@@ -465,17 +612,15 @@ export class AdminService {
       },
     });
 
-    return {
-      from,
-      to,
-      top,
-    };
+    return { from: from ?? null, to, top };
   }
 
+  /** Current GCS storage usage percentage. */
   async getStorageUsageStats() {
     return this.uploadService.getStorageUsagePercent();
   }
 
+  /** Average moderation response time with period-over-period comparison. */
   async getAverageResponseTimeStats(dateRangeQueryDto: DateRangeQueryDto) {
     const { from, to } = this.resolveDateRange(
       dateRangeQueryDto,
@@ -486,36 +631,38 @@ export class AdminService {
         ),
     );
 
-    const currentRangeMs = to.getTime() - from.getTime();
-    const previousFrom = new Date(from.getTime() - currentRangeMs);
-    const previousTo = new Date(from.getTime());
+    const previousPeriod = from
+      ? this.buildPreviousPeriod(from, to)
+      : { previousFrom: undefined, previousTo: undefined };
+    const { previousFrom, previousTo } = previousPeriod;
 
     const [averageResponseTimeMs, previousAverageResponseTimeMs] =
       await Promise.all([
         this.getAverageResponseTimeMsBetween(from, to),
-        this.getAverageResponseTimeMsBetween(previousFrom, previousTo),
+        previousFrom && previousTo
+          ? this.getAverageResponseTimeMsBetween(previousFrom, previousTo)
+          : Promise.resolve(0),
       ]);
 
-    const changeMs = Number(
-      (averageResponseTimeMs - previousAverageResponseTimeMs).toFixed(2),
+    const changeMs = AdminService.round2(
+      averageResponseTimeMs - previousAverageResponseTimeMs,
     );
-    const changePercentage =
-      previousAverageResponseTimeMs === 0
-        ? 0
-        : Number(((changeMs / previousAverageResponseTimeMs) * 100).toFixed(2));
+    const changePercentage = AdminService.round2(
+      AdminService.safeRatio(changeMs, previousAverageResponseTimeMs) * 100,
+    );
 
     return {
-      from,
+      from: from ?? null,
       to,
-      previousFrom,
-      previousTo,
+      previousFrom: previousFrom ?? null,
+      previousTo: previousTo ?? null,
       averageResponseTimeMs,
-      averageResponseTimeMinutes: Number(
-        (averageResponseTimeMs / 60000).toFixed(2),
+      averageResponseTimeMinutes: AdminService.round2(
+        averageResponseTimeMs / 60000,
       ),
       previousAverageResponseTimeMs,
-      previousAverageResponseTimeMinutes: Number(
-        (previousAverageResponseTimeMs / 60000).toFixed(2),
+      previousAverageResponseTimeMinutes: AdminService.round2(
+        previousAverageResponseTimeMs / 60000,
       ),
       changeMs,
       changePercentage,
@@ -523,7 +670,9 @@ export class AdminService {
     };
   }
 
+  /** Per-topic and per-partition Kafka consumer lag snapshot. */
   async getKafkaLagStats() {
+    await this.kafkaClient.connect();
     const kafka = this.kafkaClient.unwrap<Kafka>();
 
     const admin = kafka.admin();
@@ -591,6 +740,8 @@ export class AdminService {
     }
   }
 
+  // ── Kafka Helpers ──────────────────────────────────────
+
   private async fetchAllPartitionLags(
     admin: Awaited<ReturnType<Kafka['admin']>>,
   ) {
@@ -642,17 +793,40 @@ export class AdminService {
     return 'alert';
   }
 
+  // ── Trend & Comparison Helpers ─────────────────────────
+
   private getTrend(change: number): TrendEnum {
     if (change > 0) return TrendEnum.INCREASE;
     if (change < 0) return TrendEnum.DECREASE;
-
     return TrendEnum.UNCHANGED;
+  }
+
+  private buildPreviousPeriod(from: Date, to: Date) {
+    const rangeMs = to.getTime() - from.getTime();
+    return {
+      previousFrom: new Date(from.getTime() - rangeMs),
+      previousTo: new Date(from.getTime()),
+    };
+  }
+
+  private computeChange(current: number, previous: number) {
+    const change = AdminService.round2(current - previous);
+    return { change, trend: this.getTrend(change) };
+  }
+
+  private buildEngagementMetric(count: number, previousCount: number) {
+    const { change, trend } = this.computeChange(count, previousCount);
+    return { count, previousCount, change, trend };
   }
 
   private resolveDateRange(
     dateRangeQueryDto: DateRangeQueryDto,
     defaultFromFactory: (to: Date) => Date,
   ) {
+    if (!dateRangeQueryDto.from && !dateRangeQueryDto.to) {
+      return { from: undefined, to: new Date() };
+    }
+
     const to = dateRangeQueryDto.to ?? new Date();
     const from = dateRangeQueryDto.from ?? defaultFromFactory(to);
 
@@ -676,22 +850,36 @@ export class AdminService {
     return { from, to };
   }
 
-  private async countUsersActiveBetween(from: Date, to: Date) {
+  // ── Database Query Helpers ───────────────────────────
+
+  private async countUsersActiveBetween(from?: Date, to?: Date) {
+    const conditions: SQL[] = [];
+    if (from) {
+      conditions.push(sql`${users.lastActiveAt} >= ${from}`);
+    }
+    if (to) {
+      conditions.push(sql`${users.lastActiveAt} <= ${to}`);
+    }
     const [result] = await this.db
       .select({ count: sql<number>`count(*)::int` })
       .from(users)
-      .where(
-        sql`${users.lastActiveAt} >= ${from} and ${users.lastActiveAt} <= ${to}`,
-      );
+      .where(conditions.length > 0 ? and(...conditions) : undefined);
 
     return result?.count ?? 0;
   }
 
-  private async countUsersCreatedBetween(from: Date, to: Date) {
+  private async countUsersCreatedBetween(from?: Date, to?: Date) {
+    const conditions: SQL[] = [];
+    if (from) {
+      conditions.push(sql`${users.createdAt} >= ${from}`);
+    }
+    if (to) {
+      conditions.push(sql`${users.createdAt} < ${to}`);
+    }
     const [result] = await this.db
       .select({ count: sql<number>`count(*)::int` })
       .from(users)
-      .where(sql`${users.createdAt} >= ${from} and ${users.createdAt} < ${to}`);
+      .where(conditions.length > 0 ? and(...conditions) : undefined);
 
     return result?.count ?? 0;
   }
@@ -703,13 +891,20 @@ export class AdminService {
       | typeof comments.createdAt
       | typeof savedPosts.createdAt
       | typeof posts.createdAt,
-    from: Date,
-    to: Date,
+    from?: Date,
+    to?: Date,
   ) {
+    const conditions: SQL[] = [];
+    if (from) {
+      conditions.push(sql`${createdAtColumn} >= ${from}`);
+    }
+    if (to) {
+      conditions.push(sql`${createdAtColumn} < ${to}`);
+    }
     const [result] = await this.db
       .select({ count: sql<number>`count(*)::int` })
       .from(table)
-      .where(sql`${createdAtColumn} >= ${from} and ${createdAtColumn} < ${to}`);
+      .where(conditions.length > 0 ? and(...conditions) : undefined);
 
     return result?.count ?? 0;
   }
@@ -730,18 +925,28 @@ export class AdminService {
     return result?.count ?? 0;
   }
 
-  private async getAverageResponseTimeMsBetween(from: Date, to: Date) {
+  private async getAverageResponseTimeMsBetween(from?: Date, to?: Date) {
+    const conditions: SQL[] = [];
+    if (from) {
+      conditions.push(sql`${contentReports.reportedAt} >= ${from}`);
+    }
+    if (to) {
+      conditions.push(sql`${contentReports.reportedAt} < ${to}`);
+    }
+    conditions.push(
+      sql`${contentReports.resolvedAt} is not null and ${contentReports.reviewedBy} is not null`,
+    );
     const [result] = await this.db
       .select({
-        averageMs: sql<number>`coalesce(avg(extract(epoch from (${postReports.resolvedAt} - ${postReports.reportedAt})) * 1000), 0)::float8`,
+        averageMs: sql<number>`coalesce(avg(extract(epoch from (${contentReports.resolvedAt} - ${contentReports.reportedAt})) * 1000), 0)::float8`,
       })
-      .from(postReports)
-      .where(
-        sql`${postReports.reportedAt} >= ${from} and ${postReports.reportedAt} < ${to} and ${postReports.resolvedAt} is not null and ${postReports.reviewedBy} is not null`,
-      );
+      .from(contentReports)
+      .where(and(...conditions));
 
-    return Number((result?.averageMs ?? 0).toFixed(2));
+    return AdminService.round2(result?.averageMs ?? 0);
   }
+
+  // ── Aggregation Builders ────────────────────────────
 
   private buildSignupSeries(
     signupDates: Date[],
@@ -754,24 +959,27 @@ export class AdminService {
       options.rangeFrom,
       options.rangeTo,
     );
-    const currentFrom = new Date(options.rangeFrom.getTime());
-    const currentRangeMs = options.rangeTo.getTime() - currentFrom.getTime();
-    const previousFrom = new Date(currentFrom.getTime() - currentRangeMs);
+    const { previousFrom } = this.buildPreviousPeriod(
+      options.rangeFrom,
+      options.rangeTo,
+    );
     const currentTotal = this.countDatesBetween(
       signupDates,
-      currentFrom,
+      options.rangeFrom,
       options.rangeTo,
     );
     const previousTotal = this.countDatesBetween(
       signupDates,
       previousFrom,
-      currentFrom,
+      options.rangeFrom,
     );
-    const signupChange = currentTotal - previousTotal;
-    const trend = this.getTrend(signupChange);
+    const { change: signupChange, trend } = this.computeChange(
+      currentTotal,
+      previousTotal,
+    );
 
     return {
-      from: currentFrom,
+      from: options.rangeFrom,
       to: options.rangeTo,
       bucketInterval:
         bucketMs === AdminService.HOURLY_WINDOW_MS ? 'hour' : 'day',
@@ -781,44 +989,48 @@ export class AdminService {
       trend,
       data: this.buildBuckets(
         signupDates,
-        currentFrom,
-        Math.max(1, Math.ceil(currentRangeMs / bucketMs)),
+        options.rangeFrom,
+        Math.max(
+          1,
+          Math.ceil(
+            (options.rangeTo.getTime() - options.rangeFrom.getTime()) /
+              bucketMs,
+          ),
+        ),
         bucketMs,
       ),
     };
   }
 
-  private resolveSignupBucketMs(from: Date, to: Date) {
-    const rangeMs = to.getTime() - from.getTime();
+  // ── Date & Bucket Utilities ────────────────────────────
 
+  private resolveSignupBucketMs(from: Date, to: Date): number {
+    const rangeMs = to.getTime() - from.getTime();
     return rangeMs <= AdminService.DAILY_WINDOW_MS
       ? AdminService.HOURLY_WINDOW_MS
       : AdminService.DAILY_WINDOW_MS;
   }
 
-  private buildDailyTimeBuckets(from: Date, to: Date) {
-    const buckets: string[] = [];
-    const cursor = new Date(
-      Date.UTC(from.getUTCFullYear(), from.getUTCMonth(), from.getUTCDate()),
-    );
-    const end = new Date(
-      Date.UTC(to.getUTCFullYear(), to.getUTCMonth(), to.getUTCDate()),
-    );
+  private toUtcDateKey(date: Date): string {
+    return date.toISOString().slice(0, 10);
+  }
 
-    while (cursor.getTime() <= end.getTime()) {
+  private toUtcMidnight(date: Date): Date {
+    return new Date(
+      Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()),
+    );
+  }
+
+  private buildDailyTimeBuckets(from: Date, to: Date): string[] {
+    const buckets: string[] = [];
+    const cursor = this.toUtcMidnight(from);
+    const end = this.toUtcMidnight(to);
+
+    for (; cursor <= end; cursor.setUTCDate(cursor.getUTCDate() + 1)) {
       buckets.push(this.toUtcDateKey(cursor));
-      cursor.setUTCDate(cursor.getUTCDate() + 1);
     }
 
     return buckets;
-  }
-
-  private toUtcDateKey(date: Date) {
-    const year = date.getUTCFullYear();
-    const month = `${date.getUTCMonth() + 1}`.padStart(2, '0');
-    const day = `${date.getUTCDate()}`.padStart(2, '0');
-
-    return `${year}-${month}-${day}`;
   }
 
   private buildBuckets(
@@ -851,10 +1063,10 @@ export class AdminService {
     }));
   }
 
-  private countDatesBetween(dates: Date[], from: Date, to: Date) {
-    return dates.filter(
-      (date) =>
-        date.getTime() >= from.getTime() && date.getTime() < to.getTime(),
-    ).length;
+  private countDatesBetween(dates: Date[], from: Date, to: Date): number {
+    const fromMs = from.getTime();
+    const toMs = to.getTime();
+    return dates.filter((d) => d.getTime() >= fromMs && d.getTime() < toMs)
+      .length;
   }
 }

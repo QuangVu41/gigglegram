@@ -19,9 +19,224 @@
     "privacyPolicy": "Quyền riêng tư",
     "copyright": "© {year} Gigglegram. Bảo lưu mọi quyền."
   },
+  "Common": {
+    "imageEditor": {
+      "title": "Bộ lọc",
+      "errors": {
+        "unableToLoad": "Không thể tải ảnh để chỉnh sửa"
+      },
+      "filters": {
+        "original": "Gốc",
+        "aden": "Aden",
+        "clarendon": "Clarendon",
+        "crema": "Crema",
+        "gingham": "Gingham",
+        "juno": "Juno",
+        "lark": "Lark",
+        "ludwig": "Ludwig",
+        "moon": "Moon",
+        "perpetua": "Perpetua",
+        "reyes": "Reyes",
+        "slumber": "Slumber"
+      }
+    },
+    "videoEditor": {
+      "errors": {
+        "failedToGetMetadata": "Không thể lấy thông tin video"
+      }
+    },
+    "videoFramePicker": {
+      "title": "Ảnh bìa",
+      "frameAlt": "Khung hình tại {time}",
+      "empty": "Không có khung hình",
+      "errors": {
+        "failedToExtractFrames": "Không thể trích xuất khung hình video"
+      }
+    },
+    "videoAudioToggle": {
+      "toggleAudio": "Bật/tắt âm thanh",
+      "noAudioAvailable": "Không có âm thanh"
+    },
+    "relativeTime": {
+      "now": "Vừa xong",
+      "minutes": "{count} phút",
+      "hours": "{count} giờ",
+      "days": "{count} ngày",
+      "weeks": "{count} tuần"
+    },
+    "errors": {
+      "somethingWentWrong": "Đã xảy ra lỗi!",
+      "tryAgain": "Thử lại",
+      "goHome": "Quay lại trang chủ"
+    },
+    "sensitiveContent": {
+      "title": "Nội dung nhạy cảm",
+      "description": "Phương tiện này chứa nội dung mà một số người có thể thấy khó chịu."
+    }
+  },
   "HomePage": {
     "maxCaption": "Chú thích không được vượt quá 2200 ký tự.",
-    "atLeastOneMedia": "Vui lòng chọn ít nhất một tệp media."
+    "atLeastOneMedia": "Vui lòng chọn ít nhất một tệp media.",
+    "feed": {
+      "noMorePosts": "Không còn bài viết nào để hiển thị",
+      "noPosts": "Không có bài viết nào",
+      "loading": "Đang tải bảng tin...",
+      "loadMore": "Tải thêm",
+      "error": "Không thể tải bảng tin",
+      "originalSound": "âm thanh gốc",
+      "actions": {
+        "like": "Thích",
+        "comment": "Bình luận",
+        "share": "Chia sẻ",
+        "save": "Lưu"
+      },
+      "post": {
+        "more": "thêm",
+        "less": "ẩn bớt",
+        "viewComments": "Xem tất cả {count} bình luận",
+        "viewNoComments": "Chưa có bình luận nào",
+        "likes": "{count} lượt thích",
+        "oneLike": "1 lượt thích",
+        "noLikes": "Chưa có lượt thích nào",
+        "views": "{count} lượt xem",
+        "oneView": "1 lượt xem",
+        "likedByAndOthers": "{username} và những người khác đã thích",
+        "liked": "Đã thích bài viết",
+        "unliked": "Đã bỏ thích bài viết",
+        "seeTranslation": "Xem bản dịch",
+        "seeOriginal": "Xem bản gốc",
+        "copied": "Đã sao chép liên kết vào bộ nhớ tạm",
+        "shareError": "Không thể chia sẻ bài viết",
+        "likeError": "Không thể thích bài viết",
+        "saved": "Đã lưu bài viết",
+        "unsaved": "Đã bỏ lưu bài viết",
+        "saveError": "Không thể lưu bài viết",
+        "and": "và",
+        "othersCount": "{count} người khác",
+        "taggedTitle": "Được gắn thẻ",
+        "noTags": "Không có người dùng nào được gắn thẻ",
+        "follow": "Theo dõi",
+        "unfollow": "Bỏ theo dõi",
+        "reply": "Trả lời",
+        "addComment": "Thêm bình luận...",
+        "postAction": "Đăng",
+        "delete": "Xóa",
+        "deleteConfirmTitle": "Xóa bình luận?",
+        "deleteConfirmDescription": "Bạn có chắc chắn muốn xóa bình luận này không?",
+        "cancel": "Hủy",
+        "editPost": "Chỉnh sửa bài viết",
+        "deletePost": "Xóa bài viết",
+        "postDeleted": "Xóa bài viết thành công",
+        "deleteError": "Không thể xóa bài viết",
+        "postUpdated": "Cập nhật bài viết thành công",
+        "updateError": "Không thể cập nhật bài viết",
+        "deletePostConfirmTitle": "Xóa bài viết?",
+        "deletePostConfirmDescription": "Bạn có chắc chắn muốn xóa bài viết này không? Hành động này không thể hoàn tác.",
+        "saveChanges": "Lưu thay đổi",
+        "archive": "Lưu trữ",
+        "unarchive": "Bỏ lưu trữ",
+        "archived": "Đã lưu trữ bài viết",
+        "unarchived": "Đã bỏ lưu trữ bài viết",
+        "archiveError": "Không thể lưu trữ bài viết"
+      }
+    },
+    "sidebar": {
+      "topHashtags": "Hashtag nổi bật",
+      "postsCount": "{count} bài viết",
+      "suggestions": "Gợi ý",
+      "follow": "Theo dõi",
+      "followed": "Đã theo dõi người dùng",
+      "followError": "Không thể theo dõi người dùng"
+    }
+  },
+  "CreatePostStepper": {
+    "navigation": {
+      "back": "Quay lại",
+      "next": "Tiếp"
+    },
+    "actions": {
+      "tagPeople": "Gắn thẻ người dùng",
+      "share": "Chia sẻ",
+      "generateHashtags": "Tạo hashtag",
+      "generateCaption": "Tạo chú thích",
+      "hashtagsGenerated": "Đã tạo hashtag!",
+      "captionGenerated": "Đã tạo chú thích!",
+      "noHashtagsSuggested": "Không có gợi ý hashtag",
+      "failedToGenerateHashtags": "Không thể tạo hashtag",
+      "failedToGenerateCaption": "Không thể tạo chú thích"
+    },
+    "form": {
+      "captionPlaceholder": "Nhập chú thích",
+      "locationPlaceholder": "Chọn vị trí",
+      "collaboratorsPlaceholder": "Thêm cộng tác viên",
+      "tagPeoplePlaceholder": "Tìm người để gắn thẻ",
+      "emptyLocations": "Không tìm thấy vị trí.",
+      "emptyCollaborators": "Không tìm thấy cộng tác viên.",
+      "emptyUsers": "Không tìm thấy người dùng.",
+      "advancedSettings": "Cài đặt nâng cao",
+      "likesHiddenTitle": "Ẩn số lượt thích trên bài viết này",
+      "likesHiddenDescription": "Chỉ bạn mới nhìn thấy tổng số lượt thích trên bài viết này.",
+      "commentsDisabledTitle": "Tắt bình luận cho bài viết này",
+      "commentsDisabledDescription": "Chỉ bạn mới có thể xem và quản lý bình luận trên bài viết này.",
+      "successMessage": "Bài viết đã được tạo thành công.",
+      "selectAudio": "Chọn âm thanh",
+      "searchAudioPlaceholder": "Tìm kiếm âm thanh...",
+      "selectedAudio": "Âm thanh đã chọn",
+      "removeAudio": "Gỡ bỏ",
+      "noAudioFound": "Không tìm thấy âm thanh.",
+      "audioTabs": {
+        "all": "Dành cho bạn",
+        "trending": "Thịnh hành",
+        "original": "Bản gốc",
+        "saved": "Đã lưu"
+      }
+    },
+    "validation": {
+      "maxCaption": "Chú thích không được vượt quá 2200 ký tự.",
+      "atLeastOneMedia": "Vui lòng chọn ít nhất một tệp media."
+    },
+    "upload": {
+      "title": "Tải ảnh và video của bạn lên",
+      "description": "Kéo ảnh và video vào đây hoặc nhấn để duyệt",
+      "selectFromComputer": "Chọn từ máy tính",
+      "clearAll": "Xóa tất cả",
+      "stats": {
+        "title": "Tiến trình tải lên",
+        "completed": "Hoàn tất: {count}",
+        "failed": "Thất bại: {count}",
+        "uploading": "Đang tải: {count}"
+      },
+      "errors": {
+        "title": "Lỗi tải tệp"
+      }
+    }
+  },
+  "CreateStoryStepper": {
+    "navigation": {
+      "back": "Quay lại",
+      "next": "Tiếp"
+    },
+    "actions": {
+      "share": "Chia sẻ"
+    },
+    "upload": {
+      "title": "Tải ảnh hoặc video của bạn lên",
+      "description": "Kéo ảnh hoặc video vào đây hoặc nhấn để duyệt",
+      "selectFromComputer": "Chọn từ máy tính",
+      "clearAll": "Xóa tất cả",
+      "stats": {
+        "title": "Tiến trình tải lên",
+        "completed": "Hoàn tất: {count}",
+        "failed": "Thất bại: {count}",
+        "uploading": "Đang tải: {count}"
+      },
+      "errors": {
+        "title": "Lỗi tải tệp"
+      }
+    },
+    "successMessage": "Đã chia sẻ story thành công.",
+    "errorMessage": "Không thể chia sẻ story",
+    "invalidFileFormat": "Định dạng tệp không hợp lệ"
   },
   "NavMain": {
     "home": "Trang chủ",
@@ -43,6 +258,9 @@
     "account": "Tài khoản",
     "archived": "Đã lưu trữ",
     "saved": "Đã lưu",
+    "organizations": "Tổ chức",
+    "personalAccount": "Tài khoản cá nhân",
+    "dashboard": "Bảng điều khiển",
     "logOut": "Đăng xuất"
   },
   "SignupPage": {
@@ -95,7 +313,7 @@
   "EmailVerification": {
     "heading": "Xác minh địa chỉ email của bạn",
     "description": "Chúng tôi đã gửi liên kết xác minh đến email của bạn. Vui lòng kiểm tra hộp thư đến và nhấp vào liên kết để xác minh tài khoản của bạn.",
-    "resendText": "Gửi lại email xác minh"
+    "resendButton": "Gửi lại email xác minh"
   },
   "ValidationErrors": {
     "emailInvalid": "Địa chỉ email không hợp lệ.",
@@ -109,6 +327,7 @@
   "BetterAuthErrorCodes": {
     "GENERAL_ERROR": "Đã xảy ra lỗi. Vui lòng thử lại.",
     "USER_NOT_FOUND": "Không tìm thấy người dùng.",
+    "BANNED_USER": "Bạn đã bị cấm khỏi ứng dụng. Vui lòng liên hệ với bộ phận hỗ trợ nếu bạn tin rằng đây là một lỗi.",
     "FAILED_TO_CREATE_USER": "Không thể tạo người dùng.",
     "FAILED_TO_CREATE_SESSION": "Không thể tạo phiên.",
     "FAILED_TO_UPDATE_USER": "Không thể cập nhật người dùng.",
@@ -137,7 +356,7 @@
   },
   "SystemWideErrorCodes": {
     "GENERAL_CLIENT_ERROR": "Đã xảy ra một số lỗi phía client. Kiểm tra mô tả để biết chi tiết.",
-    "INTERNAL_SERVER_ERROR": "Lỗi máy chủ nội bộ.",
+    "INTERNAL_SERVER_ERROR": "Có lỗi xảy ra. Vui lòng thử lại sau.",
     "AUTH_UNAUTHORIZED": "Không được phép.",
     "BAD_REQUEST": "Yêu cầu không hợp lệ.",
     "NOT_ALLOWED": "Bạn không được phép thực hiện hành động này.",
@@ -150,6 +369,7 @@
     "FOLLOW_SELF": "Bạn không thể tự theo dõi chính mình.",
     "UNFOLLOW_SELF": "Bạn không thể tự bỏ theo dõi chính mình.",
     "CANNOT_REPORT_OWN_POST": "Bạn không thể báo cáo bài viết của chính mình.",
+    "CANNOT_REPORT_OWN_STORY": "Bạn không thể báo cáo story của chính mình.",
     "UPLOAD_FILE_FAILED": "Tải tệp lên thất bại.",
     "UPLOAD_UNSUPPORTED_FILE_TYPE": "Loại tệp hiện tại không được hỗ trợ. Các loại được hỗ trợ là: {supportedTypes}.",
     "UPLOAD_PROCESSING_FILE_FAILED": "Không thể xử lý tệp.",
@@ -160,5 +380,1568 @@
     "UPLOAD_STORY_VIDEO_DURATION_EXCEEDED": "Một hoặc nhiều video vượt quá thời lượng tối đa cho phép là {maxStoryDuration} giây cho story.",
     "UPLOAD_POST_VIDEOS_TOO_LONG_IN_DURATION": "Một hoặc nhiều video quá dài nên không thể tải lên.",
     "UPLOAD_POST_MAX_MULTI_VIDEOS_DURATION": "Nếu có video dài hơn {maxMultiVideoDuration} giây, bạn chỉ có thể đăng một video mỗi lần."
+  },
+  "ProfilePage": {
+    "posts": "{count} bài viết",
+    "followers": "{count} người theo dõi",
+    "following": "Đang theo dõi {count} người",
+    "editProfile": "Chỉnh sửa hồ sơ",
+    "follow": "Theo dõi",
+    "unfollow": "Bỏ theo dõi",
+    "unfollowing": "Đang theo dõi",
+    "message": "Nhắn tin",
+    "privateAccountTitle": "Đây là tài khoản riêng tư",
+    "privateAccountDescription": "Hãy theo dõi để xem ảnh và video của họ.",
+    "noPostsYet": "Chưa có bài viết nào",
+    "noSavedPosts": "Chưa có bài viết đã lưu",
+    "noTaggedPosts": "Chưa có bài viết được gắn thẻ",
+    "tagged": "Được gắn thẻ",
+    "reels": "Reels",
+    "viewArchive": "Xem kho lưu trữ",
+    "newHighlight": "Mới",
+    "savedCollections": {
+      "title": "Đã lưu",
+      "allSaved": "Tất cả bài viết",
+      "newCollection": "Bộ sưu tập mới",
+      "collectionName": "Tên bộ sưu tập",
+      "collectionNamePlaceholder": "Nhập tên bộ sưu tập...",
+      "nameRequired": "Tên bộ sưu tập là bắt buộc",
+      "createCollection": "Tạo bộ sưu tập",
+      "editCollection": "Chỉnh sửa bộ sưu tập",
+      "deleteCollection": "Xóa bộ sưu tập",
+      "deleteConfirm": "Bạn có chắc chắn muốn xóa bộ sưu tập này?",
+      "deleteWarning": "Thao tác này sẽ xóa bộ sưu tập nhưng vẫn giữ lại các bài viết đã lưu.",
+      "deleteBtn": "Xóa",
+      "editName": "Chỉnh sửa tên",
+      "removePosts": "Xóa khỏi bộ sưu tập",
+      "addPosts": "Thêm bài viết",
+      "addItems": "Thêm từ mục đã lưu",
+      "noCollections": "Chưa có bộ sưu tập nào",
+      "noSavedPostsInCollection": "Chưa có bài viết nào trong bộ sưu tập này",
+      "postsCount": "{count} bài viết",
+      "itemsSelected": "Đã chọn {count} mục",
+      "selectPosts": "Chọn bài viết",
+      "addedSuccess": "Đã thêm vào bộ sưu tập",
+      "removedSuccess": "Đã xóa khỏi bộ sưu tập",
+      "createdSuccess": "Đã tạo bộ sưu tập thành công",
+      "updatedSuccess": "Đã cập nhật bộ sưu tập thành công",
+      "deletedSuccess": "Đã xóa bộ sưu tập thành công",
+      "save": "Lưu",
+      "cancel": "Hủy",
+      "create": "Tạo",
+      "next": "Tiếp tục",
+      "back": "Quay lại"
+    },
+    "requested": "Đã yêu cầu",
+    "acceptRequest": "Chấp nhận",
+    "requestAccepted": "Đã chấp nhận yêu cầu",
+    "followError": "Không thể cập nhật trạng thái theo dõi",
+    "suggestedFollowing": {
+      "title": "Gợi ý cho bạn",
+      "seeAll": "Xem tất cả",
+      "follow": "Theo dõi",
+      "followed": "Đã theo dõi thành công!",
+      "followError": "Không thể theo dõi người dùng.",
+      "toggleLabel": "Hiển thị gợi ý người dùng"
+    },
+    "settingsDropdown": {
+      "notifications": "Thông báo",
+      "settingsAndPrivacy": "Cài đặt và quyền riêng tư",
+      "logout": "Đăng xuất"
+    }
+  },
+  "Notifications": {
+    "title": "Thông báo",
+    "empty": "Chưa có thông báo nào",
+    "emptyDescription": "Khi ai đó thích hoặc bình luận bài viết của bạn, bạn sẽ thấy ở đây.",
+    "error": "Không thể tải thông báo",
+    "retry": "Thử lại",
+    "loading": "Đang tải...",
+    "loadMore": "Tải thêm",
+    "accept": "Chấp nhận",
+    "reject": "Từ chối",
+    "follow_request_content": "đã gửi cho bạn lời mời theo dõi",
+    "accepted": "Đã chấp nhận",
+    "rejected": "Đã từ chối",
+    "more": "thêm",
+    "less": "ẩn bớt",
+    "tabs": {
+      "all": "Tất cả",
+      "comments": "Bình luận",
+      "requests": "Yêu cầu",
+      "settings": "Cài đặt"
+    },
+    "settings": {
+      "title": "Thông báo đẩy",
+      "likes": "Lượt thích",
+      "comments": "Bình luận",
+      "newFollowers": "Người theo dõi mới",
+      "mentions": "Lượt nhắc",
+      "messages": "Tin nhắn",
+      "videoCalls": "Cuộc gọi video",
+      "on": "Bật",
+      "off": "Tắt",
+      "description": "Việc quản lý các cài đặt này cho phép bạn kiểm soát các thông báo đẩy mà bạn nhận được từ Gigglegram.",
+      "success": "Đã cập nhật cài đặt",
+      "error": "Không thể cập nhật cài đặt"
+    },
+    "followRequests": {
+      "empty": "Chưa có yêu cầu theo dõi nào",
+      "emptyDescription": "Khi có người yêu cầu theo dõi bạn, yêu cầu sẽ xuất hiện tại đây."
+    },
+    "time": {
+      "thisWeek": "Tuần này",
+      "earlier": "Trước đó"
+    },
+    "errors": {
+      "failedToUpdateFollowRequest": "Không thể cập nhật yêu cầu theo dõi",
+      "failedToUpdateFollowStatus": "Không thể cập nhật trạng thái theo dõi",
+      "postNotFound": "Không tìm thấy bài viết liên quan",
+      "failedToUpdateCollabStatus": "Không thể cập nhật trạng thái cộng tác",
+      "failedToUpdateTagStatus": "Không thể cập nhật trạng thái gắn thẻ"
+    }
+  },
+  "ExplorePage": {
+    "title": "Khám phá",
+    "noPosts": "Chưa có bài viết nào",
+    "views": "{count} lượt xem",
+    "oneView": "1 lượt xem"
+  },
+  "LocationPage": {
+    "posts": "bài viết"
+  },
+  "AudioPage": {
+    "posts": "bài viết",
+    "saveAudio": "Lưu âm thanh",
+    "savedAudio": "Đã lưu",
+    "originalSound": "âm thanh gốc",
+    "saveSuccess": "Đã lưu âm thanh thành công",
+    "unsaveSuccess": "Đã xóa âm thanh khỏi danh sách đã lưu",
+    "saveError": "Không thể lưu âm thanh"
+  },
+  "NotFoundPage": {
+    "title": "Rất tiếc, trang này hiện không khả dụng.",
+    "description": "Liên kết bạn theo dõi có thể bị hỏng hoặc trang này đã bị gỡ.",
+    "goBack": "Quay lại Gigglegram"
+  },
+  "ReelsPage": {
+    "title": "Reels",
+    "noReels": "Không có reels nào để hiển thị",
+    "loading": "Đang tải reels...",
+    "error": "Không thể tải reels",
+    "follow": "Theo dõi",
+    "following": "Đang theo dõi",
+    "unfollow": "Bỏ theo dõi"
+  },
+  "CreateHighlight": {
+    "title": "Tin nổi bật mới",
+    "namePlaceholder": "Tên tin nổi bật",
+    "next": "Tiếp",
+    "stories": "Tin",
+    "chooseCover": "Chọn ảnh bìa",
+    "done": "Xong",
+    "success": "Tin nổi bật đã được tạo thành công.",
+    "error": "Không thể tạo tin nổi bật",
+    "noStories": "Không có tin nào",
+    "selectStories": "Chọn tin cho tin nổi bật của bạn",
+    "mustSelectOne": "Bạn phải chọn ít nhất một tin",
+    "nameRequired": "Vui lòng nhập tên",
+    "removeStorySuccess": "Đã xóa tin khỏi tin nổi bật",
+    "removeStoryError": "Không thể xóa tin",
+    "highlightDeleted": "Đã xóa tin nổi bật"
+  },
+  "Report": {
+    "title": "Báo cáo",
+    "itemLabel": "Báo cáo",
+    "reasonPlaceholder": "Tại sao bạn báo cáo nội dung này?",
+    "submit": "Gửi báo cáo",
+    "success": "Báo cáo đã được gửi. Cảm ơn bạn đã giúp chúng tôi giữ an toàn cho cộng đồng.",
+    "error": "Gửi báo cáo thất bại. Vui lòng thử lại sau.",
+    "reasonsTitle": "Vui lòng chọn một lý do",
+    "description": "Nếu bạn thấy điều gì đó vi phạm nguyên tắc cộng đồng của chúng tôi, hãy cho chúng tôi biết.",
+    "submitting": "Đang gửi...",
+    "others": "Khác"
+  },
+  "AccountsPage": {
+    "editProfile": {
+      "title": "Chỉnh sửa trang cá nhân",
+      "changePhoto": "Đổi ảnh",
+      "usernameDescription": "Trong hầu hết các trường hợp, bạn có thể đổi lại tên người dùng thành {username} trong vòng 14 ngày nữa.",
+      "website": "Trang web",
+      "websitePlaceholder": "Trang web",
+      "bio": "Tiểu sử",
+      "bioPlaceholder": "Tiểu sử",
+      "showThreadsBadge": "Hiển thị huy hiệu Threads",
+      "gender": "Giới tính",
+      "genderPlaceholder": "Chọn giới tính",
+      "genderDescription": "Thông tin này sẽ không hiển thị trên trang cá nhân công khai của bạn.",
+      "showSuggestions": "Hiển thị gợi ý tài khoản trên trang cá nhân",
+      "showSuggestionsDescription": "Chọn xem mọi người có thể thấy các gợi ý tài khoản tương tự trên trang cá nhân của bạn hay không và tài khoản của bạn có thể được gợi ý trên trang cá nhân của người khác hay không.",
+      "submit": "Gửi",
+      "success": "Cập nhật hồ sơ thành công",
+      "error": "Cập nhật hồ sơ thất bại",
+      "genders": {
+        "male": "Nam",
+        "female": "Nữ",
+        "none": "Chưa tiết lộ"
+      },
+      "avatarEditor": {
+        "title": "Thay đổi ảnh đại diện",
+        "uploadPhoto": "Tải ảnh lên",
+        "save": "Lưu",
+        "cancel": "Hủy",
+        "zoom": "Phóng to",
+        "saveSuccess": "Cập nhật ảnh đại diện thành công",
+        "errors": {
+          "noImage": "Vui lòng chọn ảnh trước",
+          "uploadFailed": "Tải ảnh lên thất bại"
+        }
+      }
+    },
+    "privacy": {
+      "title": "Quyền riêng tư của tài khoản",
+      "privateAccount": "Tài khoản riêng tư",
+      "description1": "Khi bạn đặt tài khoản ở chế độ công khai, bất cứ ai trên hoặc ngoài Instagram cũng có thể xem trang cá nhân và bài viết của bạn, ngay cả khi họ không có tài khoản Instagram.",
+      "description2": "Khi bạn đặt tài khoản ở chế độ riêng tư, chỉ những người theo dõi mà bạn phê duyệt mới có thể xem những gì bạn chia sẻ (bao gồm cả ảnh/video trên trang vị trí và hashtag) cũng như danh sách người theo dõi và đang theo dõi. Một số thông tin trên trang cá nhân của bạn (chẳng hạn như ảnh đại diện và tên người dùng) sẽ hiển thị với bất kỳ ai trên và ngoài Instagram.",
+      "learnMore": "Tìm hiểu thêm",
+      "success": "Cập nhật cài đặt quyền riêng tư thành công",
+      "error": "Cập nhật cài đặt quyền riêng tư thất bại"
+    },
+    "sidebar": {
+      "settings": "Cài đặt",
+      "yourAccount": "Tài khoản của bạn",
+      "accountCenter": "Trung tâm tài khoản",
+      "accountCenterDescription": "Quản lý các trải nghiệm kết nối và cài đặt tài khoản của bạn trên các công nghệ của Meta.",
+      "accountCenterDetails": "Thông tin cá nhân, mật khẩu và bảo mật, tùy chọn quảng cáo",
+      "howYouUse": "Cách bạn dùng Gigglegram",
+      "editProfile": "Chỉnh sửa trang cá nhân",
+      "notifications": "Thông báo",
+      "whoCanSee": "Ai có thể xem nội dung của bạn",
+      "accountPrivacy": "Quyền riêng tư của tài khoản",
+      "closeFriends": "Bạn thân",
+      "blocked": "Đã chặn",
+      "messagesAndLocation": "Tin nhắn và vị trí",
+      "howOthersInteract": "Cách người khác có thể tương tác với bạn",
+      "messagesAndReplies": "Tin nhắn và lượt phản hồi tin",
+      "tagsAndMentions": "Thẻ và lượt nhắc",
+      "comments": "Bình luận",
+      "sharing": "Chia sẻ",
+      "likesAndShares": "Số lượt thích và lượt chia sẻ",
+      "contentYouSee": "Nội dung bạn nhìn thấy"
+    },
+    "messagesAndReplies": {
+      "title": "Tin nhắn và lượt phản hồi tin",
+      "contactHeader": "Cách mọi người có thể liên hệ với bạn",
+      "messageControls": "Kiểm soát tin nhắn",
+      "storyReplies": "Lượt phản hồi tin",
+      "onlineHeader": "Ai có thể nhìn thấy khi bạn online",
+      "activityStatus": "Hiển thị trạng thái hoạt động",
+      "messageRequests": {
+        "title": "Tin nhắn đang chờ",
+        "description": "Tin nhắn từ những người bạn không theo dõi hoặc chưa từng chat cùng sẽ được gửi đến bạn dưới dạng tin nhắn đang chờ.",
+        "learnMore": "Tìm hiểu thêm về ai có thể nhắn tin cho bạn",
+        "whoCanSend": "Người có thể gửi tin nhắn đang chờ cho bạn",
+        "options": {
+          "everyone": "Mọi người",
+          "followers": "Người theo dõi bạn",
+          "no_one": "Không ai cả"
+        }
+      },
+      "activityStatusPage": {
+        "title": "Trạng thái hoạt động",
+        "toggleLabel": "Hiển thị trạng thái hoạt động",
+        "description": "Cho phép những tài khoản mà bạn theo dõi và bất kỳ ai mà bạn nhắn tin biết khi bạn đang hoạt động hoặc đã hoạt động gần đây trên các ứng dụng Instagram. Khi tính năng này tắt, bạn sẽ không xem được trạng thái hoạt động của các tài khoản khác.",
+        "learnMore": "Tìm hiểu thêm",
+        "footer": "Bạn có thể tiếp tục sử dụng dịch vụ của chúng tôi nếu tắt trạng thái hoạt động."
+      },
+      "success": "Cập nhật cài đặt thành công",
+      "error": "Cập nhật cài đặt thất bại"
+    },
+    "tagsAndMentions": {
+      "title": "Thẻ và lượt nhắc",
+      "tagsHeader": "Ai có thể gắn thẻ bạn",
+      "tagsDescription": "Chọn ai có thể gắn thẻ bạn trong ảnh và video của họ. Khi có gắn thẻ bạn, mọi người sẽ biết liệu bạn có cho phép họ gắn thẻ bạn hay không.",
+      "mentionsHeader": "Ai có thể @nhắc đến bạn",
+      "mentionsDescription": "Chọn người có thể @nhắc đến bạn để liên kết trang cá nhân/hồ sơ của bạn trong tin, ghi chú, bình luận, video trực tiếp, tiểu sử và chú thích của họ. Khi có @nhắc đến bạn, mọi người sẽ biết liệu bạn có cho phép người khác @nhắc đến mình hay không.",
+      "options": {
+        "everyone": "Cho phép mọi người gắn thẻ bạn",
+        "followers": "Cho phép những người bạn theo dõi gắn thẻ bạn",
+        "no_one": "Không cho phép gắn thẻ"
+      },
+      "mentionOptions": {
+        "everyone": "Mọi người đều có thể nhắc đến bạn",
+        "followers": "Cho phép những người bạn theo dõi nhắc đến bạn",
+        "no_one": "Không cho phép nhắc đến"
+      },
+      "manualApprove": "Phê duyệt thẻ theo cách thủ công",
+      "off": "Tắt"
+    },
+    "comments": {
+      "title": "Bình luận",
+      "allowHeader": "Cho phép bình luận của",
+      "options": {
+        "everyone": "Mọi người",
+        "followers": "Người theo dõi bạn",
+        "no_one": "Tắt"
+      },
+      "peopleCount": "{count} người",
+      "allowGifs": "Cho phép bình luận bằng file GIF",
+      "gifsDescription": "Mọi người sẽ có thể bình luận bằng file GIF về bài viết và thước phim của bạn."
+    },
+    "likesAndShares": {
+      "title": "Số lượt thích và lượt chia sẻ",
+      "hideCounts": "Ẩn số lượt thích và lượt chia sẻ",
+      "description1": "Trên Gigglegram, số lượt thích trên bài viết và thước phim của tài khoản khác sẽ bị ẩn. Bạn có thể ẩn số lượt thích trên bài viết và thước phim của mình bằng cách đi đến phần Cài đặt nâng cao trước khi chia sẻ.",
+      "learnMore": "Tìm hiểu thêm"
+    }
+  },
+  "MessagesPage": {
+    "title": "Tin nhắn",
+    "yourMessages": "Tin nhắn của bạn",
+    "description": "Gửi ảnh và tin nhắn riêng tư cho bạn bè hoặc nhóm.",
+    "sendMessage": "Gửi tin nhắn",
+    "details": "Chi tiết",
+    "members": "Thành viên",
+    "nickname": "Biệt danh",
+    "block": "Chặn",
+    "report": "Báo cáo",
+    "deleteChat": "Xóa đoạn chat",
+    "mute": "Tắt thông báo",
+    "unmute": "Bật thông báo",
+    "pin": "Ghim",
+    "unpin": "Bỏ ghim",
+    "markAsUnread": "Đánh dấu là chưa đọc",
+    "markAsRead": "Đánh dấu là đã đọc",
+    "delete": "Xóa",
+    "typeMessage": "Nhắn tin...",
+    "noConversations": "Chưa có cuộc hội thoại nào",
+    "loading": "Đang tải tin nhắn...",
+    "online": "Đang hoạt động",
+    "active": "Hoạt động {time} trước",
+    "systemMessages": {
+      "added": "đã thêm {name} vào nhóm",
+      "removed": "đã xóa {name} khỏi nhóm",
+      "left": "{name} đã rời khỏi nhóm"
+    },
+    "send": "Gửi",
+    "newMessage": "Tin nhắn mới",
+    "to": "Tới",
+    "searchPlaceholder": "Tìm kiếm...",
+    "searching": "Đang tìm kiếm...",
+    "noUsersFound": "Không tìm thấy người dùng",
+    "searchPrompt": "Không có cuộc hội thoại gần đây",
+    "suggestedUsers": "Gợi ý",
+    "chat": "Chat",
+    "youPrefix": "Bạn",
+    "startConversationError": "Không thể bắt đầu cuộc hội thoại",
+    "sending": "Đang gửi...",
+    "mutedSuccess": "Đã tắt thông báo cuộc trò chuyện",
+    "mutedError": "Không thể tắt thông báo cuộc trò chuyện",
+    "unmutedSuccess": "Đã bật thông báo cuộc trò chuyện",
+    "unmutedError": "Không thể bật thông báo cuộc trò chuyện",
+    "deletedSuccess": "Đã xóa cuộc trò chuyện",
+    "deletedError": "Không thể xóa cuộc trò chuyện",
+    "confirmDelete": "Bạn có chắc chắn muốn xóa cuộc trò chuyện này không?",
+    "confirmDeleteTitle": "Xóa cuộc trò chuyện",
+    "cancel": "Hủy",
+    "viewProfile": "Xem trang cá nhân",
+    "createdGroup": "Bạn đã tạo nhóm này",
+    "groupChat": "Đoạn chat nhóm"
+  },
+  "ArchivePage": {
+    "title": "Kho lưu trữ",
+    "stories": "TIN",
+    "posts": "BÀI VIẾT",
+    "savedAudio": "Âm thanh đã lưu",
+    "storiesArchiveInfo": "Tin đã lưu trữ chỉ hiển thị với mình bạn, trừ khi bạn chọn chia sẻ.",
+    "noStories": "Không có tin lưu trữ",
+    "noPosts": "Không có bài viết lưu trữ",
+    "noAudio": "Không có âm thanh đã lưu",
+    "deleteStoryConfirmTitle": "Xóa story?",
+    "deleteStoryConfirmDescription": "Bạn có chắc chắn muốn xóa story này không? Hành động này không thể hoàn tác và story sẽ bị xóa vĩnh viễn khỏi kho lưu trữ của bạn."
+  },
+  "StoryViewer": {
+    "removeHighlightTitle": "Xóa khỏi tin nổi bật?",
+    "removeHighlightDescription": "Tin này sẽ bị xóa khỏi tin nổi bật này. Tin vẫn sẽ có trong kho lưu trữ tin của bạn."
+  },
+  "ActivityPage": {
+    "title": "Hoạt động của bạn",
+    "sidebar": {
+      "interactions": "Lượt tương tác",
+      "likes": "Lượt thích",
+      "comments": "Bình luận",
+      "photosAndVideos": "Ảnh và video",
+      "accountHistory": "Lịch sử tài khoản",
+      "posts": "Bài viết",
+      "reels": "Reels",
+      "highlights": "Tin nổi bật"
+    },
+    "likes": {
+      "title": "Lượt thích",
+      "description": "Bạn có thể xem và bỏ thích từ đây.",
+      "empty": "Chưa có bài viết nào được thích"
+    },
+    "comments": {
+      "title": "Bình luận",
+      "description": "Bạn có thể xem và xóa bình luận của mình từ đây.",
+      "empty": "Chưa có bình luận nào"
+    },
+    "photosAndVideos": {
+      "title": "Ảnh và video",
+      "description": "Xem, lưu trữ hoặc xóa ảnh và video bạn đã chia sẻ.",
+      "empty": "Chưa có bài đăng nào"
+    }
+  },
+  "Dashboard": {
+    "sidebar": {
+      "platform": "Nền tảng",
+      "nav": {
+        "dashboard": "Bảng điều khiển",
+        "overview": "Tổng quan",
+        "analytics": "Phân tích",
+        "postsAndStories": "Bài viết & Tin",
+        "allPosts": "Tất cả bài viết",
+        "reels": "Reels",
+        "stories": "Tin",
+        "highlights": "Tin nổi bật",
+        "contentDiscovery": "Khám phá nội dung",
+        "collections": "Bộ sưu tập",
+        "hashtags": "Hashtags",
+        "audioLibrary": "Thư viện âm thanh",
+        "locationRegistry": "Danh mục vị trí",
+        "moderation": "Kiểm duyệt",
+        "reports": "Báo cáo",
+        "violationReview": "Đánh giá vi phạm",
+        "reviewers": "Người đánh giá",
+        "organizations": "Tổ chức",
+        "manageOrgs": "Quản lý tổ chức",
+        "members": "Thành viên",
+        "invitations": "Lời mời",
+        "systemControl": "Điều khiển hệ thống",
+        "globalSettings": "Cài đặt chung",
+        "featureToggles": "Bật/tắt tính năng",
+        "userManagement": "Quản lý người dùng"
+      }
+    },
+    "search": {
+      "placeholder": "Tìm kiếm dashboard...",
+      "dialogPlaceholder": "Nhập lệnh hoặc tìm kiếm người dùng, bài viết, báo cáo...",
+      "navigation": "Điều hướng",
+      "management": "Quản lý",
+      "settings": "Cài đặt",
+      "searchUsers": "Tìm kiếm người dùng",
+      "reviewReports": "Xem báo cáo",
+      "globalSettings": "Cài đặt hệ thống",
+      "noResults": "Không tìm thấy kết quả."
+    },
+    "posts": {
+      "title": "Tất cả bài viết",
+      "description": "Quản lý và kiểm duyệt tất cả nội dung đa phương tiện trên nền tảng.",
+      "export": "Xuất dữ liệu",
+      "deleteSelected": "Xóa đã chọn",
+      "newPost": "Bài viết mới",
+      "searchPlaceholder": "Tìm kiếm theo chú thích...",
+      "clearSearch": "Xóa tìm kiếm",
+      "moreFilters": "Thêm bộ lọc",
+      "columns": "Tùy chỉnh cột",
+      "rowsPerPage": "Số hàng mỗi trang",
+      "tabs": {
+        "all": "Tất cả",
+        "reel": "Chỉ video",
+        "post": "Chỉ bài viết",
+        "published": "Đã đăng",
+        "archived": "Đã lưu trữ"
+      },
+      "filterStatus": "Lọc theo trạng thái",
+      "filterDate": "Lọc theo ngày",
+      "stats": {
+        "totalPosts": "Tổng bài viết",
+        "reelPosts": "Bài viết Reel",
+        "normalPosts": "Bài viết thường",
+        "engagementPerPost": "Tương tác mỗi bài"
+      },
+      "table": {
+        "post": "Bài viết",
+        "type": "Loại",
+        "author": "Tác giả",
+        "date": "Ngày tạo",
+        "status": "Trạng thái",
+        "engagement": "Tương tác",
+        "actions": "Hành động"
+      },
+      "actions": {
+        "title": "Thao tác bài viết",
+        "edit": "Chỉnh sửa chi tiết",
+        "insights": "Xem thông tin chi tiết",
+        "delete": "Xóa bài viết"
+      },
+      "status": {
+        "published": "Đã đăng",
+        "archived": "Đã lưu trữ"
+      },
+      "visibleColumns": "Cột hiển thị",
+      "noResults": "Không tìm thấy kết quả.",
+      "selection": "Đã chọn {count} trên {total} hàng",
+      "pagination": {
+        "page": "Trang",
+        "of": "trên"
+      },
+      "noCaption": "Không có chú thích",
+      "deleteSuccess": "Đã xóa bài viết thành công",
+      "deleteManySuccess": "Đã xóa các bài viết được chọn thành công",
+      "deleteError": "Không thể xóa bài viết",
+      "confirmDeleteTitle": "Bạn có chắc chắn không?",
+      "confirmDeleteDescription": "Hành động này không thể hoàn tác. Điều này sẽ xóa vĩnh viễn bài viết và gỡ bỏ khỏi máy chủ của chúng tôi.",
+      "confirmBulkDeleteTitle": "Xóa các bài viết đã chọn?",
+      "confirmBulkDeleteDescription": "Bạn có chắc chắn muốn xóa {count} bài viết đã chọn không? Hành động này không thể hoàn tác.",
+      "cancel": "Hủy",
+      "confirm": "Xác nhận"
+    },
+    "settings": {
+      "title": "Cấu hình Hệ thống",
+      "description": "Quản lý và điều chỉnh cấu hình cũng như các ngưỡng giới hạn trên toàn hệ thống.",
+      "export": "Xuất dữ liệu",
+      "deleteSelected": "Xóa cấu hình",
+      "newSetting": "Thêm Cấu hình",
+      "searchPlaceholder": "Tìm kiếm khóa hoặc mô tả...",
+      "clearSearch": "Xóa tìm kiếm",
+      "moreFilters": "Bộ lọc khác",
+      "columns": "Tùy chỉnh cột",
+      "visibleColumns": "Cột hiển thị",
+      "rowsPerPage": "Số hàng mỗi trang",
+      "filterType": "Lọc theo loại",
+      "filterAccess": "Lọc theo truy cập",
+      "filterAll": "Tất cả",
+      "noResults": "Không tìm thấy cấu hình",
+      "stats": {
+        "totalSettings": "Tổng cấu hình",
+        "publicSettings": "Cấu hình Công khai",
+        "privateSettings": "Cấu hình Bảo mật",
+        "typesMix": "Tỷ lệ các loại",
+        "entries": "Mục cấu hình",
+        "registered": "Đã đăng ký trong hệ thống",
+        "publicCount": "Công khai với Client",
+        "publicDesc": "Biến isPublic có giá trị true",
+        "privateCount": "Cấu hình Bảo mật",
+        "privateDesc": "Biến bí mật chỉ dành cho backend",
+        "typesBreakdown": "Tỷ lệ các loại cấu hình",
+        "types": {
+          "bool": "Boolean",
+          "json": "JSON",
+          "intFloat": "Số nguyên/thực",
+          "string": "String"
+        }
+      },
+      "table": {
+        "key": "Khóa cấu hình",
+        "type": "Loại",
+        "value": "Giá trị",
+        "access": "Truy cập",
+        "description": "Mô tả",
+        "updatedAt": "Cập nhật cuối",
+        "actions": "Thao tác",
+        "public": "Công khai",
+        "private": "Bảo mật"
+      },
+      "dialog": {
+        "createTitle": "Thêm Cấu hình Hệ thống Mới",
+        "editTitle": "Chỉnh sửa Cấu hình Hệ thống",
+        "keyLabel": "Khóa Cấu hình ID",
+        "keyDescription": "Phân chia không gian tên bằng dấu chấm để tự động nhóm các cấu hình (ví dụ: api.limit).",
+        "typeLabel": "Loại Giá trị",
+        "accessLabel": "Truy cập phía Client",
+        "accessDescription": "Các cấu hình Bảo mật (chỉ Backend) sẽ bị ẩn khỏi máy khách frontend.",
+        "valueLabel": "Giá trị Cấu hình",
+        "valuePlaceholder": "Nhập giá trị...",
+        "valueDescription": "Vui lòng nhập định dạng hợp lệ phù hợp với loại giá trị đã chọn.",
+        "descriptionLabel": "Mô tả Cấu hình",
+        "descriptionPlaceholder": "Giải thích mục đích sử dụng của cấu hình này...",
+        "submitCreate": "Tạo Cấu hình",
+        "submitUpdate": "Cập nhật Cấu hình",
+        "saving": "Đang lưu...",
+        "errors": {
+          "required": "Trường này là bắt buộc",
+          "invalidJson": "Giá trị phải có cú pháp JSON hợp lệ",
+          "invalidInt": "Giá trị phải là số nguyên hợp lệ",
+          "invalidFloat": "Giá trị phải là số thực hợp lệ",
+          "createFailed": "Tạo cấu hình thất bại",
+          "updateFailed": "Cập nhật cấu hình thất bại"
+        },
+        "types": {
+          "string": "String (Văn bản thuần túy)",
+          "int": "Integer (Số nguyên)",
+          "float": "Float (Số thập phân)",
+          "bool": "Boolean (Đúng/Sai)",
+          "json": "JSON (Cấu hình có cấu trúc)"
+        },
+        "true": "Đúng",
+        "false": "Sai"
+      },
+      "actions": {
+        "title": "Thao tác",
+        "edit": "Chỉnh sửa",
+        "delete": "Xóa"
+      },
+      "deleteSuccess": "Xóa cấu hình thành công",
+      "deleteManySuccess": "Xóa các cấu hình đã chọn thành công",
+      "deleteError": "Xóa (các) cấu hình thất bại",
+      "confirmDeleteTitle": "Bạn có chắc chắn muốn xóa?",
+      "confirmDeleteDescription": "Hành động này không thể hoàn tác. Thao tác này sẽ xóa vĩnh viễn cấu hình này khỏi hệ thống.",
+      "confirmBulkDeleteTitle": "Xóa các cấu hình đã chọn?",
+      "confirmBulkDeleteDescription": "Bạn có chắc muốn xóa {count} cấu hình đã chọn không? Hành động này không thể hoàn tác.",
+      "selection": "Đã chọn {count} trên {total} hàng",
+      "pagination": {
+        "page": "Trang",
+        "of": "trên"
+      },
+      "cancel": "Hủy bỏ",
+      "confirm": "Xác nhận"
+    },
+    "stories": {
+      "title": "Danh sách Story",
+      "description": "Quản lý và kiểm duyệt tất cả các tin (story) trên toàn hệ thống.",
+      "export": "Xuất dữ liệu",
+      "deleteSelected": "Xóa đã chọn",
+      "newStory": "Tạo Story mới",
+      "searchPlaceholder": "Tìm theo tên người dùng...",
+      "clearSearch": "Xóa tìm kiếm",
+      "moreFilters": "Thêm bộ lọc",
+      "columns": "Tùy chỉnh cột",
+      "rowsPerPage": "Số hàng mỗi trang",
+      "tabs": {
+        "all": "Tất cả Story",
+        "published": "Đang hoạt động",
+        "archived": "Đã hết hạn"
+      },
+      "filterStatus": "Lọc theo trạng thái",
+      "filterDate": "Lọc theo ngày",
+      "stats": {
+        "totalStories": "Tổng số Story",
+        "activeStories": "Story hoạt động",
+        "expiredStories": "Story hết hạn",
+        "avgViewsPerStory": "Lượt xem TB/Story"
+      },
+      "table": {
+        "story": "Story",
+        "metadata": "Thông số",
+        "type": "Loại tệp",
+        "author": "Người đăng",
+        "date": "Ngày tạo",
+        "status": "Trạng thái",
+        "views": "Lượt xem",
+        "static": "Tĩnh",
+        "actions": "Hành động"
+      },
+      "actions": {
+        "title": "Thao tác Story",
+        "delete": "Xóa Story"
+      },
+      "status": {
+        "published": "Hoạt động",
+        "archived": "Hết hạn"
+      },
+      "visibleColumns": "Cột hiển thị",
+      "noResults": "Không tìm thấy kết quả.",
+      "selection": "Đã chọn {count} trên {total} hàng",
+      "pagination": {
+        "page": "Trang",
+        "of": "trên"
+      },
+      "noCaption": "Không có chú thích",
+      "deleteSuccess": "Đã xóa story thành công",
+      "deleteManySuccess": "Đã xóa các story đã chọn thành công",
+      "deleteError": "Không thể xóa story",
+      "confirmDeleteTitle": "Bạn có chắc chắn không?",
+      "confirmDeleteDescription": "Hành động này không thể hoàn tác. Điều này sẽ xóa vĩnh viễn story và gỡ bỏ khỏi máy chủ của chúng tôi.",
+      "confirmBulkDeleteTitle": "Xóa các story đã chọn?",
+      "confirmBulkDeleteDescription": "Bạn có chắc chắn muốn xóa {count} story đã chọn không? Hành động này không thể hoàn tác.",
+      "cancel": "Hủy",
+      "confirm": "Xác nhận"
+    },
+    "highlights": {
+      "title": "Danh sách Khoảnh khắc",
+      "description": "Quản lý và kiểm duyệt tất cả các tin nổi bật (highlights) trên toàn hệ thống.",
+      "export": "Xuất dữ liệu",
+      "deleteSelected": "Xóa đã chọn",
+      "searchPlaceholder": "Tìm theo tiêu đề...",
+      "clearSearch": "Xóa tìm kiếm",
+      "moreFilters": "Thêm bộ lọc",
+      "columns": "Tùy chỉnh cột",
+      "rowsPerPage": "Số hàng mỗi trang",
+      "tabs": {
+        "all": "Tất cả tin nổi bật"
+      },
+      "filterDate": "Lọc theo ngày",
+      "stats": {
+        "totalHighlights": "Tổng tin nổi bật",
+        "totalStoriesCount": "Tổng số Story",
+        "withCovers": "Có ảnh bìa",
+        "avgStoriesCount": "Story TB/Khoảnh khắc"
+      },
+      "table": {
+        "highlight": "Khoảnh khắc",
+        "coverStory": "Ảnh bìa",
+        "title": "Tiêu đề",
+        "author": "Người tạo",
+        "storiesCount": "Số Story",
+        "date": "Ngày tạo",
+        "actions": "Hành động"
+      },
+      "actions": {
+        "title": "Thao tác tin nổi bật",
+        "delete": "Xóa tin nổi bật"
+      },
+      "visibleColumns": "Cột hiển thị",
+      "noResults": "Không tìm thấy kết quả.",
+      "selection": "Đã chọn {count} trên {total} hàng",
+      "pagination": {
+        "page": "Trang",
+        "of": "trên"
+      },
+      "deleteSuccess": "Đã xóa tin nổi bật thành công",
+      "deleteManySuccess": "Đã xóa các tin nổi bật đã chọn thành công",
+      "deleteError": "Không thể xóa tin nổi bật",
+      "confirmDeleteTitle": "Bạn có chắc chắn không?",
+      "confirmDeleteDescription": "Hành động này không thể hoàn tác. Điều này sẽ xóa vĩnh viễn tin nổi bật và gỡ bỏ khỏi máy chủ của chúng tôi.",
+      "confirmBulkDeleteTitle": "Xóa các tin nổi bật đã chọn?",
+      "confirmBulkDeleteDescription": "Bạn có chắc chắn muốn xóa {count} tin nổi bật đã chọn không? Hành động này không thể hoàn tác.",
+      "cancel": "Hủy",
+      "confirm": "Xác nhận"
+    },
+    "hashtags": {
+      "title": "Danh sách Hashtag",
+      "description": "Quản lý và kiểm duyệt tất cả các thẻ hashtag trên toàn hệ thống.",
+      "export": "Xuất dữ liệu",
+      "deleteSelected": "Xóa đã chọn",
+      "filterDate": "Lọc theo ngày",
+      "searchPlaceholder": "Tìm theo tên hashtag...",
+      "clearSearch": "Xóa tìm kiếm",
+      "columns": "Tùy chỉnh cột",
+      "rowsPerPage": "Số hàng mỗi trang",
+      "tabs": {
+        "all": "Tất cả Hashtag"
+      },
+      "stats": {
+        "totalHashtags": "Tổng số Hashtag",
+        "totalPostsCount": "Tổng lượt liên kết",
+        "avgPostsPerHashtag": "Lượt liên kết TB/Hashtag",
+        "maxPostsCount": "Liên kết nhiều nhất"
+      },
+      "table": {
+        "name": "Hashtag",
+        "postsCount": "Số lượng bài đăng",
+        "date": "Ngày tạo",
+        "actions": "Hành động"
+      },
+      "actions": {
+        "title": "Thao tác Hashtag",
+        "edit": "Chỉnh sửa chi tiết",
+        "delete": "Xóa Hashtag"
+      },
+      "newHashtag": "Hashtag mới",
+      "createDialog": {
+        "title": "Tạo Hashtag mới",
+        "nameLabel": "Tên Hashtag",
+        "namePlaceholder": "VD: photography",
+        "submit": "Tạo"
+      },
+      "editDialog": {
+        "title": "Chỉnh sửa Hashtag",
+        "nameLabel": "Tên Hashtag",
+        "namePlaceholder": "VD: photography",
+        "submit": "Lưu thay đổi"
+      },
+      "createSuccess": "Tạo hashtag thành công",
+      "createError": "Tạo hashtag thất bại",
+      "updateSuccess": "Cập nhật hashtag thành công",
+      "updateError": "Cập nhật hashtag thất bại",
+      "validation": {
+        "nameRequired": "Tên hashtag là bắt buộc",
+        "nameInvalid": "Tên hashtag không hợp lệ (chỉ gồm chữ cái, chữ số và dấu gạch dưới)"
+      },
+      "visibleColumns": "Cột hiển thị",
+      "noResults": "Không tìm thấy kết quả.",
+      "selection": "Đã chọn {count} trên {total} hàng",
+      "pagination": {
+        "page": "Trang",
+        "of": "trên"
+      },
+      "deleteSuccess": "Đã xóa hashtag thành công",
+      "deleteManySuccess": "Đã xóa các hashtag đã chọn thành công",
+      "deleteError": "Không thể xóa hashtag",
+      "confirmDeleteTitle": "Bạn có chắc chắn không?",
+      "confirmDeleteDescription": "Hành động này không thể hoàn tác. Điều này sẽ xóa vĩnh viễn hashtag và gỡ bỏ nó khỏi tất cả bài viết liên quan.",
+      "confirmBulkDeleteTitle": "Xóa các hashtag đã chọn?",
+      "confirmBulkDeleteDescription": "Bạn có chắc chắn muốn xóa {count} hashtag đã chọn không? Hành động này không thể hoàn tác.",
+      "cancel": "Hủy",
+      "confirm": "Xác nhận"
+    },
+    "audio": {
+      "title": "Thư viện Âm thanh",
+      "description": "Quản lý và kiểm duyệt tất cả các bản nhạc, âm thanh trên nền tảng.",
+      "export": "Xuất dữ liệu",
+      "deleteSelected": "Xóa mục chọn",
+      "filterDate": "Lọc theo Ngày",
+      "searchPlaceholder": "Tìm kiếm theo tên âm thanh...",
+      "clearSearch": "Xóa tìm kiếm",
+      "columns": "Tùy chỉnh Cột",
+      "rowsPerPage": "Số hàng mỗi trang",
+      "tabs": {
+        "all": "Tất cả Âm thanh"
+      },
+      "stats": {
+        "totalTracks": "Tổng số Âm thanh",
+        "trendingTracks": "Bài hát Thịnh hành",
+        "avgDuration": "Thời lượng Trung bình",
+        "totalUsageCount": "Tổng số Lượt dùng"
+      },
+      "table": {
+        "title": "Âm thanh",
+        "duration": "Thời lượng",
+        "uploader": "Người tải lên",
+        "isOriginal": "Gốc",
+        "isTrending": "Thịnh hành",
+        "usageCount": "Số lượt dùng",
+        "date": "Ngày tạo",
+        "actions": "Thao tác"
+      },
+      "actions": {
+        "title": "Thao tác Âm thanh",
+        "delete": "Xóa bản nhạc",
+        "edit": "Chỉnh sửa bản nhạc"
+      },
+      "visibleColumns": "Hiển thị Cột",
+      "noResults": "Không tìm thấy kết quả nào.",
+      "selection": "Đã chọn {count} trên {total} hàng",
+      "pagination": {
+        "page": "Trang",
+        "of": "trên"
+      },
+      "deleteSuccess": "Xóa âm thanh thành công",
+      "deleteManySuccess": "Xóa các âm thanh đã chọn thành công",
+      "deleteError": "Không thể xóa âm thanh",
+      "updateSuccess": "Cập nhật âm thanh thành công",
+      "updateError": "Cập nhật âm thanh thất bại",
+      "confirmDeleteTitle": "Bạn có chắc chắn muốn xóa?",
+      "confirmDeleteDescription": "Hành động này không thể hoàn tác. Thao tác này sẽ xóa vĩnh viễn âm thanh và gỡ bỏ khỏi tất cả các bài viết liên quan.",
+      "confirmBulkDeleteTitle": "Xóa các âm thanh đã chọn?",
+      "confirmBulkDeleteDescription": "Bạn có chắc chắn muốn xóa {count} âm thanh đã chọn? Hành động này không thể hoàn tác.",
+      "cancel": "Hủy bỏ",
+      "confirm": "Xác nhận",
+      "audioPlayError": "Không tìm thấy tệp âm thanh hoặc tải tệp thất bại.",
+      "editDialog": {
+        "title": "Chỉnh sửa Âm thanh",
+        "titleLabel": "Tiêu đề Bản nhạc",
+        "titlePlaceholder": "Nhập tiêu đề bản nhạc",
+        "isOriginalLabel": "Đánh dấu là Bản nhạc Gốc",
+        "isTrendingLabel": "Đánh dấu là Thịnh hành",
+        "submit": "Lưu Thay đổi"
+      },
+      "validation": {
+        "titleRequired": "Tiêu đề không được bỏ trống"
+      }
+    },
+    "locations": {
+      "title": "Danh mục Địa điểm",
+      "description": "Quản lý và điều phối tất cả các địa điểm được ánh xạ trên nền tảng.",
+      "export": "Xuất dữ liệu",
+      "deleteSelected": "Xóa",
+      "filterDate": "Lọc theo ngày",
+      "searchPlaceholder": "Tìm kiếm địa điểm theo tên, thành phố hoặc quốc gia...",
+      "clearSearch": "Xóa tìm kiếm",
+      "columns": "Tùy chỉnh cột",
+      "rowsPerPage": "Số hàng mỗi trang",
+      "tabs": {
+        "all": "Tất cả các Địa điểm"
+      },
+      "stats": {
+        "totalLocations": "Tổng Địa điểm",
+        "uniqueCities": "Thành phố",
+        "uniqueCountries": "Quốc gia"
+      },
+      "table": {
+        "name": "Tên địa điểm",
+        "city": "Thành phố",
+        "country": "Quốc gia",
+        "latitude": "Vĩ độ",
+        "longitude": "Kinh độ",
+        "postsCount": "Số bài viết",
+        "date": "Ngày tạo",
+        "actions": "Thao tác"
+      },
+      "actions": {
+        "title": "Thao tác Địa điểm",
+        "viewMap": "Xem bản đồ",
+        "edit": "Chỉnh sửa chi tiết",
+        "delete": "Xóa địa điểm"
+      },
+      "newLocation": "Thêm địa điểm",
+      "createDialog": {
+        "title": "Thêm Địa điểm Mới",
+        "nameLabel": "Tên Địa điểm",
+        "namePlaceholder": "Ví dụ: Công viên Tao Đàn",
+        "cityLabel": "Thành phố",
+        "cityPlaceholder": "Ví dụ: Hồ Chí Minh",
+        "countryLabel": "Quốc gia",
+        "countryPlaceholder": "Ví dụ: Việt Nam",
+        "latitudeLabel": "Vĩ độ",
+        "latitudePlaceholder": "Ví dụ: 10.7769",
+        "longitudeLabel": "Kinh độ",
+        "longitudePlaceholder": "Ví dụ: 106.6953",
+        "submit": "Tạo mới"
+      },
+      "editDialog": {
+        "title": "Chỉnh sửa Địa điểm",
+        "nameLabel": "Tên Địa điểm",
+        "namePlaceholder": "Ví dụ: Công viên Tao Đàn",
+        "cityLabel": "Thành phố",
+        "cityPlaceholder": "Ví dụ: Hồ Chí Minh",
+        "countryLabel": "Quốc gia",
+        "countryPlaceholder": "Ví dụ: Việt Nam",
+        "latitudeLabel": "Vĩ độ",
+        "latitudePlaceholder": "Ví dụ: 10.7769",
+        "longitudeLabel": "Kinh độ",
+        "longitudePlaceholder": "Ví dụ: 106.6953",
+        "submit": "Lưu thay đổi"
+      },
+      "createSuccess": "Thêm địa điểm thành công",
+      "createError": "Không thể thêm địa điểm",
+      "updateSuccess": "Cập nhật địa điểm thành công",
+      "updateError": "Không thể cập nhật địa điểm",
+      "validation": {
+        "nameRequired": "Tên địa điểm không được để trống",
+        "cityRequired": "Thành phố không được để trống",
+        "countryRequired": "Quốc gia không được để trống",
+        "latitudeRequired": "Vĩ độ không được để trống",
+        "latitudeInvalid": "Vĩ độ phải là một số hợp lệ từ -90 đến 90",
+        "longitudeRequired": "Kinh độ không được để trống",
+        "longitudeInvalid": "Kinh độ phải là một số hợp lệ từ -180 đến 180"
+      },
+      "visibleColumns": "Hiển thị Cột",
+      "noResults": "Không tìm thấy kết quả nào.",
+      "selection": "Đã chọn {count} trên {total} hàng",
+      "pagination": {
+        "page": "Trang",
+        "of": "trên"
+      },
+      "deleteSuccess": "Xóa địa điểm thành công",
+      "deleteManySuccess": "Xóa các địa điểm đã chọn thành công",
+      "deleteError": "Không thể xóa địa điểm",
+      "confirmDeleteTitle": "Bạn có chắc chắn muốn xóa?",
+      "confirmDeleteDescription": "Hành động này không thể hoàn tác. Thao tác này sẽ xóa vĩnh viễn địa điểm khỏi hệ thống.",
+      "confirmBulkDeleteTitle": "Xóa các địa điểm đã chọn?",
+      "confirmBulkDeleteDescription": "Bạn có chắc chắn muốn xóa {count} địa điểm đã chọn? Hành động này không thể hoàn tác.",
+      "cancel": "Hủy bỏ",
+      "confirm": "Xác nhận",
+      "mapModalTitle": "Bản đồ - {name}"
+    },
+    "collections": {
+      "title": "Bộ sưu tập đã lưu",
+      "description": "Quản lý và tổ chức các bộ sưu tập bài viết đã lưu của bạn.",
+      "export": "Xuất dữ liệu",
+      "deleteSelected": "Xóa",
+      "filterDate": "Lọc theo ngày",
+      "searchPlaceholder": "Tìm kiếm theo tên bộ sưu tập...",
+      "clearSearch": "Xóa tìm kiếm",
+      "columns": "Tùy chỉnh cột",
+      "rowsPerPage": "Số hàng mỗi trang",
+      "tabs": {
+        "all": "Tất cả bộ sưu tập"
+      },
+      "table": {
+        "name": "Tên bộ sưu tập",
+        "postsCount": "Số lượng bài viết",
+        "owner": "Người sở hữu",
+        "date": "Ngày tạo",
+        "actions": "Hành động"
+      },
+      "actions": {
+        "title": "Hành động bộ sưu tập",
+        "delete": "Xóa bộ sưu tập"
+      },
+      "visibleColumns": "Cột hiển thị",
+      "noResults": "Không tìm thấy bộ sưu tập nào.",
+      "selection": "Đã chọn {count} trên {total} hàng",
+      "pagination": {
+        "page": "Trang",
+        "of": "trên"
+      },
+      "deleteSuccess": "Xóa bộ sưu tập thành công",
+      "deleteManySuccess": "Xóa các bộ sưu tập đã chọn thành công",
+      "deleteError": "Không thể xóa bộ sưu tập",
+      "confirmDeleteTitle": "Bạn có chắc chắn muốn xóa?",
+      "confirmDeleteDescription": "Hành động này không thể hoàn tác. Thao tác này sẽ xóa vĩnh viễn bộ sưu tập. Các bài đăng đã lưu trong bộ sưu tập này sẽ không bị xóa, nhưng sẽ bị xóa khỏi bộ sưu tập này.",
+      "confirmBulkDeleteTitle": "Xóa các bộ sưu tập đã chọn?",
+      "confirmBulkDeleteDescription": "Bạn có chắc chắn muốn xóa {count} bộ sưu tập đã chọn? Hành động này không thể hoàn tác.",
+      "cancel": "Hủy bỏ",
+      "confirm": "Xác nhận"
+    },
+    "moderation": {
+      "title": "Đánh giá vi phạm",
+      "description": "Xem xét và quản lý các phương tiện bài đăng bị gắn cờ bởi hệ thống hoặc người kiểm duyệt.",
+      "export": "Xuất dữ liệu",
+      "deleteSelected": "Xóa",
+      "searchPlaceholder": "Tìm kiếm nội dung bị gắn cờ...",
+      "clearSearch": "Xóa tìm kiếm",
+      "columns": "Tùy chỉnh cột",
+      "rowsPerPage": "Số hàng mỗi trang",
+      "noResults": "Không tìm thấy nội dung bị gắn cờ nào.",
+      "selection": "Đã chọn {count} trên {total} nội dung",
+      "pagination": {
+        "page": "Trang",
+        "of": "trên"
+      },
+      "tabs": {
+        "all": "Tất cả trạng thái",
+        "pending": "Chờ xem xét",
+        "approved": "Đã duyệt",
+        "flagged": "Đã gắn cờ"
+      },
+      "filterStatus": "Lọc theo trạng thái",
+      "stats": {
+        "totalMedia": "Tổng số nội dung",
+        "pendingCount": "Chờ xem xét",
+        "approvedCount": "Đã duyệt",
+        "flaggedCount": "Đã gắn cờ"
+      },
+      "table": {
+        "media": "Nội dung",
+        "post": "Chú thích bài viết",
+        "author": "Tác giả",
+        "status": "Trạng thái",
+        "reason": "Lý do kiểm duyệt",
+        "metadata": "Thông số",
+        "static": "Tĩnh",
+        "reviewer": "Người kiểm duyệt",
+        "date": "Ngày tải lên",
+        "actions": "Hành động"
+      },
+      "actions": {
+        "title": "Thao tác kiểm duyệt",
+        "approve": "Duyệt",
+        "flag": "Gắn cờ",
+        "pending": "Đặt Chờ xử lý",
+        "review": "Xem xét nội dung"
+      },
+      "status": {
+        "pending": "Chờ xử lý",
+        "approved": "Đã phê duyệt",
+        "flagged": "Đã gắn cờ"
+      },
+      "dialog": {
+        "title": "Xem xét kiểm duyệt nội dung",
+        "description": "Đặt trạng thái kiểm duyệt và lý do cho phương tiện nội dung này.",
+        "statusLabel": "Trạng thái kiểm duyệt",
+        "reasonLabel": "Lý do",
+        "notesPlaceholder": "Nhập lý do hoặc chi tiết...",
+        "submit": "Gửi quyết định",
+        "success": "Đã cập nhật trạng thái kiểm duyệt nội dung thành công",
+        "error": "Cập nhật trạng thái kiểm duyệt nội dung thất bại"
+      },
+      "cancel": "Hủy",
+      "confirm": "Xác nhận",
+      "confirmBulkTitle": "Xác nhận hành động hàng loạt",
+      "confirmBulkDescription": "Bạn có chắc chắn muốn thực hiện hành động này trên {count} nội dung đã chọn không?"
+    },
+    "reports": {
+      "post": "Bài viết",
+      "story": "Story",
+      "title": "Báo cáo nội dung",
+      "description": "Quản lý và giải quyết các báo cáo nội dung được gửi từ người dùng.",
+      "unassigned": "Chưa phân công",
+      "searchReviewer": "Tìm người kiểm duyệt...",
+      "export": "Xuất dữ liệu",
+      "deleteSelected": "Xóa",
+      "searchPlaceholder": "Tìm kiếm báo cáo...",
+      "clearSearch": "Xóa tìm kiếm",
+      "columns": "Tùy chỉnh cột",
+      "rowsPerPage": "Số hàng mỗi trang",
+      "noResults": "Không tìm thấy báo cáo nào.",
+      "selection": "Đã chọn {count} trên {total} báo cáo",
+      "pagination": {
+        "page": "Trang",
+        "of": "trên"
+      },
+      "tabs": {
+        "all": "Tất cả báo cáo",
+        "pending": "Chờ xử lý",
+        "under_review": "Đang xem xét",
+        "resolved": "Đã giải quyết",
+        "dismissed": "Đã bác bỏ"
+      },
+      "filterStatus": "Lọc theo trạng thái",
+      "filterAction": "Lọc theo hành động",
+      "filterReviewer": "Lọc theo người kiểm duyệt",
+      "allStatuses": "Tất cả trạng thái",
+      "allActions": "Tất cả hành động",
+      "allReasons": "Tất cả lý do",
+      "allReviewers": "Tất cả người kiểm duyệt",
+      "stats": {
+        "totalReports": "Tổng số báo cáo",
+        "pendingReports": "Chờ xử lý",
+        "resolvedReports": "Đã xử lý",
+        "efficiencyRate": "Hiệu suất xử lý"
+      },
+      "table": {
+        "reportId": "Mã báo cáo",
+        "media": "Nội dung",
+        "type": "Loại",
+        "reporter": "Người báo cáo",
+        "reportedUser": "Người bị báo cáo",
+        "reason": "Lý do",
+        "status": "Trạng thái",
+        "action": "Xử lý",
+        "reviewer": "Người kiểm duyệt",
+        "date": "Ngày báo cáo",
+        "resolvedAt": "Ngày giải quyết",
+        "actions": "Hành động"
+      },
+      "actions": {
+        "title": "Thao tác báo cáo",
+        "assign": "Tự phân công",
+        "review": "Xem xét báo cáo",
+        "delete": "Xóa báo cáo"
+      },
+      "status": {
+        "pending": "Chờ xử lý",
+        "under_review": "Đang xem xét",
+        "resolved": "Đã giải quyết",
+        "dismissed": "Đã bác bỏ"
+      },
+      "actionTaken": {
+        "post_removed": "Đã gỡ bài",
+        "account_warned": "Đã cảnh cáo",
+        "account_suspended": "Đã khóa tài khoản",
+        "no_action": "Không xử lý"
+      },
+      "dialog": {
+        "title": "Xem xét báo cáo nội dung",
+        "description": "Đánh giá chi tiết báo cáo và đưa ra hành động xử lý thích hợp.",
+        "reporter": "Người báo cáo",
+        "reported": "Người bị báo cáo",
+        "additionalInfo": "Thông tin thêm",
+        "none": "Không có",
+        "statusLabel": "Trạng thái",
+        "actionLabel": "Biện pháp xử lý",
+        "notesLabel": "Ghi chú của người kiểm duyệt",
+        "notesPlaceholder": "Nhập ghi chú kiểm duyệt...",
+        "submit": "Gửi đánh giá",
+        "success": "Đã đánh giá báo cáo thành công",
+        "error": "Cập nhật báo cáo thất bại",
+        "assignSuccess": "Đã tự nhận phân công báo cáo thành công",
+        "assignError": "Phân công báo cáo thất bại"
+      },
+      "deleteSuccess": "Đã xóa báo cáo thành công",
+      "deleteManySuccess": "Đã xóa các báo cáo được chọn thành công",
+      "deleteError": "Xóa báo cáo thất bại",
+      "confirmDeleteTitle": "Bạn có chắc chắn không?",
+      "confirmDeleteDescription": "Hành động này không thể hoàn tác. Điều này sẽ xóa vĩnh viễn báo cáo khỏi hệ thống.",
+      "confirmBulkDeleteTitle": "Xóa các báo cáo đã chọn?",
+      "confirmBulkDeleteDescription": "Bạn có chắc chắn muốn xóa {count} báo cáo đã chọn không? Hành động này không thể hoàn tác.",
+      "cancel": "Hủy",
+      "confirm": "Xác nhận"
+    },
+    "users": {
+      "title": "Quản lý người dùng",
+      "description": "Quản lý và điều phối tất cả người dùng trên nền tảng.",
+      "filterStatus": "Lọc theo trạng thái",
+      "filterOrg": "Lọc theo tổ chức",
+      "allOrgs": "Tất cả tổ chức",
+      "searchPlaceholder": "Tìm kiếm người dùng...",
+      "clearSearch": "Xóa tìm kiếm",
+      "moreFilters": "Bộ lọc khác",
+      "columns": "Tùy chỉnh cột",
+      "rowsPerPage": "Số dòng mỗi trang",
+      "searchField": "Trường tìm kiếm",
+      "searchFields": {
+        "email": "Email",
+        "name": "Họ và tên"
+      },
+      "tabs": {
+        "all": "Tất cả người dùng",
+        "active": "Chỉ hoạt động",
+        "banned": "Chỉ bị cấm"
+      },
+      "stats": {
+        "totalUsers": "Tổng người dùng",
+        "activeUsers": "Đang hoạt động",
+        "bannedUsers": "Bị cấm",
+        "verificationRate": "Tỷ lệ xác thực"
+      },
+      "table": {
+        "user": "Người dùng",
+        "email": "Email",
+        "role": "Vai trò",
+        "organization": "Tổ chức",
+        "status": "Trạng thái",
+        "joinedDate": "Ngày tham gia",
+        "actions": "Hành động"
+      },
+      "status": {
+        "active": "Hoạt động",
+        "banned": "Bị cấm",
+        "verified": "Đã xác thực",
+        "unverified": "Chưa xác thực"
+      },
+      "actions": {
+        "title": "Hành động",
+        "ban": "Cấm người dùng",
+        "unban": "Bỏ cấm người dùng",
+        "delete": "Xóa người dùng",
+        "edit": "Chỉnh sửa thông tin",
+        "setPassword": "Đặt mật khẩu",
+        "sessions": "Quản lý phiên đăng nhập",
+        "newUser": "Tạo người dùng",
+        "revokeSelected": "Thu hồi phiên đã chọn"
+      },
+      "banDialog": {
+        "title": "Cấm người dùng",
+        "description": "Bạn có chắc chắn muốn cấm người dùng này không? Người dùng bị cấm sẽ không thể đăng nhập.",
+        "reasonLabel": "Lý do cấm",
+        "reasonPlaceholder": "Nhập lý do cấm...",
+        "cancel": "Hủy",
+        "confirm": "Cấm"
+      },
+      "unbanDialog": {
+        "title": "Bỏ cấm người dùng",
+        "description": "Bạn có chắc chắn muốn bỏ cấm người dùng này không? Họ sẽ có thể đăng nhập lại.",
+        "cancel": "Hủy",
+        "confirm": "Bỏ cấm"
+      },
+      "deleteDialog": {
+        "title": "Xóa người dùng",
+        "description": "Bạn có chắc chắn muốn xóa vĩnh viễn người dùng này không? Hành động này không thể hoàn tác.",
+        "cancel": "Hủy",
+        "confirm": "Xóa"
+      },
+      "validation": {
+        "nameInvalid": "Tên phải có ít nhất 2 ký tự.",
+        "emailInvalid": "Địa chỉ email không hợp lệ.",
+        "emailTaken": "Email đã được sử dụng.",
+        "usernameInvalid": "Tên đăng nhập phải có ít nhất 3 ký tự và chỉ chứa chữ cái, số và dấu gạch dưới.",
+        "usernameTaken": "Tên đăng nhập đã được sử dụng.",
+        "passwordInvalid": "Mật khẩu phải có ít nhất 8 ký tự.",
+        "organizationRequired": "Yêu cầu chọn ít nhất một tổ chức."
+      },
+      "createDialog": {
+        "title": "Tạo người dùng mới",
+        "description": "Điền vào biểu mẫu bên dưới để tạo tài khoản người dùng mới.",
+        "nameLabel": "Họ và tên",
+        "namePlaceholder": "Nguyễn Văn A",
+        "emailLabel": "Địa chỉ Email",
+        "emailPlaceholder": "nguyenvana@example.com",
+        "usernameLabel": "Tên đăng nhập",
+        "usernamePlaceholder": "nguyenvana",
+        "passwordLabel": "Mật khẩu",
+        "passwordPlaceholder": "Nhập mật khẩu...",
+        "roleLabel": "Vai trò hệ thống",
+        "rolePlaceholder": "Chọn một vai trò...",
+        "roleUser": "Người dùng",
+        "roleAdmin": "Quản trị viên",
+        "organizationLabel": "Tổ chức",
+        "organizationPlaceholder": "Chọn tổ chức...",
+        "noOrganization": "Không có tổ chức",
+        "cancel": "Hủy",
+        "confirm": "Tạo người dùng",
+        "changePhoto": "Đổi ảnh"
+      },
+      "editDialog": {
+        "title": "Chỉnh sửa thông tin người dùng",
+        "description": "Cập nhật hồ sơ và các tùy chọn hệ thống cho người dùng này.",
+        "nameLabel": "Họ và tên",
+        "namePlaceholder": "Nguyễn Văn A",
+        "emailLabel": "Địa chỉ Email",
+        "emailPlaceholder": "nguyenvana@example.com",
+        "usernameLabel": "Tên đăng nhập",
+        "usernamePlaceholder": "nguyenvana",
+        "roleLabel": "Vai trò hệ thống",
+        "rolePlaceholder": "Chọn một vai trò...",
+        "organizationLabel": "Tổ chức",
+        "organizationPlaceholder": "Chọn tổ chức...",
+        "noOrganization": "Không có tổ chức",
+        "bioLabel": "Tiểu sử (Tùy chọn)",
+        "bioPlaceholder": "Giới thiệu về người dùng này...",
+        "genderLabel": "Giới tính (Tùy chọn)",
+        "genderPlaceholder": "Chọn giới tính...",
+        "genderMale": "Nam",
+        "genderFemale": "Nữ",
+        "genderOther": "Khác",
+        "cancel": "Hủy",
+        "confirm": "Lưu thay đổi",
+        "changePhoto": "Đổi ảnh"
+      },
+      "setPasswordDialog": {
+        "title": "Đặt mật khẩu người dùng",
+        "description": "Nhập mật khẩu mới cho người dùng này. Thao tác này sẽ ghi đè lên mật khẩu hiện tại.",
+        "passwordLabel": "Mật khẩu mới",
+        "passwordPlaceholder": "Nhập mật khẩu mới...",
+        "cancel": "Hủy",
+        "confirm": "Cập nhật mật khẩu"
+      },
+      "sessionsDialog": {
+        "title": "Phiên hoạt động của {name}",
+        "description": "Xem và thu hồi các phiên đăng nhập đang hoạt động của tài khoản này.",
+        "device": "Thiết bị",
+        "ipAddress": "Địa chỉ IP",
+        "expires": "Hết hạn",
+        "revoke": "Thu hồi",
+        "revokeAll": "Thu hồi tất cả các phiên",
+        "noSessions": "Không tìm thấy phiên đăng nhập hoạt động nào của người dùng này.",
+        "close": "Đóng"
+      },
+      "bulkRevokeDialog": {
+        "title": "Thu hồi các phiên đã chọn",
+        "description": "Bạn có chắc chắn muốn thu hồi tất cả các phiên đăng nhập đang hoạt động của {count} người dùng đã chọn không?",
+        "cancel": "Hủy",
+        "confirm": "Thu hồi phiên"
+      },
+      "roles": {
+        "user": "Người dùng",
+        "admin": "Quản trị viên"
+      },
+      "genders": {
+        "male": "Nam",
+        "female": "Nữ",
+        "other": "Khác"
+      },
+      "banSuccess": "Cấm người dùng thành công",
+      "banError": "Không thể cấm người dùng",
+      "unbanSuccess": "Bỏ cấm người dùng thành công",
+      "unbanError": "Không thể bỏ cấm người dùng",
+      "deleteSuccess": "Xóa người dùng thành công",
+      "deleteError": "Không thể xóa người dùng",
+      "createSuccess": "Tạo người dùng thành công",
+      "createError": "Không thể tạo người dùng",
+      "updateSuccess": "Cập nhật người dùng thành công",
+      "updateError": "Không thể cập nhật người dùng",
+      "setPasswordSuccess": "Đặt mật khẩu thành công",
+      "setPasswordError": "Không thể đặt mật khẩu",
+      "revokeSessionSuccess": "Thu hồi phiên đăng nhập thành công",
+      "revokeSessionError": "Không thể thu hồi phiên đăng nhập",
+      "revokeSessionsSuccess": "Thu hồi tất cả phiên đăng nhập thành công",
+      "revokeSessionsError": "Không thể thu hồi các phiên đăng nhập của người dùng",
+      "bulkRevokeSuccess": "Đã thu hồi tất cả phiên đăng nhập của các người dùng được chọn",
+      "bulkRevokeError": "Không thể thu hồi phiên đăng nhập của một số người dùng",
+      "noResults": "Không tìm thấy người dùng nào.",
+      "selection": "Đã chọn {count} trên {total} người dùng",
+      "pagination": {
+        "page": "Trang",
+        "of": "trong số"
+      }
+    },
+    "organizations": {
+      "title": "Quản lý tổ chức",
+      "description": "Quản lý và kiểm duyệt tất cả các tổ chức trên nền tảng.",
+      "searchPlaceholder": "Tìm kiếm tổ chức...",
+      "stats": {
+        "totalOrgs": "Tổng số tổ chức",
+        "totalMembers": "Tổng số thành viên",
+        "avgMembersPerOrg": "Thành viên mỗi tổ chức",
+        "recentOrgs": "Mới (30 ngày)"
+      },
+      "clearSearch": "Xóa tìm kiếm",
+      "columns": "Tùy chỉnh cột",
+      "rowsPerPage": "Số hàng mỗi trang",
+      "table": {
+        "logo": "Logo",
+        "name": "Tên",
+        "slug": "Slug",
+        "createdAt": "Ngày tạo",
+        "metadata": "Siêu dữ liệu",
+        "actions": "Hành động"
+      },
+      "actions": {
+        "title": "Hành động",
+        "edit": "Chỉnh sửa chi tiết",
+        "delete": "Xóa tổ chức",
+        "newOrg": "Tạo tổ chức",
+        "permissions": "Quản lý quyền"
+      },
+      "createDialog": {
+        "title": "Tạo tổ chức mới",
+        "description": "Điền vào biểu mẫu dưới đây để tạo một tổ chức mới.",
+        "nameLabel": "Tên tổ chức",
+        "namePlaceholder": "ví dụ: Acme Corp",
+        "slugLabel": "Slug",
+        "slugPlaceholder": "ví dụ: acme-corp",
+        "logoLabel": "Logo",
+        "changePhoto": "Thay đổi logo",
+        "cancel": "Hủy",
+        "confirm": "Tạo tổ chức"
+      },
+      "editDialog": {
+        "title": "Chỉnh sửa tổ chức",
+        "description": "Cập nhật thông tin chi tiết cho tổ chức này.",
+        "nameLabel": "Tên tổ chức",
+        "namePlaceholder": "ví dụ: Acme Corp",
+        "slugLabel": "Slug",
+        "slugPlaceholder": "ví dụ: acme-corp",
+        "logoLabel": "Logo",
+        "changePhoto": "Thay đổi logo",
+        "cancel": "Hủy",
+        "confirm": "Lưu thay đổi"
+      },
+      "deleteDialog": {
+        "title": "Xóa tổ chức",
+        "description": "Bạn có chắc chắn muốn xóa vĩnh viễn tổ chức này không? Tất cả dữ liệu liên quan, bao gồm thành viên và vai trò, sẽ bị xóa. Hành động này không thể hoàn tác.",
+        "cancel": "Hủy",
+        "confirm": "Xóa"
+      },
+      "permissionsDialog": {
+        "title": "Quản lý vai trò & quyền",
+        "description": "Cấu hình vai trò động và quyền cấp tài nguyên cho tổ chức này.",
+        "roleLabel": "Chọn vai trò",
+        "rolePlaceholder": "Chọn hoặc nhập tên vai trò...",
+        "addRoleButton": "Thêm vai trò tùy chỉnh",
+        "newRolePlaceholder": "ví dụ: Biên tập viên",
+        "resourceHeader": "Tài nguyên",
+        "actionsHeader": "Quyền / Hành động",
+        "cancel": "Hủy",
+        "confirm": "Lưu quyền hạn",
+        "deleteRole": "Xóa vai trò",
+        "deleteRoleConfirm": "Bạn có chắc chắn muốn xóa vai trò tùy chỉnh này?"
+      },
+      "validation": {
+        "nameRequired": "Tên tổ chức là bắt buộc.",
+        "nameInvalid": "Tên phải có ít nhất 2 ký tự.",
+        "slugRequired": "Slug là bắt buộc.",
+        "slugInvalid": "Slug chỉ được chứa chữ thường, số và dấu gạch ngang."
+      },
+      "createSuccess": "Tạo tổ chức thành công",
+      "createError": "Không thể tạo tổ chức",
+      "updateSuccess": "Cập nhật tổ chức thành công",
+      "updateError": "Không thể cập nhật tổ chức",
+      "deleteSuccess": "Xóa tổ chức thành công",
+      "deleteError": "Không thể xóa tổ chức",
+      "updatePermissionsSuccess": "Cập nhật quyền thành công",
+      "updatePermissionsError": "Không thể cập nhật quyền",
+      "deleteRoleSuccess": "Xóa vai trò thành công",
+      "deleteRoleError": "Không thể xóa vai trò",
+      "noResults": "Không tìm thấy tổ chức nào.",
+      "selection": "Đã chọn {count} trên {total} tổ chức",
+      "deleteSelected": "Xóa đã chọn",
+      "deleteManySuccess": "Xóa các tổ chức đã chọn thành công",
+      "confirmBulkDeleteTitle": "Xóa các tổ chức đã chọn?",
+      "confirmBulkDeleteDescription": "Bạn có chắc chắn muốn xóa vĩnh viễn {count} tổ chức đã chọn không? Tất cả dữ liệu liên quan, bao gồm thành viên và vai trò, sẽ bị xóa. Hành động này không thể hoàn tác.",
+      "cancel": "Hủy",
+      "confirm": "Xác nhận",
+      "pagination": {
+        "page": "Trang",
+        "of": "trong số"
+      }
+    }
+  },
+  "DashboardPage": {
+    "date": "Ngày",
+    "title": "Bảng điều khiển",
+    "totalUsers": "Tổng số người dùng",
+    "activeUsers": "Người dùng hoạt động",
+    "newSignups": "Đăng ký mới",
+    "retentionRate": "Tỷ lệ giữ chân",
+    "mediaVolume": "Khối lượng nội dung",
+    "engagement": "Tương tác",
+    "popularContent": "Nội dung phổ biến",
+    "storageUsage": "Mức sử dụng bộ nhớ",
+    "kafkaLag": "Độ trễ Kafka",
+    "dauMauStickiness": "Độ gắn kết DAU/MAU",
+    "posts": "Bài viết",
+    "stories": "Tin",
+    "reels": "Thước phim",
+    "likes": "Lượt thích",
+    "comments": "Bình luận",
+    "saves": "Lưu",
+    "avgEngagement": "Tương tác TB/Bài viết",
+    "last30Days": "30 ngày qua",
+    "currentPeriod": "Kỳ hiện tại",
+    "previousPeriod": "Kỳ trước",
+    "trend": "Xu hướng",
+    "healthy": "Khỏe mạnh",
+    "warning": "Cảnh báo",
+    "critical": "Nghiêm trọng",
+    "alert": "Báo động",
+    "topic": "Chủ đề",
+    "lag": "Độ trễ",
+    "partitions": "Phân vùng",
+    "status": "Trạng thái",
+    "pageTitle": "Bảng điều khiển",
+    "pageDescription": "Tổng quan và thống kê quản trị viên",
+    "timeframeFilterPlaceholder": "Chọn khoảng thời gian",
+    "timeframe7d": "7 ngày qua",
+    "timeframe30d": "30 ngày qua",
+    "timeframeAll": "Tất cả thời gian",
+    "fromLastMonth": "so với tháng trước",
+    "mediaUploadsTitle": "Tổng số lượt tải lên",
+    "platformCapacity": "Dung lượng hệ thống",
+    "engagementBreakdown": "Phân tích tương tác",
+    "activityOverview": "Tổng quan hoạt động",
+    "averageEngagement": "Tương tác trung bình",
+    "averageEngagementStatus": "Trạng thái hiện tại",
+    "highInteraction": "Số bài viết có tương tác cao",
+    "interactionBasedOn": "Dựa trên các chỉ số tương tác tổng hợp",
+    "kafkaLagTracker": "Theo dõi độ trễ Kafka",
+    "criticalQueues": "Hàng đợi quan trọng",
+    "leftToProcess": "Còn lại để xử lý",
+    "msgs": "tin nhắn",
+    "name": "Tên",
+    "score": "Điểm",
+    "engagementTipTitle": "Tương tác trung bình đang rất tốt",
+    "engagementTipDesc": "Người dùng hoạt động rất tích cực. Khuyến khích đăng thêm video để tăng các chỉ số.",
+    "quickActions": "Thao tác nhanh",
+    "quickActionsManage": "Quản lý tác vụ hệ thống",
+    "backupDatabase": "Sao lưu cơ sở dữ liệu",
+    "backupDatabaseDesc": "Bản sao lưu cuối: 2 ngày trước",
+    "deployUpdate": "Triển khai bản cập nhật",
+    "deployUpdateDesc": "Phiên bản 2.4.1 đã sẵn sàng",
+    "viewErrorLogs": "Xem nhật ký lỗi",
+    "viewErrorLogsDesc": "3 lỗi mới hôm nay",
+    "backup": "Sao lưu",
+    "deploy": "Triển khai",
+    "logs": "Nhật ký",
+    "more": "Khác",
+    "activeAdmins": "Quản trị viên hoạt động",
+    "admin": "Quản trị viên",
+    "noCaption": "Không có chú thích",
+    "avgResponseTime": "Th.gian phản hồi TB",
+    "moderationEfficiency": "Hiệu quả kiểm duyệt",
+    "fromLastPeriod": "so với kỳ trước",
+    "resolutionSpeed": "Tốc độ giải quyết",
+    "optimal": "Tối ưu",
+    "delayed": "Chậm trễ",
+    "targetResolution": "Mục tiêu xử lý",
+    "mins": "phút"
+  },
+  "AnalyticsPage": {
+    "pageTitle": "Phân tích",
+    "pageSubtitle": "Ma trận tương tác & mức độ sử dụng hệ thống nâng cao",
+    "timeframe": {
+      "year": "Năm nay",
+      "month": "Tháng",
+      "week": "Tuần"
+    },
+    "growthVelocity": "Tốc độ tăng trưởng",
+    "signupsTrajectory": "Quỹ đạo thu hút người dùng",
+    "avgEngagement": "Tương tác trung bình",
+    "retentionRate": "Tỷ lệ giữ chân",
+    "uploadHeatmap": "Lưới tần suất tải lên",
+    "heatmapDesc": "Ma trận phân bổ nội dung hàng tuần",
+    "trendingCreators": "Nhà sáng tạo nổi bật",
+    "salesCount": "{count} Lượt tiếp cận",
+    "popularContent": "Bảng xếp hạng nội dung phổ biến",
+    "interactionBreakdown": "Cơ cấu tương tác",
+    "totalInteractions": "Tổng lượt tương tác",
+    "likes": "Lượt thích",
+    "comments": "Bình luận",
+    "saves": "Lượt lưu",
+    "multiFormatDistribution": "Phân bổ định dạng",
+    "posts": "Bài viết",
+    "stories": "Tin",
+    "reels": "Thước phim",
+    "columns": {
+      "id": "ID",
+      "creator": "Người đăng",
+      "caption": "Nội dung",
+      "score": "Điểm",
+      "metrics": "Chỉ số"
+    }
   }
 }

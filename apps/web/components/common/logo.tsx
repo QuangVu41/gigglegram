@@ -8,7 +8,7 @@ interface LogoProps {
 
 const Logo = ({ className }: LogoProps) => {
   return (
-    <figure className={cn("w-36 h-36 relative overflow-hidden rounded-3xl", className)}>
+    <figure className={cn("w-36 h-36 relative overflow-hidden", className)}>
       <Image src={logoImage} alt="logo" className="object-cover" fill />
     </figure>
   );

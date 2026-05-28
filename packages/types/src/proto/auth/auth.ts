@@ -11,8 +11,7 @@ import { Observable } from "rxjs";
 
 export const protobufPackage = "auth";
 
-export interface Empty {
-}
+export interface Empty {}
 
 export interface AuthenticatedSessionResponse {
   session: Session | undefined;
@@ -83,11 +82,23 @@ export interface HasPermissionResponse {
 export const AUTH_PACKAGE_NAME = "auth";
 
 export interface AuthServiceClient {
-  authenticate(request: Empty, metadata: Metadata, ...rest: any): Observable<AuthenticatedSessionResponse>;
+  authenticate(
+    request: Empty,
+    metadata: Metadata,
+    ...rest: any
+  ): Observable<AuthenticatedSessionResponse>;
 
-  hasPermission(request: PermissionSet, metadata: Metadata, ...rest: any): Observable<HasPermissionResponse>;
+  hasPermission(
+    request: PermissionSet,
+    metadata: Metadata,
+    ...rest: any
+  ): Observable<HasPermissionResponse>;
 
-  updateUser(request: UpdateUserRequest, metadata: Metadata, ...rest: any): Observable<UpdateUserResponse>;
+  updateUser(
+    request: UpdateUserRequest,
+    metadata: Metadata,
+    ...rest: any
+  ): Observable<UpdateUserResponse>;
 }
 
 export interface AuthServiceController {
@@ -95,32 +106,59 @@ export interface AuthServiceController {
     request: Empty,
     metadata: Metadata,
     ...rest: any
-  ): Promise<AuthenticatedSessionResponse> | Observable<AuthenticatedSessionResponse> | AuthenticatedSessionResponse;
+  ):
+    | Promise<AuthenticatedSessionResponse>
+    | Observable<AuthenticatedSessionResponse>
+    | AuthenticatedSessionResponse;
 
   hasPermission(
     request: PermissionSet,
     metadata: Metadata,
     ...rest: any
-  ): Promise<HasPermissionResponse> | Observable<HasPermissionResponse> | HasPermissionResponse;
+  ):
+    | Promise<HasPermissionResponse>
+    | Observable<HasPermissionResponse>
+    | HasPermissionResponse;
 
   updateUser(
     request: UpdateUserRequest,
     metadata: Metadata,
     ...rest: any
-  ): Promise<UpdateUserResponse> | Observable<UpdateUserResponse> | UpdateUserResponse;
+  ):
+    | Promise<UpdateUserResponse>
+    | Observable<UpdateUserResponse>
+    | UpdateUserResponse;
 }
 
 export function AuthServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ["authenticate", "hasPermission", "updateUser"];
+    const grpcMethods: string[] = [
+      "authenticate",
+      "hasPermission",
+      "updateUser",
+    ];
     for (const method of grpcMethods) {
-      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
-      GrpcMethod("AuthService", method)(constructor.prototype[method], method, descriptor);
+      const descriptor: any = Reflect.getOwnPropertyDescriptor(
+        constructor.prototype,
+        method,
+      );
+      GrpcMethod("AuthService", method)(
+        constructor.prototype[method],
+        method,
+        descriptor,
+      );
     }
     const grpcStreamMethods: string[] = [];
     for (const method of grpcStreamMethods) {
-      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
-      GrpcStreamMethod("AuthService", method)(constructor.prototype[method], method, descriptor);
+      const descriptor: any = Reflect.getOwnPropertyDescriptor(
+        constructor.prototype,
+        method,
+      );
+      GrpcStreamMethod("AuthService", method)(
+        constructor.prototype[method],
+        method,
+        descriptor,
+      );
     }
   };
 }

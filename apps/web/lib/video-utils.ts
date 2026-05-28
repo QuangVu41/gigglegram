@@ -1,4 +1,11 @@
-import { ALL_FORMATS, Input, InputDisposedError, UrlSource, VideoSample, VideoSampleSink } from "mediabunny";
+import {
+  ALL_FORMATS,
+  Input,
+  InputDisposedError,
+  UrlSource,
+  VideoSample,
+  VideoSampleSink,
+} from "mediabunny";
 
 export type ExtractThumbnailProps = {
   src: string;
@@ -40,7 +47,9 @@ type Options = {
   durationInSeconds: number | null;
 };
 
-export type ExtractFramesTimestampsInSecondsFn = (options: Options) => Promise<number[]> | number[];
+export type ExtractFramesTimestampsInSecondsFn = (
+  options: Options,
+) => Promise<number[]> | number[];
 
 export type ExtractFramesProps = {
   src: string;

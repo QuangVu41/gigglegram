@@ -15,10 +15,12 @@ import {
 import { users } from '@db/src/drizzle/schemas/auth-schemas';
 import {
   postCollaborators,
-  postReports,
+  contentReports,
   posts,
   postUserTags,
+  stories,
 } from '@db/src/drizzle/schemas/post-schemas';
+import { followers } from '@db/src/drizzle/schemas/user-schemas';
 import { relations, sql } from 'drizzle-orm';
 
 export const notificationsTypeEnum = pgEnum('notifications_type_enum', [
@@ -38,6 +40,7 @@ export const notificationsTypeEnum = pgEnum('notifications_type_enum', [
   'save',
   'assign_reviewer',
   'report_update',
+  'media_violation',
 ]);
 
 export const messagesTypeEnum = pgEnum('messages_type_enum', [
@@ -77,7 +80,10 @@ export const notifications = pgTable(
     commentId: uuid('comment_id').references(() => comments.id, {
       onDelete: 'cascade',
     }),
-    reportId: uuid('report_id').references(() => postReports.id, {
+    reportId: uuid('report_id').references(() => contentReports.id, {
+      onDelete: 'cascade',
+    }),
+    storyId: uuid('story_id').references(() => stories.id, {
       onDelete: 'cascade',
     }),
     content: text('content'),
@@ -92,17 +98,12 @@ export const notifications = pgTable(
     index('notifications_postCollabId_idx').on(table.postCollabId),
     index('notifications_commentId_idx').on(table.commentId),
     index('notifications_reportId_idx').on(table.reportId),
+    index('notifications_storyId_idx').on(table.storyId),
     index('notifications_userId_isRead_idx').on(table.userId, table.isRead),
     index('notifications_createdAt_idx').on(table.createdAt),
     check(
-      'only_one_reference',
-      sql`(
-        (post_id IS NOT NULL)::int + 
-        (post_user_tag_id IS NOT NULL)::int + 
-        (post_collab_id IS NOT NULL)::int +
-        (comment_id IS NOT NULL)::int +
-        (report_id IS NOT NULL)::int
-      ) <= 1`,
+      'notifications_one_ref_check',
+      sql`(${table.postId} IS NOT NULL) OR (${table.postUserTagId} IS NOT NULL) OR (${table.postCollabId} IS NOT NULL) OR (${table.commentId} IS NOT NULL) OR (${table.reportId} IS NOT NULL) OR (${table.storyId} IS NOT NULL) OR (${table.type} IN ('follow', 'follow_request', 'follow_accept'))`,
     ),
   ],
 );
@@ -200,6 +201,7 @@ export const conversationParticipants = pgTable(
     notificationsEnabled: boolean('notifications_enabled')
       .notNull()
       .default(true),
+    isDeleted: boolean('is_deleted').notNull().default(false),
   },
   (table) => [
     index('conversation_participants_conversationId_idx').on(
@@ -229,7 +231,6 @@ export const messages = pgTable(
       }),
     content: text('content'),
     type: messagesTypeEnum('type').notNull(),
-    mediaUrl: text('media_url'),
     replyToMessageId: uuid('reply_to_message_id').references(
       (): AnyPgColumn => messages.id,
       {
@@ -244,6 +245,25 @@ export const messages = pgTable(
     index('messages_conversationId_idx').on(table.conversationId),
     index('messages_replyToMessageId_idx').on(table.replyToMessageId),
   ],
+);
+
+export const messageMedia = pgTable(
+  'message_media',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    messageId: uuid('message_id')
+      .notNull()
+      .references(() => messages.id, { onDelete: 'cascade' }),
+    mediaUrl: varchar('media_url').notNull(),
+    mediaType: varchar('media_type').notNull(),
+    displayOrder: integer('display_order').notNull(),
+    width: integer('width'),
+    height: integer('height'),
+    duration: integer('duration'),
+    altText: text('alt_text'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+  },
+  (table) => [index('messageMedia_messageId_idx').on(table.messageId)],
 );
 
 // ---------- RELATIONS ----------
@@ -274,9 +294,17 @@ export const notificationsRelations = relations(notifications, ({ one }) => ({
     fields: [notifications.commentId],
     references: [comments.id],
   }),
-  report: one(postReports, {
+  report: one(contentReports, {
     fields: [notifications.reportId],
-    references: [postReports.id],
+    references: [contentReports.id],
+  }),
+  story: one(stories, {
+    fields: [notifications.storyId],
+    references: [stories.id],
+  }),
+  follow: one(followers, {
+    fields: [notifications.actorId, notifications.userId],
+    references: [followers.followerId, followers.followingId],
   }),
 }));
 
@@ -311,7 +339,7 @@ export const commentLikesRelations = relations(commentLikes, ({ one }) => ({
   }),
 }));
 
-export const messagesRelations = relations(messages, ({ one }) => ({
+export const messagesRelations = relations(messages, ({ one, many }) => ({
   sender: one(users, {
     fields: [messages.senderId],
     references: [users.id],
@@ -323,6 +351,14 @@ export const messagesRelations = relations(messages, ({ one }) => ({
   conversation: one(conversations, {
     fields: [messages.conversationId],
     references: [conversations.id],
+  }),
+  media: many(messageMedia),
+}));
+
+export const messageMediaRelations = relations(messageMedia, ({ one }) => ({
+  message: one(messages, {
+    fields: [messageMedia.messageId],
+    references: [messages.id],
   }),
 }));
 

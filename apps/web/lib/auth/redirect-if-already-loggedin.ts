@@ -4,6 +4,8 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 export const redirectIfAlreadyLoggedin = async () => {
-  const { data } = await authClient.getSession({ fetchOptions: { headers: await headers() } });
+  const { data } = await authClient.getSession({
+    fetchOptions: { headers: await headers() },
+  });
   if (data?.session) redirect(DEFAULT_LOGIN_REDIRECT);
 };

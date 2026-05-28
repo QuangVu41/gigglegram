@@ -9,7 +9,9 @@ import { useTranslations } from "next-intl";
 import EmailVerification from "@/components/common/email-verification";
 
 const SignupLayout = () => {
-  const [selectedTab, setSelectedTab] = useState<"signup" | "email-verification">("signup");
+  const [selectedTab, setSelectedTab] = useState<
+    "signup" | "email-verification"
+  >("signup");
   const [email, setEmail] = useState("");
   const t = useTranslations("OTPForm");
 
@@ -27,12 +29,25 @@ const SignupLayout = () => {
       <div className="flex flex-col gap-6">
         <Card className="p-0">
           <CardContent className="p-0">
-            <Tabs value={selectedTab} onValueChange={(tab) => setSelectedTab(tab as "signup" | "email-verification")}>
+            <Tabs
+              value={selectedTab}
+              onValueChange={(tab) =>
+                setSelectedTab(tab as "signup" | "email-verification")
+              }
+            >
               <TabsContent value="signup">
-                <SignupForm handleOpenEmailVerificationTab={handleOpenEmailVerificationTab} />
+                <SignupForm
+                  handleOpenEmailVerificationTab={
+                    handleOpenEmailVerificationTab
+                  }
+                />
               </TabsContent>
               <TabsContent value="email-verification">
-                <EmailVerification email={email} handleGoBack={handleGoBack} backLabel={t("backToSignup")} />
+                <EmailVerification
+                  email={email}
+                  handleGoBack={handleGoBack}
+                  backLabel={t("backToSignup")}
+                />
               </TabsContent>
             </Tabs>
           </CardContent>
