@@ -1,66 +1,68 @@
 import { ProfileClientPage } from "@/components/pages/profile/profile-client-page";
 import { Metadata } from "next";
 
-import { Suspense } from "react";
-import { connection } from "next/server";
+// import { Suspense } from "react";
+// import { connection } from "next/server";
+// import { headers } from "next/headers";
 
-type Props = {
-  params: Promise<{ username: string }>;
+export const metadata: Metadata = {
+  title: "Profile",
 };
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { username } = await params;
+// type Props = {
+//   params: Promise<{ username: string }>;
+// };
 
-  try {
-    // Attempt to fetch user data for better metadata (name, bio, etc.)
-    // We use the internal gateway URL if available, otherwise fallback to basic metadata
-    const gatewayUrl = process.env.API_GATEWAY_URL;
-    if (gatewayUrl) {
-      const response = await fetch(`${gatewayUrl}/api/users/by/${username}`);
-      const data = await response.json();
+// export async function generateMetadata({ params }: Props): Promise<Metadata> {
+//   const { username } = await params;
 
-      if (data.success && data.data) {
-        const user = data.data;
-        return {
-          title: `${user.name} (@${user.username})`,
-          description: user.bio || `See photos and videos from ${user.name} (@${user.username}) on Gigglegram.`,
-          openGraph: {
-            title: `${user.name} (@${user.username}) • Gigglegram photos and videos`,
-            description: user.bio || `See photos and videos from ${user.name} (@${user.username}) on Gigglegram.`,
-            images: user.image ? [`/${user.image}`] : [],
-          },
-        };
-      }
-    }
-  } catch (error) {
-    console.error("Error generating metadata for profile:", error);
-  }
+//   try {
+//     // Attempt to fetch user data for better metadata (name, bio, etc.)
+//     // We use the internal gateway URL if available, otherwise fallback to basic metadata
+//     const gatewayUrl = process.env.API_GATEWAY_URL;
+//     if (gatewayUrl) {
+//       const response = await fetch(`${gatewayUrl}/api/users/by/${username}`, { headers: await headers() });
+//       const data = await response.json();
 
-  // Fallback metadata if fetch fails or user not found
-  return {
-    title: `@${username}`,
-    description: `View @${username}'s profile on Gigglegram.`,
-  };
-}
+//       if (data.success && data.data) {
+//         const user = data.data;
+//         return {
+//           title: `${user.name} (@${user.username})`,
+//           description: user.bio || `See photos and videos from ${user.name} (@${user.username}) on Gigglegram.`,
+//           openGraph: {
+//             title: `${user.name} (@${user.username}) • Gigglegram photos and videos`,
+//             description: user.bio || `See photos and videos from ${user.name} (@${user.username}) on Gigglegram.`,
+//             images: user.image ? [`/${user.image}`] : [],
+//           },
+//         };
+//       }
+//     }
+//   } catch (error) {
+//     console.error("Error generating metadata for profile:", error);
+//   }
 
-const Connection = async () => {
-  await connection();
-  return null;
-};
+//   // Fallback metadata if fetch fails or user not found
+//   return {
+//     title: `@${username}`,
+//     description: `View @${username}'s profile on Gigglegram.`,
+//   };
+// }
 
-async function DynamicMarker() {
-  return (
-    <Suspense>
-      <Connection />
-    </Suspense>
-  );
-}
+// const Connection = async () => {
+//   await connection();
+//   return null;
+// };
 
-export default function Page() {
-  return (
-    <>
-      <ProfileClientPage />
-      <DynamicMarker />
-    </>
-  );
+// async function DynamicMarker() {
+//   await connection();
+
+//   return (
+//     <Suspense>
+//       <Connection />
+//     </Suspense>
+//   );
+// }
+
+export default function ProfilePage() {
+  return <ProfileClientPage />;
 }

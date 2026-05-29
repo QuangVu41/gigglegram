@@ -19,9 +19,7 @@ export const ProfileClientPage = () => {
 
   const isPrivate = user?.userPrivacySetting?.accountPrivate || false;
   const isFollowing =
-    user?.followers?.some(
-      (f) => f.followerId === session.data?.user.id && f.status === "accepted",
-    ) || false;
+    user?.followers?.some((f) => f.followerId === session.data?.user.id && f.status === "accepted") || false;
   const isOwnProfile = session.data?.user.id === user?.id;
 
   const shouldShowPosts = !isPrivate || isFollowing || isOwnProfile;
@@ -49,12 +47,8 @@ export const ProfileClientPage = () => {
               <Lock className="w-8 h-8" />
             </div>
             <div className="flex flex-col gap-1">
-              <h3 className="text-sm font-semibold">
-                {t("privateAccountTitle")}
-              </h3>
-              <p className="text-sm text-muted-foreground">
-                {t("privateAccountDescription")}
-              </p>
+              <h3 className="text-sm font-semibold">{t("privateAccountTitle")}</h3>
+              <p className="text-sm text-muted-foreground">{t("privateAccountDescription")}</p>
             </div>
           </div>
         ) : (
