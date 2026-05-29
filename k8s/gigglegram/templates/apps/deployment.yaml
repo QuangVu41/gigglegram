@@ -22,8 +22,13 @@ spec:
         - name: {{ .name }}
           image: "{{ .image.repository }}:{{ .image.tag }}"
           imagePullPolicy: {{ .image.pullPolicy }}
+          {{- if and .service .service.ports }}
           ports:
-            - containerPort: {{ .service.port }}
+            {{- range .service.ports }}
+            - containerPort: {{ .port }}
+              name: {{ .name }}
+            {{- end }}
+          {{- end }}
           volumeMounts:
             - name: secret-volume
               {{- if eq .name "web" }}
