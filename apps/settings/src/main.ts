@@ -14,7 +14,9 @@ async function bootstrap() {
   app.useGlobalFilters(new SystemWideHttpExceptionFilter());
 
   const configService = app.get(ConfigService);
-  const systemSettingsGrpcUrl = configService.getOrThrow<string>('SYSTEM_SETTINGS_GRPC_URL');
+  const systemSettingsGrpcUrl = configService.getOrThrow<string>(
+    'SYSTEM_SETTINGS_GRPC_URL',
+  );
   const systemSettingsGrpcPort = systemSettingsGrpcUrl.split(':').pop();
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.GRPC,

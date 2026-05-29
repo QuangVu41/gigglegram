@@ -75,10 +75,7 @@ export function convertToQueryParams(
   return params.toString();
 }
 
-export function formatInstagramDate(
-  date: Date | string | number,
-  t: (key: string, values?: any) => string,
-): string {
+export function formatInstagramDate(date: Date | string | number, t: (key: string, values?: any) => string): string {
   const d = new Date(date);
   const now = new Date();
   if (isNaN(d.getTime())) return "";
@@ -114,22 +111,68 @@ export function getMediaUrl(
 ): string {
   if (!filename) return "/placeholder-image.png";
 
-  // If filename is already a full URL, return it as is
-  if (filename.startsWith("http://") || filename.startsWith("https://")) {
+  // If filename is already a full URL or data URI, return it as is
+  if (
+    filename.startsWith("http://") ||
+    filename.startsWith("https://") ||
+    filename.startsWith("data:")
+  ) {
     return filename;
   }
 
-  // Check if mediaType indicates video (e.g., "video/mp4")
-  const isVideo = mediaType?.startsWith("video/");
-
-  const basePrefix = isVideo ? "/video" : "/images";
-  const contextPrefix = context === "story" ? "/stories" : "";
-
   // Make sure we don't double slash if filename already has a leading slash
-  const cleanFilename = filename.startsWith("/") ? filename.slice(1) : filename;
+  let cleanFilename = filename.startsWith("/") ? filename.slice(1) : filename;
 
-  return `${basePrefix}${contextPrefix}/${cleanFilename}`;
+  // Determine if it is a video
+  const isVideo =
+    !!mediaType?.startsWith("video/") ||
+    cleanFilename.endsWith(".m3u8") ||
+    cleanFilename.endsWith(".mp4") ||
+    cleanFilename.endsWith(".webm") ||
+    cleanFilename.startsWith("video/") ||
+    cleanFilename.startsWith("raw/");
+
+  if (isVideo) {
+    if (cleanFilename.startsWith("raw/")) {
+      return `/raw/${cleanFilename}`;
+    }
+    if (cleanFilename.startsWith("stories/") || context === "story") {
+      if (!cleanFilename.startsWith("stories/")) {
+        cleanFilename = `stories/${cleanFilename}`;
+      }
+      return `/video/stories/${cleanFilename}`;
+    }
+    if (cleanFilename.startsWith("messages/")) {
+      return `/video/${cleanFilename}`;
+    }
+    // Default video (e.g., post video)
+    if (!cleanFilename.startsWith("video/")) {
+      cleanFilename = `video/${cleanFilename}`;
+    }
+    return `/video/${cleanFilename}`;
+  }
+
+  // Otherwise, it's an image
+  if (cleanFilename.startsWith("stories/") || context === "story") {
+    if (!cleanFilename.startsWith("stories/")) {
+      cleanFilename = `stories/${cleanFilename}`;
+    }
+    return `/images/${cleanFilename}`;
+  }
+  if (cleanFilename.startsWith("messages/")) {
+    return `/images/${cleanFilename}`;
+  }
+  if (cleanFilename.startsWith("avatars/")) {
+    return `/${cleanFilename}`;
+  }
+
+  // Default image (e.g., post image)
+  if (!cleanFilename.startsWith("images/")) {
+    cleanFilename = `images/${cleanFilename}`;
+  }
+  return `/${cleanFilename}`;
 }
+
 export function formatCompactNumber(number: number): string {
   if (number < 1000) return number.toString();
 

@@ -21,7 +21,6 @@ const nextConfig = {
   cacheComponents: true,
   async rewrites() {
     const GS_HOST = process.env.GS_HOST || "https://storage.googleapis.com";
-    const STATIC_IMAGE_ASSETS_URL = process.env.STATIC_IMAGE_ASSETS_URL || "http://	34.120.122.190:80";
     const STATIC_VIDEO_ASSETS_URL = process.env.STATIC_VIDEO_ASSETS_URL || "http://34.8.235.56:80";
     const API_GATEWAY_URL = process.env.API_GATEWAY_URL || "http://api-gateway:3001";
 
@@ -40,7 +39,7 @@ const nextConfig = {
       },
       {
         source: "/images/stories/:path*",
-        destination: `${STATIC_IMAGE_ASSETS_URL}/:path*`,
+        destination: `${GS_HOST}/image-st/stories/:path*`,
       },
       {
         source: "/video/stories/:path*",
@@ -52,11 +51,11 @@ const nextConfig = {
       },
       {
         source: "/images/:path*",
-        destination: `${STATIC_IMAGE_ASSETS_URL}/:path*`,
+        destination: `${GS_HOST}/image-st/images/:path*`,
       },
       {
         source: "/avatars/:path*",
-        destination: `${STATIC_IMAGE_ASSETS_URL}/avatars/:path*`,
+        destination: `${GS_HOST}/image-st/avatars/:path*`,
       },
       {
         source: "/api/:path*",
