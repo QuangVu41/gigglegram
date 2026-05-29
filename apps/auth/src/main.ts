@@ -25,6 +25,8 @@ async function bootstrap() {
   app.useGlobalFilters(new SystemWideHttpExceptionFilter());
   app.setGlobalPrefix('/api/authentication');
   app.enableCors();
+  const authServiceGrpcUrl = configService.getOrThrow<string>('AUTH_SERVICE_GRPC_URL');
+  const authServiceGrpcPort = authServiceGrpcUrl.split(':').pop();
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.GRPC,
     options: {
@@ -33,7 +35,7 @@ async function bootstrap() {
         process.cwd(),
         '../../packages/types/src/proto/auth/auth.proto',
       ),
-      url: configService.getOrThrow<string>('AUTH_SERVICE_GRPC_URL'),
+      url: `0.0.0.0:${authServiceGrpcPort}`,
     },
   });
 

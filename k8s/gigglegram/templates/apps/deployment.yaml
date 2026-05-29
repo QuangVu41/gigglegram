@@ -22,6 +22,10 @@ spec:
         - name: {{ .name }}
           image: "{{ .image.repository }}:{{ .image.tag }}"
           imagePullPolicy: {{ .image.pullPolicy }}
+          workingDir: /app/apps/{{ .name }}
+          {{- if ne .name "web" }}
+          command: ["node", "dist/main"]
+          {{- end }}
           {{- if and .service .service.ports }}
           ports:
             {{- range .service.ports }}

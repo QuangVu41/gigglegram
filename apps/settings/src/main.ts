@@ -14,6 +14,8 @@ async function bootstrap() {
   app.useGlobalFilters(new SystemWideHttpExceptionFilter());
 
   const configService = app.get(ConfigService);
+  const systemSettingsGrpcUrl = configService.getOrThrow<string>('SYSTEM_SETTINGS_GRPC_URL');
+  const systemSettingsGrpcPort = systemSettingsGrpcUrl.split(':').pop();
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.GRPC,
     options: {
@@ -22,7 +24,7 @@ async function bootstrap() {
         process.cwd(),
         '../../packages/types/src/proto/system-settings/system-settings.proto',
       ),
-      url: configService.getOrThrow<string>('SYSTEM_SETTINGS_GRPC_URL'),
+      url: `0.0.0.0:${systemSettingsGrpcPort}`,
     },
   });
 
