@@ -1,12 +1,7 @@
 "use client";
 
 import { ProgressUpload } from "@/components/pages/home/progress-upload";
-import {
-  Stepper,
-  StepperContent,
-  StepperNav,
-  StepperPanel,
-} from "@/components/reui/stepper";
+import { Stepper, StepperContent, StepperNav, StepperPanel } from "@/components/reui/stepper";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -24,18 +19,10 @@ export function CreatePostStepper() {
   const t = useTranslations("CreatePostStepper");
   const [currentStep, setCurrentStep] = useState(1);
   const selectedFiles = useCreatePostStore((state) => state.selectedFiles);
-  const setSelectedFiles = useCreatePostStore(
-    (state) => state.setSelectedFiles,
-  );
-  const setSelectedFileIndex = useCreatePostStore(
-    (state) => state.setSelectedFileIndex,
-  );
-  const selectedFileIndex = useCreatePostStore(
-    (state) => state.selectedFileIndex,
-  );
-  const [videoElement, setVideoElement] = useState<HTMLVideoElement | null>(
-    null,
-  );
+  const setSelectedFiles = useCreatePostStore((state) => state.setSelectedFiles);
+  const setSelectedFileIndex = useCreatePostStore((state) => state.setSelectedFileIndex);
+  const selectedFileIndex = useCreatePostStore((state) => state.selectedFileIndex);
+  const [videoElement, setVideoElement] = useState<HTMLVideoElement | null>(null);
   const currentFile = selectedFiles[selectedFileIndex];
 
   useEffect(() => {
@@ -59,10 +46,7 @@ export function CreatePostStepper() {
   };
 
   const onEditVideoMetadata = (
-    editedMetadata: Pick<
-      FileWithPreview,
-      "audioOmitted" | "millisecondsToExtractThumbnail" | "id"
-    >,
+    editedMetadata: Pick<FileWithPreview, "audioOmitted" | "millisecondsToExtractThumbnail" | "id">,
   ) => {
     const newSelectedFiles = selectedFiles.map((file) =>
       file.id === editedMetadata.id
@@ -70,8 +54,7 @@ export function CreatePostStepper() {
             ...file,
             audioOmitted: editedMetadata.audioOmitted ?? file.audioOmitted,
             millisecondsToExtractThumbnail:
-              editedMetadata.millisecondsToExtractThumbnail ??
-              file.millisecondsToExtractThumbnail,
+              editedMetadata.millisecondsToExtractThumbnail ?? file.millisecondsToExtractThumbnail,
           }
         : file,
     );
@@ -100,18 +83,12 @@ export function CreatePostStepper() {
         <Button
           variant="outline"
           onClick={() => setCurrentStep((prev) => prev + 1)}
-          disabled={
-            currentStep === steps.length ||
-            (currentStep === 1 && selectedFiles.length === 0)
-          }
+          disabled={currentStep === steps.length || (currentStep === 1 && selectedFiles.length === 0)}
           className={`${currentStep === 3 && "hidden"}`}
         >
           {t("navigation.next")}
         </Button>
-        <div
-          id="create-post-share-btn"
-          className={`${currentStep !== 3 && "hidden"}`}
-        ></div>
+        <div id="create-post-share-btn" className={`${currentStep !== 3 && "hidden"}`}></div>
       </StepperNav>
       <StepperPanel className="text-sm flex-1 min-h-0">
         {steps.map((step) => (
@@ -122,10 +99,7 @@ export function CreatePostStepper() {
           >
             {step === 1 && (
               <div className="w-full flex justify-center">
-                <ProgressUpload
-                  i18nKey="CreatePostStepper.upload"
-                  onFilesChange={(files) => setSelectedFiles(files)}
-                />
+                <ProgressUpload i18nKey="CreatePostStepper.upload" onFilesChange={(files) => setSelectedFiles(files)} />
               </div>
             )}
             {(step === 2 || step === 3) && (
@@ -135,35 +109,23 @@ export function CreatePostStepper() {
                   setSelectedFileIndex={setSelectedFileIndex}
                   onVideoRef={onVideoRef}
                 />
-                {step === 3 && (
-                  <div
-                    id="create-post-tag-people"
-                    className="absolute bottom-4 left-4 z-15"
-                  ></div>
-                )}
+                {step === 3 && <div id="create-post-tag-people" className="absolute bottom-4 left-4 z-15"></div>}
               </div>
             )}
-            {step === 2 &&
-              currentFile &&
-              currentFile.file.type.startsWith("image/") && (
-                <div className="w-full lg:w-1/2 flex flex-col">
-                  <ImageEditor
-                    editingFile={currentFile}
-                    onEditFile={onEditImageFile}
-                  />
-                </div>
-              )}
-            {step === 2 &&
-              currentFile &&
-              currentFile.file.type.startsWith("video/") && (
-                <div className="w-full lg:w-1/2 flex flex-col">
-                  <VideoEditor
-                    videoFile={currentFile}
-                    onEditVideoMetadata={onEditVideoMetadata}
-                    videoRef={videoElement}
-                  />
-                </div>
-              )}
+            {step === 2 && currentFile && currentFile.file.type.startsWith("image/") && (
+              <div className="w-full lg:w-1/2 flex flex-col">
+                <ImageEditor editingFile={currentFile} onEditFile={onEditImageFile} />
+              </div>
+            )}
+            {step === 2 && currentFile && currentFile.file.type.startsWith("video/") && (
+              <div className="w-full lg:w-1/2 flex flex-col">
+                <VideoEditor
+                  videoFile={currentFile}
+                  onEditVideoMetadata={onEditVideoMetadata}
+                  videoRef={videoElement}
+                />
+              </div>
+            )}
             {step === 3 && (
               <div className="w-full lg:w-1/2 flex flex-col max-w-xl mx-auto lg:mx-0">
                 <CreatePostForm />

@@ -15,16 +15,8 @@ import {
   FieldLabel,
   FieldTitle,
 } from "@/components/ui/field";
-import TextareaMention, {
-  TextareaMentionRef,
-} from "@/components/common/textarea-mention";
-import {
-  MapPin,
-  SettingsIcon,
-  Sparkles,
-  UserRoundPlus,
-  UserRoundSearch,
-} from "lucide-react";
+import TextareaMention, { TextareaMentionRef } from "@/components/common/textarea-mention";
+import { MapPin, SettingsIcon, Sparkles, UserRoundPlus, UserRoundSearch } from "lucide-react";
 import { toast } from "sonner";
 import { axiosGateway, OkResponse } from "@/lib/axios-config";
 import { useRef } from "react";
@@ -42,27 +34,19 @@ import {
   useComboboxAnchor,
 } from "@/components/ui/combobox";
 import UserSearchItem from "@/components/common/user-search-item";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { InputGroupAddon } from "@/components/ui/input-group";
 import { useDebouncedCallback } from "use-debounce";
 import { Combobox as ComboboxBaseUi } from "@base-ui/react";
 import { Spinner } from "@/components/ui/spinner";
 import React, { useEffect, useState } from "react";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { LoadingSwap } from "@/components/ui/loading-swap";
 import { usePostActions } from "@/hooks/use-post-actions";
 import { PostWithRelations } from "@/hooks/use-feed";
+import { getMediaUrl } from "@/lib/utils";
 
 const items = [
   {
@@ -77,11 +61,7 @@ interface EditPostFormProps {
   queryKeyToUpdate?: string[];
 }
 
-const EditPostForm = ({
-  post,
-  onSuccess,
-  queryKeyToUpdate,
-}: EditPostFormProps) => {
+const EditPostForm = ({ post, onSuccess, queryKeyToUpdate }: EditPostFormProps) => {
   const formId = "edit-post-form";
   const isLoading = useCreatePostStore((state) => state.isLoading);
   const locations = useCreatePostStore((state) => state.locations);
@@ -90,24 +70,16 @@ const EditPostForm = ({
   const anchor = useComboboxAnchor();
   const tagPeopleAnchor = useComboboxAnchor();
   const collaborators = useCreatePostStore((state) => state.collaborators);
-  const fetchCollaborators = useCreatePostStore(
-    (state) => state.fetchCollaborators,
-  );
-  const clearCollaborators = useCreatePostStore(
-    (state) => state.clearCollaborators,
-  );
+  const fetchCollaborators = useCreatePostStore((state) => state.fetchCollaborators);
+  const clearCollaborators = useCreatePostStore((state) => state.clearCollaborators);
   const [tagPeopleInputValue, setTagPeopleInputValue] = useState("");
   const [collabValue, setCollabValue] = useState("");
   const [taggedUsernames, setTaggedUsernames] = useState<string[]>(
     post.postUserTags?.map((tag) => tag.user.username) || [],
   );
-  const [taggedUsersByUsername, setTaggedUsersByUsername] = useState<
-    Record<string, string>
-  >({});
-  const [shareButtonPortalTarget, setShareButtonPortalTarget] =
-    useState<HTMLElement | null>(null);
-  const [tagPeoplePortalTarget, setTagPeoplePortalTarget] =
-    useState<HTMLElement | null>(null);
+  const [taggedUsersByUsername, setTaggedUsersByUsername] = useState<Record<string, string>>({});
+  const [shareButtonPortalTarget, setShareButtonPortalTarget] = useState<HTMLElement | null>(null);
+  const [tagPeoplePortalTarget, setTagPeoplePortalTarget] = useState<HTMLElement | null>(null);
   const [isGeneratingCaption, setIsGeneratingCaption] = useState(false);
   const [isGeneratingHashtags, setIsGeneratingHashtags] = useState(false);
   const textareaMentionRef = useRef<TextareaMentionRef>(null);
@@ -124,10 +96,7 @@ const EditPostForm = ({
       caption: (function () {
         let text = post.caption || "";
         post.postHashtags?.forEach((tag) => {
-          const regex = new RegExp(
-            `data-id=\"__new_hashtag__:${tag.hashtag.name}\"`,
-            "g",
-          );
+          const regex = new RegExp(`data-id=\"__new_hashtag__:${tag.hashtag.name}\"`, "g");
           text = text.replace(regex, `data-id="${tag.hashtag.id}"`);
         });
         return text;
@@ -188,8 +157,7 @@ const EditPostForm = ({
   }, [post.postUserTags]);
 
   const handleSubmit = async (data: UpdatePostSchemaType) => {
-    const collaboratorIds =
-      data.collaboratorIds?.map((collaborator) => collaborator.userId) || [];
+    const collaboratorIds = data.collaboratorIds?.map((collaborator) => collaborator.userId) || [];
     try {
       await updatePostAsync(post.id, { ...data, collaboratorIds });
       onSuccess();
@@ -202,33 +170,30 @@ const EditPostForm = ({
     setIsGeneratingCaption(true);
     try {
       const mediaBlobs = await Promise.all(
-        post.postMedia.map((m) => fetch(m.mediaUrl).then((r) => r.blob())),
+        post.postMedia.map((m) => {
+          const isVideo = m.mediaType.startsWith("video/");
+          const urlToFetch = isVideo ? `/raw/${m.originalRawFileUrl}` : m.mediaUrl;
+          const contentType = m.mediaType;
+          return fetch(getMediaUrl(urlToFetch, "post", contentType)).then((r) => r.blob());
+        }),
       );
-      const mediaFiles = mediaBlobs.map(
-        (blob, i) => new File([blob], `media-${i}`, { type: blob.type }),
-      );
+
+      const mediaFiles = mediaBlobs.map((blob, i) => new File([blob], `media-${i}`, { type: blob.type }));
 
       const formData = new FormData();
       mediaFiles.forEach((file) => formData.append("media", file));
 
-      const res = await axiosGateway.post<OkResponse<string>>(
-        "/api/posts/generate-caption",
-        formData,
-        {
-          params: { lang: locale },
-        },
-      );
+      const res = await axiosGateway.post<OkResponse<string>>("/api/posts/generate-caption", formData, {
+        params: { lang: locale },
+      });
 
-      const currentCaption = form.getValues("caption") || "";
-      form.setValue(
-        "caption",
-        currentCaption + (currentCaption ? "\n\n" : "") + res.data.data,
-        {
-          shouldDirty: true,
-          shouldTouch: true,
-          shouldValidate: true,
-        },
-      );
+      let currentCaption = form.getValues("caption") || "";
+      currentCaption = currentCaption.replace(/<p>(.*?)<\/p>/g, "$1");
+      form.setValue("caption", `${currentCaption}${currentCaption ? "\n" : ""}${res.data.data}`, {
+        shouldDirty: true,
+        shouldTouch: true,
+        shouldValidate: true,
+      });
       toast.success(t("actions.captionGenerated"));
     } catch (error) {
       console.error(error);
@@ -242,18 +207,25 @@ const EditPostForm = ({
     setIsGeneratingHashtags(true);
     try {
       const mediaBlobs = await Promise.all(
-        post.postMedia.map((m) => fetch(m.mediaUrl).then((r) => r.blob())),
+        post.postMedia.map((m) => {
+          const isVideo =
+            !!m.mediaType?.startsWith("video/") ||
+            m.mediaUrl.endsWith(".m3u8") ||
+            m.mediaType === "application/vnd.apple.mpegurl";
+          const urlToFetch = isVideo ? m.originalRawFileUrl : m.mediaUrl;
+          const contentType = m.mediaType;
+          return fetch(getMediaUrl(urlToFetch, "post", contentType)).then((r) => r.blob());
+        }),
       );
-      const mediaFiles = mediaBlobs.map(
-        (blob, i) => new File([blob], `media-${i}`, { type: blob.type }),
-      );
+      const mediaFiles = mediaBlobs.map((blob, i) => new File([blob], `media-${i}`, { type: blob.type }));
 
       const formData = new FormData();
       mediaFiles.forEach((file) => formData.append("media", file));
 
-      const res = await axiosGateway.post<
-        OkResponse<{ id?: string; name: string; isNew: boolean }[]>
-      >("/api/posts/generate-hashtags", formData);
+      const res = await axiosGateway.post<OkResponse<{ id?: string; name: string; isNew: boolean }[]>>(
+        "/api/posts/generate-hashtags",
+        formData,
+      );
 
       const tags = res.data.data;
       if (tags.length === 0) {
@@ -280,11 +252,7 @@ const EditPostForm = ({
   }, []);
 
   return (
-    <form
-      id={formId}
-      className="flex-1 shrink-0 no-scrollbar w-full"
-      onSubmit={form.handleSubmit(handleSubmit)}
-    >
+    <form id={formId} className="flex-1 shrink-0 no-scrollbar w-full" onSubmit={form.handleSubmit(handleSubmit)}>
       <FieldGroup className="gap-2">
         <Controller
           name="caption"
@@ -317,12 +285,7 @@ const EditPostForm = ({
           )}
         />
         <Field className="justify-end gap-2" orientation="horizontal">
-          <Button
-            size="xs"
-            type="button"
-            onClick={handleGenerateHashtags}
-            disabled={isGeneratingHashtags}
-          >
+          <Button size="xs" type="button" onClick={handleGenerateHashtags} disabled={isGeneratingHashtags}>
             <LoadingSwap isLoading={isGeneratingHashtags}>
               {t("actions.generateHashtags")} <Sparkles />
             </LoadingSwap>
@@ -352,9 +315,7 @@ const EditPostForm = ({
                 }}
                 onValueChange={(value) => {
                   if (locations) {
-                    const selectedLocation = locations.find(
-                      (loc) => loc.name === value,
-                    );
+                    const selectedLocation = locations.find((loc) => loc.name === value);
                     if (selectedLocation) field.onChange(selectedLocation.id);
                   }
                 }}
@@ -374,9 +335,7 @@ const EditPostForm = ({
                       <Spinner className="size-5" />
                     </ComboboxBaseUi.Status>
                   )}
-                  {locations.length === 0 && !isLoading && (
-                    <ComboboxEmpty>{t("form.emptyLocations")}</ComboboxEmpty>
-                  )}
+                  {locations.length === 0 && !isLoading && <ComboboxEmpty>{t("form.emptyLocations")}</ComboboxEmpty>}
                   <ComboboxList>
                     {(item) => (
                       <ComboboxItem key={item.id} value={item.name}>
@@ -408,22 +367,13 @@ const EditPostForm = ({
                   handleCollaboratorChange(value);
                 }}
                 onValueChange={(value) => {
-                  const collab = collaborators.find((candidate) =>
-                    value.includes(candidate.username),
-                  );
+                  const collab = collaborators.find((candidate) => value.includes(candidate.username));
                   if (collab) {
                     const prev = form.getValues("collaboratorIds") || [];
-                    field.onChange([
-                      ...prev,
-                      { userId: collab.id, username: collab.username },
-                    ]);
+                    field.onChange([...prev, { userId: collab.id, username: collab.username }]);
                   } else {
                     const prev = form.getValues("collaboratorIds") || [];
-                    field.onChange(
-                      prev.filter((candidate) =>
-                        value.includes(candidate.username),
-                      ),
-                    );
+                    field.onChange(prev.filter((candidate) => value.includes(candidate.username)));
                   }
                   setCollabValue("");
                 }}
@@ -432,9 +382,7 @@ const EditPostForm = ({
                   <ComboboxValue>
                     {(values) => (
                       <React.Fragment>
-                        <InputGroupAddon
-                          className={values.length > 0 ? "pl-1.5" : "pl-0.5"}
-                        >
+                        <InputGroupAddon className={values.length > 0 ? "pl-1.5" : "pl-0.5"}>
                           <UserRoundPlus />
                         </InputGroupAddon>
                         {values.map((value: string) => (
@@ -442,11 +390,7 @@ const EditPostForm = ({
                         ))}
                         <ComboboxChipsInput
                           disabled={isUpdating || isSubmitting}
-                          placeholder={
-                            values.length > 0
-                              ? ""
-                              : t("form.collaboratorsPlaceholder")
-                          }
+                          placeholder={values.length > 0 ? "" : t("form.collaboratorsPlaceholder")}
                           className="placeholder:text-muted-foreground"
                         />
                       </React.Fragment>
@@ -460,9 +404,7 @@ const EditPostForm = ({
                     </ComboboxBaseUi.Status>
                   )}
                   {collaborators?.length === 0 && !isLoading && (
-                    <ComboboxEmpty>
-                      {t("form.emptyCollaborators")}
-                    </ComboboxEmpty>
+                    <ComboboxEmpty>{t("form.emptyCollaborators")}</ComboboxEmpty>
                   )}
                   <ComboboxList>
                     {(item) => (
@@ -477,12 +419,7 @@ const EditPostForm = ({
             </Field>
           )}
         />
-        <Accordion
-          type="single"
-          defaultValue="settings"
-          collapsible
-          className="space-y-3"
-        >
+        <Accordion type="single" defaultValue="settings" collapsible className="space-y-3">
           {items.map((item) => (
             <AccordionItem
               key={item.value}
@@ -501,15 +438,10 @@ const EditPostForm = ({
                   control={form.control}
                   render={({ field, fieldState }) => (
                     <FieldLabel htmlFor="switch-like-hidden">
-                      <Field
-                        data-invalid={fieldState.invalid}
-                        className="flex-row"
-                      >
+                      <Field data-invalid={fieldState.invalid} className="flex-row">
                         <FieldContent>
                           <FieldTitle>{t("form.likesHiddenTitle")}</FieldTitle>
-                          <FieldDescription>
-                            {t("form.likesHiddenDescription")}
-                          </FieldDescription>
+                          <FieldDescription>{t("form.likesHiddenDescription")}</FieldDescription>
                         </FieldContent>
                         <Switch
                           disabled={isUpdating || isSubmitting}
@@ -517,9 +449,7 @@ const EditPostForm = ({
                           checked={field.value}
                           onCheckedChange={field.onChange}
                         />
-                        {fieldState.invalid && (
-                          <FieldError errors={[fieldState.error]} />
-                        )}
+                        {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                       </Field>
                     </FieldLabel>
                   )}
@@ -529,17 +459,10 @@ const EditPostForm = ({
                   control={form.control}
                   render={({ field, fieldState }) => (
                     <FieldLabel htmlFor="switch-comments-disabled">
-                      <Field
-                        data-invalid={fieldState.invalid}
-                        className="flex-row"
-                      >
+                      <Field data-invalid={fieldState.invalid} className="flex-row">
                         <FieldContent>
-                          <FieldTitle>
-                            {t("form.commentsDisabledTitle")}
-                          </FieldTitle>
-                          <FieldDescription>
-                            {t("form.commentsDisabledDescription")}
-                          </FieldDescription>
+                          <FieldTitle>{t("form.commentsDisabledTitle")}</FieldTitle>
+                          <FieldDescription>{t("form.commentsDisabledDescription")}</FieldDescription>
                         </FieldContent>
                         <Switch
                           disabled={isUpdating || isSubmitting}
@@ -547,9 +470,7 @@ const EditPostForm = ({
                           checked={field.value}
                           onCheckedChange={field.onChange}
                         />
-                        {fieldState.invalid && (
-                          <FieldError errors={[fieldState.error]} />
-                        )}
+                        {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                       </Field>
                     </FieldLabel>
                   )}
@@ -567,12 +488,7 @@ const EditPostForm = ({
                   {t("actions.tagPeople")}
                 </Button>
               </PopoverTrigger>
-              <PopoverContent
-                align="start"
-                side="top"
-                sideOffset={8}
-                className="w-80 p-1.5 rounded-lg"
-              >
+              <PopoverContent align="start" side="top" sideOffset={8} className="w-80 p-1.5 rounded-lg">
                 <Controller
                   name="taggedUsers"
                   control={form.control}
@@ -591,34 +507,26 @@ const EditPostForm = ({
                           handleCollaboratorChange(value);
                         }}
                         onValueChange={(values) => {
-                          const currentTaggedUsers =
-                            form.getValues("taggedUsers") || [];
+                          const currentTaggedUsers = form.getValues("taggedUsers") || [];
                           const currentTaggedUsersMap = new Map(
-                            currentTaggedUsers.map((taggedUser) => [
-                              taggedUser.userId,
-                              taggedUser,
-                            ]),
+                            currentTaggedUsers.map((taggedUser) => [taggedUser.userId, taggedUser]),
                           );
 
                           const nextTaggedUsers = values.flatMap((username) => {
                             const userId =
                               taggedUsersByUsername[username] ||
-                              collaborators.find(
-                                (candidate) => candidate.username === username,
-                              )?.id;
+                              collaborators.find((candidate) => candidate.username === username)?.id;
 
                             if (!userId) return [];
 
-                            const existingTag =
-                              currentTaggedUsersMap.get(userId);
+                            const existingTag = currentTaggedUsersMap.get(userId);
 
                             return [
                               {
                                 userId,
                                 xPosition: existingTag?.xPosition ?? 0,
                                 yPosition: existingTag?.yPosition ?? 0,
-                                mediaDisplayOrder:
-                                  existingTag?.mediaDisplayOrder ?? 0,
+                                mediaDisplayOrder: existingTag?.mediaDisplayOrder ?? 0,
                               },
                             ];
                           });
@@ -628,25 +536,16 @@ const EditPostForm = ({
                           setTagPeopleInputValue("");
                         }}
                       >
-                        <ComboboxChips
-                          ref={tagPeopleAnchor}
-                          className="w-full max-w-none"
-                        >
+                        <ComboboxChips ref={tagPeopleAnchor} className="w-full max-w-none">
                           <ComboboxValue>
                             {(values) => (
                               <React.Fragment>
                                 {values.map((value: string) => (
-                                  <ComboboxChip key={value}>
-                                    {value}
-                                  </ComboboxChip>
+                                  <ComboboxChip key={value}>{value}</ComboboxChip>
                                 ))}
                                 <ComboboxChipsInput
                                   disabled={isSubmitting}
-                                  placeholder={
-                                    values.length > 0
-                                      ? ""
-                                      : t("form.tagPeoplePlaceholder")
-                                  }
+                                  placeholder={values.length > 0 ? "" : t("form.tagPeoplePlaceholder")}
                                   className="placeholder:text-muted-foreground"
                                 />
                               </React.Fragment>
@@ -660,9 +559,7 @@ const EditPostForm = ({
                             </ComboboxBaseUi.Status>
                           )}
                           {collaborators.length === 0 && !isLoading && (
-                            <ComboboxEmpty>
-                              {t("form.emptyUsers")}
-                            </ComboboxEmpty>
+                            <ComboboxEmpty>{t("form.emptyUsers")}</ComboboxEmpty>
                           )}
                           <ComboboxList>
                             {(item) => (
@@ -673,9 +570,7 @@ const EditPostForm = ({
                           </ComboboxList>
                         </ComboboxContent>
                       </Combobox>
-                      {fieldState.invalid && (
-                        <FieldError errors={[fieldState.error]} />
-                      )}
+                      {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                     </Field>
                   )}
                 />
@@ -685,14 +580,8 @@ const EditPostForm = ({
           )}
         {shareButtonPortalTarget &&
           createPortal(
-            <Button
-              type="submit"
-              form={formId}
-              disabled={isUpdating || isSubmitting}
-            >
-              <LoadingSwap isLoading={isUpdating || isSubmitting}>
-                {tFeed("post.saveChanges")}
-              </LoadingSwap>
+            <Button type="submit" form={formId} disabled={isUpdating || isSubmitting}>
+              <LoadingSwap isLoading={isUpdating || isSubmitting}>{tFeed("post.saveChanges")}</LoadingSwap>
             </Button>,
             shareButtonPortalTarget,
           )}

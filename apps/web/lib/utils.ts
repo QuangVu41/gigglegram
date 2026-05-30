@@ -112,11 +112,7 @@ export function getMediaUrl(
   if (!filename) return "/placeholder-image.png";
 
   // If filename is already a full URL or data URI, return it as is
-  if (
-    filename.startsWith("http://") ||
-    filename.startsWith("https://") ||
-    filename.startsWith("data:")
-  ) {
+  if (filename.startsWith("http://") || filename.startsWith("https://") || filename.startsWith("data:")) {
     return filename;
   }
 
@@ -134,7 +130,7 @@ export function getMediaUrl(
 
   if (isVideo) {
     if (cleanFilename.startsWith("raw/")) {
-      return `/raw/${cleanFilename}`;
+      return `/${cleanFilename}`;
     }
     if (cleanFilename.startsWith("stories/") || context === "story") {
       if (!cleanFilename.startsWith("stories/")) {
