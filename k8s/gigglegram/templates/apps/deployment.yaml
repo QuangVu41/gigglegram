@@ -43,9 +43,11 @@ spec:
               subPath: .env
               {{- end }}
               readOnly: true
-          # envFrom:
-          #   - secretRef:
-          #       name: gigglegram-secrets
+          {{- if eq .name "web" }}
+          envFrom:
+            - secretRef:
+                name: gigglegram-secrets
+          {{- end }}
           {{- if .readinessProbe }}
           readinessProbe:
             httpGet:

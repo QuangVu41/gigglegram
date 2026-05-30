@@ -34,9 +34,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
   const { data: userSettings } = useQuery({
     queryKey: ["user-notification-settings"],
     queryFn: async () => {
-      const response = await axiosGateway.get<
-        OkResponse<UserNotificationSetting>
-      >("/api/users/notification-settings");
+      const response = await axiosGateway.get<OkResponse<UserNotificationSetting>>("/api/users/notification-settings");
       return response.data.data;
     },
     enabled: !!session.data?.user,
@@ -45,7 +43,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     if (session.data?.user) {
       // Connect to the same origin, the API gateway will handle the /api/real-time proxy
-      const socketInstance = io(process.env.NEXT_PUBLIC_REAL_TIME_SERVICE_URL, {
+      const socketInstance = io(process.env.NEXT_PUBLIC_REAL_TIME_SERVICE_URL ?? "/", {
         auth: {
           session: session.data,
         },
@@ -74,12 +72,8 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
         // 2. Show toast if it's not from the current user
         if (message.senderId !== session.data?.user?.id) {
           // Check if conversation is muted
-          const conversations = queryClient.getQueryData<Conversation[]>([
-            "conversations",
-          ]);
-          const conversation = conversations?.find(
-            (c) => c.id === message.conversationId,
-          );
+          const conversations = queryClient.getQueryData<Conversation[]>(["conversations"]);
+          const conversation = conversations?.find((c) => c.id === message.conversationId);
 
           if (conversation && !conversation.notificationsEnabled) {
             return;
@@ -92,11 +86,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
           toast.info(`New message from @${message.sender.username}`, {
             description:
               message.content ||
-              (message.type === "image"
-                ? "Sent an image"
-                : message.type === "video"
-                  ? "Sent a video"
-                  : "Sent a file"),
+              (message.type === "image" ? "Sent an image" : message.type === "video" ? "Sent a video" : "Sent a file"),
             action: {
               label: "View",
               onClick: () => {
@@ -121,9 +111,5 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, [session.data, session.isPending]);
 
-  return (
-    <SocketContext.Provider value={{ socket, isConnected }}>
-      {children}
-    </SocketContext.Provider>
-  );
+  return <SocketContext.Provider value={{ socket, isConnected }}>{children}</SocketContext.Provider>;
 };
