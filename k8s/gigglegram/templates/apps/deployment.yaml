@@ -46,6 +46,17 @@ spec:
           # envFrom:
           #   - secretRef:
           #       name: gigglegram-secrets
+          {{- if .readinessProbe }}
+          readinessProbe:
+            httpGet:
+              path: {{ .readinessProbe.path }}
+              port: {{ .readinessProbe.port }}
+            initialDelaySeconds: {{ default 15 .readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ default 10 .readinessProbe.periodSeconds }}
+            timeoutSeconds: {{ default 5 .readinessProbe.timeoutSeconds }}
+            successThreshold: {{ default 1 .readinessProbe.successThreshold }}
+            failureThreshold: {{ default 3 .readinessProbe.failureThreshold }}
+          {{- end }}
           resources:
             requests:
               memory: {{ .resources.requests.memory }}

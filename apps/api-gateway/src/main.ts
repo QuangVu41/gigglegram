@@ -15,7 +15,9 @@ async function bootstrap() {
     'DEFAULT_API_DOCS_JSON_PATH',
   );
 
-  app.setGlobalPrefix('api');
+  app.setGlobalPrefix('api', {
+    exclude: ['health', '/'],
+  });
   app.enableCors();
   app.useGlobalFilters(new SystemWideHttpExceptionFilter());
 

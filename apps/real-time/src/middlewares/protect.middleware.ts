@@ -31,6 +31,10 @@ export class ProtectMiddleware implements NestMiddleware, OnModuleInit {
   }
 
   use(req: Request, res: Response, next: NextFunction) {
+    if (req.path === '/' || req.path === '/health') {
+      return next();
+    }
+
     if (req.headers['gg-user']) {
       req['user'] = JSON.parse(req.headers['gg-user'] as string);
     }

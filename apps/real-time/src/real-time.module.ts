@@ -12,6 +12,8 @@ import { ProtectMiddleware } from '@/src/middlewares/protect.middleware';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { TransformResponseInterceptor } from '@repo/common';
 
+import { RealTimeController } from '@/src/real-time.controller';
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -41,6 +43,7 @@ import { TransformResponseInterceptor } from '@repo/common';
     ConversationsModule,
     CommentsModule,
   ],
+  controllers: [RealTimeController],
   providers: [
     {
       provide: APP_INTERCEPTOR,

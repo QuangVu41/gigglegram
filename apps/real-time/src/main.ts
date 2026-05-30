@@ -12,7 +12,9 @@ async function bootstrap() {
 
   app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }));
   app.useGlobalFilters(new SystemWideHttpExceptionFilter());
-  app.setGlobalPrefix('/api/real-time');
+  app.setGlobalPrefix('/api/real-time', {
+    exclude: ['health', '/'],
+  });
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.KAFKA,
     options: {
