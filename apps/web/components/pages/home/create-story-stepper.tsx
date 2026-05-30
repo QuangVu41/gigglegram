@@ -1,12 +1,7 @@
 "use client";
 
 import { ProgressUpload } from "@/components/pages/home/progress-upload";
-import {
-  Stepper,
-  StepperContent,
-  StepperNav,
-  StepperPanel,
-} from "@/components/reui/stepper";
+import { Stepper, StepperContent, StepperNav, StepperPanel } from "@/components/reui/stepper";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -31,21 +26,13 @@ export function CreateStoryStepper() {
   const queryClient = useQueryClient();
   const [currentStep, setCurrentStep] = useState(1);
   const selectedFiles = useCreateStoryStore((state) => state.selectedFiles);
-  const setSelectedFiles = useCreateStoryStore(
-    (state) => state.setSelectedFiles,
-  );
-  const selectedFileIndex = useCreateStoryStore(
-    (state) => state.selectedFileIndex,
-  );
-  const setSelectedFileIndex = useCreateStoryStore(
-    (state) => state.setSelectedFileIndex,
-  );
+  const setSelectedFiles = useCreateStoryStore((state) => state.setSelectedFiles);
+  const selectedFileIndex = useCreateStoryStore((state) => state.selectedFileIndex);
+  const setSelectedFileIndex = useCreateStoryStore((state) => state.setSelectedFileIndex);
   const isLoading = useCreateStoryStore((state) => state.isLoading);
   const setIsLoading = useCreateStoryStore((state) => state.setIsLoading);
 
-  const [videoElement, setVideoElement] = useState<HTMLVideoElement | null>(
-    null,
-  );
+  const [videoElement, setVideoElement] = useState<HTMLVideoElement | null>(null);
   const currentFile = selectedFiles[selectedFileIndex];
 
   useEffect(() => {
@@ -69,10 +56,7 @@ export function CreateStoryStepper() {
   };
 
   const onEditVideoMetadata = (
-    editedMetadata: Pick<
-      FileWithPreview,
-      "audioOmitted" | "millisecondsToExtractThumbnail" | "id"
-    >,
+    editedMetadata: Pick<FileWithPreview, "audioOmitted" | "millisecondsToExtractThumbnail" | "id">,
   ) => {
     const newSelectedFiles = selectedFiles.map((file) =>
       file.id === editedMetadata.id
@@ -80,8 +64,7 @@ export function CreateStoryStepper() {
             ...file,
             audioOmitted: editedMetadata.audioOmitted ?? file.audioOmitted,
             millisecondsToExtractThumbnail:
-              editedMetadata.millisecondsToExtractThumbnail ??
-              file.millisecondsToExtractThumbnail,
+              editedMetadata.millisecondsToExtractThumbnail ?? file.millisecondsToExtractThumbnail,
           }
         : file,
     );
@@ -106,9 +89,7 @@ export function CreateStoryStepper() {
 
       formData.append("media", fileToUpload);
 
-      const res = await axiosGateway.post<
-        OkResponse<typeof stories.$inferSelect>
-      >("/api/posts/stories", formData, {
+      const res = await axiosGateway.post<OkResponse<typeof stories.$inferSelect>>("/api/posts/stories", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -153,13 +134,8 @@ export function CreateStoryStepper() {
         )}
 
         {currentStep === 2 && (
-          <Button
-            onClick={handleShareStory}
-            disabled={isLoading || selectedFiles.length === 0}
-          >
-            <LoadingSwap isLoading={isLoading}>
-              {t("actions.share")}
-            </LoadingSwap>
+          <Button onClick={handleShareStory} disabled={isLoading || selectedFiles.length === 0}>
+            <LoadingSwap isLoading={isLoading}>{t("actions.share")}</LoadingSwap>
           </Button>
         )}
       </StepperNav>
@@ -178,6 +154,7 @@ export function CreateStoryStepper() {
                   i18nKey="CreateStoryStepper.upload"
                   maxFiles={1}
                   onFilesChange={(files) => setSelectedFiles(files.slice(0, 1))}
+                  accept="video/mp4,video/avi,image/jpeg,image/jpg,image/png,image/webp"
                 />
               </div>
             )}
@@ -191,27 +168,20 @@ export function CreateStoryStepper() {
                 />
               </div>
             )}
-            {step === 2 &&
-              currentFile &&
-              currentFile.file.type.startsWith("image/") && (
-                <div className="w-full lg:w-1/2 flex flex-col">
-                  <ImageEditor
-                    editingFile={currentFile}
-                    onEditFile={onEditImageFile}
-                  />
-                </div>
-              )}
-            {step === 2 &&
-              currentFile &&
-              currentFile.file.type.startsWith("video/") && (
-                <div className="w-full lg:w-1/2 flex flex-col">
-                  <VideoEditor
-                    videoFile={currentFile}
-                    onEditVideoMetadata={onEditVideoMetadata}
-                    videoRef={videoElement}
-                  />
-                </div>
-              )}
+            {step === 2 && currentFile && currentFile.file.type.startsWith("image/") && (
+              <div className="w-full lg:w-1/2 flex flex-col">
+                <ImageEditor editingFile={currentFile} onEditFile={onEditImageFile} />
+              </div>
+            )}
+            {step === 2 && currentFile && currentFile.file.type.startsWith("video/") && (
+              <div className="w-full lg:w-1/2 flex flex-col">
+                <VideoEditor
+                  videoFile={currentFile}
+                  onEditVideoMetadata={onEditVideoMetadata}
+                  videoRef={videoElement}
+                />
+              </div>
+            )}
           </StepperContent>
         ))}
         <DialogClose className="hidden" ref={closeBtnRef} />

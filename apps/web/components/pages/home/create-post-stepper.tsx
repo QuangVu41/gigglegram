@@ -99,7 +99,11 @@ export function CreatePostStepper() {
           >
             {step === 1 && (
               <div className="w-full flex justify-center">
-                <ProgressUpload i18nKey="CreatePostStepper.upload" onFilesChange={(files) => setSelectedFiles(files)} />
+                <ProgressUpload
+                  i18nKey="CreatePostStepper.upload"
+                  onFilesChange={(files) => setSelectedFiles(files)}
+                  accept="video/mp4,video/avi,image/jpeg,image/jpg,image/png,image/webp"
+                />
               </div>
             )}
             {(step === 2 || step === 3) && (
