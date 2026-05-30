@@ -69,5 +69,5 @@ spec:
       volumes:
         - name: secret-volume
           secret:
-            secretName: gigglegram-secrets
+            secretName: gigglegram-env-file
 {{- end }}
