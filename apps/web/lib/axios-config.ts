@@ -26,9 +26,7 @@ export const axiosGateway = axios.create();
 
 let responseInterceptorId: number | null = null;
 
-export const setupAxiosInterceptors = (
-  t: _Translator<Record<string, any>, "SystemWideErrorCodes">,
-) => {
+export const setupAxiosInterceptors = (t: _Translator<Record<string, any>, "SystemWideErrorCodes">) => {
   if (responseInterceptorId !== null) {
     axiosGateway.interceptors.response.eject(responseInterceptorId);
   }
@@ -51,10 +49,7 @@ export const setupAxiosInterceptors = (
             supportedTypes: process.env.DEFAULT_FILE_TYPE_REGEX!,
           });
         } else if (code === "UPLOAD_MAX_FILE_SIZE_EXCEEDED") {
-          const sizeString =
-            typeof data.message === "string"
-              ? data.message.split(" ")[4]
-              : "unknown";
+          const sizeString = typeof data.message === "string" ? data.message.split(" ")[4] : "unknown";
           message = t(code, {
             currentSize: sizeString || "unknown",
             imageSize: process.env.DEFAULT_IMAGE_SIZE_IN_BYTES!,
@@ -78,8 +73,7 @@ export const setupAxiosInterceptors = (
           });
         } else if (code === "UPLOAD_POST_MAX_MULTI_VIDEOS_DURATION") {
           message = t(code, {
-            maxMultiVideoDuration:
-              process.env.DEFAULT_POST_MAX_MULTI_VIDEOS_DURATION!,
+            maxMultiVideoDuration: process.env.DEFAULT_POST_MAX_MULTI_VIDEOS_DURATION!,
           });
         } else if (code) {
           try {

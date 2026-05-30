@@ -31,13 +31,7 @@ import {
 import { formatInstagramDate } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { PostWithRelations } from "@/hooks/use-feed";
 import { CaptionRenderer } from "@/components/common/caption-renderer";
 import { cn, getMediaUrl } from "@/lib/utils";
@@ -63,13 +57,7 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { ReportDialog } from "@/components/common/report-dialog";
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogClose, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { SensitiveContentOverlay } from "@/components/common/sensitive-content-overlay";
 import {
   AlertDialog,
@@ -136,9 +124,7 @@ function CommentItem({
       <div className="flex space-x-3">
         <Avatar className={cn("mt-1 border", isReply ? "h-6 w-6" : "h-8 w-8")}>
           <AvatarImage src={`/${c.user.image}` || "/default-avatar.png"} />
-          <AvatarFallback>
-            {(c.user.username || "U").slice(0, 2).toUpperCase()}
-          </AvatarFallback>
+          <AvatarFallback>{(c.user.username || "U").slice(0, 2).toUpperCase()}</AvatarFallback>
         </Avatar>
         <div className="flex-1 min-w-0">
           <div className="text-sm">
@@ -152,10 +138,7 @@ function CommentItem({
                 {c.likes.length} {c.likes.length === 1 ? "like" : "likes"}
               </span>
             )}
-            <button
-              className="font-semibold hover:text-foreground"
-              onClick={() => onReply(c)}
-            >
+            <button className="font-semibold hover:text-foreground" onClick={() => onReply(c)}>
               {t("post.reply")}
             </button>
             {canDelete && (
@@ -176,18 +159,11 @@ function CommentItem({
               </DropdownMenu>
             )}
 
-            <AlertDialog
-              open={isDeleteDialogOpen}
-              onOpenChange={setIsDeleteDialogOpen}
-            >
+            <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
               <AlertDialogContent>
                 <AlertDialogHeader>
-                  <AlertDialogTitle>
-                    {t("post.deleteConfirmTitle")}
-                  </AlertDialogTitle>
-                  <AlertDialogDescription>
-                    {t("post.deleteConfirmDescription")}
-                  </AlertDialogDescription>
+                  <AlertDialogTitle>{t("post.deleteConfirmTitle")}</AlertDialogTitle>
+                  <AlertDialogDescription>{t("post.deleteConfirmDescription")}</AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>{t("post.cancel")}</AlertDialogCancel>
@@ -211,9 +187,7 @@ function CommentItem({
         <button
           className={cn(
             "transition-opacity h-fit mt-2",
-            isLiked
-              ? "text-destructive"
-              : "opacity-0 group-hover:opacity-100 text-muted-foreground",
+            isLiked ? "text-destructive" : "opacity-0 group-hover:opacity-100 text-muted-foreground",
           )}
           onClick={() => onLike(c.id, isLiked, c.parentCommentId)}
         >
@@ -295,24 +269,13 @@ function CommentItem({
   );
 }
 
-export function PostDetail({
-  post,
-  isModal = false,
-  queryKeyToUpdate,
-}: PostDetailProps) {
+export function PostDetail({ post, isModal = false, queryKeyToUpdate }: PostDetailProps) {
   const closeBtnRef = useRef<HTMLButtonElement | null>(null);
   const t = useTranslations("HomePage.feed");
   const tTime = useTranslations("Common.relativeTime");
   const tReport = useTranslations("Report");
   const format = useFormatter();
-  const {
-    likePost,
-    savePost,
-    sharePost,
-    deletePost,
-    archivePost,
-    currentUserId,
-  } = usePostActions(queryKeyToUpdate);
+  const { likePost, savePost, sharePost, deletePost, archivePost, currentUserId } = usePostActions(queryKeyToUpdate);
   const {
     data: commentsData,
     isLoading: isLoadingComments,
@@ -320,8 +283,7 @@ export function PostDetail({
     hasNextPage,
     isFetchingNextPage,
   } = usePostComments(post.id);
-  const { mutate: createComment, isPending: isCreatingComment } =
-    useCreateComment();
+  const { mutate: createComment, isPending: isCreatingComment } = useCreateComment();
 
   const [comment, setComment] = useState("");
   const [replyingTo, setReplyingTo] = useState<CommentWithUser | null>(null);
@@ -332,14 +294,10 @@ export function PostDetail({
 
   const isOwnPost = currentUserId === post.userId;
 
-  const { isFollowing, toggleFollow, isFollowingPending } = useFollow(
-    post.userId,
-  );
+  const { isFollowing, toggleFollow, isFollowingPending } = useFollow(post.userId);
 
-  const isLiked =
-    post.likes?.some((like) => like.userId === currentUserId) ?? false;
-  const isSaved =
-    post.savedPosts?.some((saved) => saved.userId === currentUserId) ?? false;
+  const isLiked = post.likes?.some((like) => like.userId === currentUserId) ?? false;
+  const isSaved = post.savedPosts?.some((saved) => saved.userId === currentUserId) ?? false;
 
   const [optimisticPost, addOptimisticAction] = useOptimistic(
     {
@@ -398,8 +356,7 @@ export function PostDetail({
           if (!oldData) return oldData;
 
           const allComments = oldData.pages.flatMap((page) => page.data);
-          if (allComments.some((c) => c.id === transformedComment.id))
-            return oldData;
+          if (allComments.some((c) => c.id === transformedComment.id)) return oldData;
 
           const newPages = oldData.pages;
 
@@ -407,10 +364,7 @@ export function PostDetail({
             // It's a reply, update repliesCount on the parent and invalidate replies query
             let found = false;
             for (const page of newPages) {
-              const parent = page.data.find(
-                (c: CommentWithUser) =>
-                  c.id === transformedComment.parentCommentId,
-              );
+              const parent = page.data.find((c: CommentWithUser) => c.id === transformedComment.parentCommentId);
               if (parent) {
                 parent.repliesCount = (parent.repliesCount || 0) + 1;
                 found = true;
@@ -428,10 +382,7 @@ export function PostDetail({
           if (newPages.length > 0) {
             const lastPageIndex = newPages.length - 1;
             if (newPages?.[lastPageIndex])
-              newPages[lastPageIndex].data = [
-                ...newPages[lastPageIndex].data,
-                transformedComment,
-              ];
+              newPages[lastPageIndex].data = [...newPages[lastPageIndex].data, transformedComment];
           }
 
           return { ...oldData, pages: newPages };
@@ -446,9 +397,7 @@ export function PostDetail({
     };
   }, [socket, post.id, queryClient]);
 
-  const media = [...(post.postMedia ?? [])].sort(
-    (a, b) => a.displayOrder - b.displayOrder,
-  );
+  const media = [...(post.postMedia ?? [])].sort((a, b) => a.displayOrder - b.displayOrder);
   const hasMultipleMedia = media.length > 1;
   const hasVideo = media.some((item) => item.mediaType?.includes("video"));
 
@@ -480,11 +429,7 @@ export function PostDetail({
     } catch {}
   };
 
-  const handleLikeComment = (
-    commentId: string,
-    isLiked: boolean,
-    parentCommentId?: string,
-  ) => {
+  const handleLikeComment = (commentId: string, isLiked: boolean, parentCommentId?: string) => {
     if (isLiked) {
       unlikeCommentMutation({ commentId, postId: post.id, parentCommentId });
     } else {
@@ -513,30 +458,21 @@ export function PostDetail({
 
   const allComments = commentsData?.pages.flatMap((page) => page.data) || [];
 
-  const postOwnerPrivacySetting = (post.user as any)?.userPrivacySetting as
-    | UserPrivacySetting
-    | undefined;
-  const shouldHideLikes =
-    post.likesHidden || postOwnerPrivacySetting?.hideLikesCount;
+  const postOwnerPrivacySetting = (post.user as any)?.userPrivacySetting as UserPrivacySetting | undefined;
+  const shouldHideLikes = post.likesHidden || postOwnerPrivacySetting?.hideLikesCount;
 
   return (
     <div
       className={cn(
         "flex flex-col md:flex-row w-full bg-background overflow-hidden",
-        isModal
-          ? "h-full md:h-[90vh] max-h-[900px]"
-          : "min-h-[600px] border rounded-xl",
+        isModal ? "h-full md:h-[90vh] max-h-[900px]" : "min-h-[600px] border rounded-xl",
       )}
     >
-      {isModal && (
-        <DialogClose className="hidden" ref={closeBtnRef}></DialogClose>
-      )}
+      {isModal && <DialogClose className="hidden" ref={closeBtnRef}></DialogClose>}
       <div
         className={cn(
           "relative bg-black flex items-center justify-center overflow-hidden group",
-          isModal
-            ? "w-full md:w-[60%] md:h-full"
-            : "w-full md:w-[60%] aspect-3/4",
+          isModal ? "w-full md:w-[60%] md:h-full" : "w-full md:w-[60%] aspect-3/4",
         )}
       >
         {hasMultipleMedia ? (
@@ -556,32 +492,27 @@ export function PostDetail({
         )}
 
         {/* Audio Track Toggle Icon for Image Posts */}
-        {post.audioTrack && !hasVideo && (
-          <PostAudio track={post.audioTrack} />
-        )}
+        {post.audioTrack && !hasVideo && <PostAudio track={post.audioTrack} />}
 
         {/* Tag Button */}
-        {post.postUserTags &&
-          post.postUserTags.some((t) => t.status === "accepted") && (
-            <div className="absolute bottom-4 left-4 z-10">
-              <Button
-                variant="secondary"
-                size="icon"
-                className="size-8 rounded-full bg-black/60 text-foreground hover:bg-black/80 border-none backdrop-blur-sm transition-transform active:scale-95"
-                onClick={() => setShowTags(!showTags)}
-              >
-                <Users className="size-4" />
-              </Button>
-            </div>
-          )}
+        {post.postUserTags && post.postUserTags.some((t) => t.status === "accepted") && (
+          <div className="absolute bottom-4 left-4 z-10">
+            <Button
+              variant="secondary"
+              size="icon"
+              className="size-8 rounded-full bg-black/60 text-foreground hover:bg-black/80 border-none backdrop-blur-sm transition-transform active:scale-95"
+              onClick={() => setShowTags(!showTags)}
+            >
+              <Users className="size-4" />
+            </Button>
+          </div>
+        )}
 
         {/* Tagged Users Dialog */}
         <Dialog open={showTags} onOpenChange={setShowTags}>
           <DialogContent className="max-w-[320px] p-0 border-none bg-background/95 backdrop-blur-md overflow-hidden shadow-2xl">
             <DialogHeader className="p-4 border-b border-border/50">
-              <DialogTitle className="text-center text-base font-bold tracking-tight">
-                Tagged
-              </DialogTitle>
+              <DialogTitle className="text-center text-base font-bold tracking-tight">Tagged</DialogTitle>
             </DialogHeader>
             <ScrollArea className="max-h-[300px]">
               <div className="p-2 space-y-1">
@@ -595,20 +526,14 @@ export function PostDetail({
                       onClick={() => setShowTags(false)}
                     >
                       <Avatar className="h-10 w-10 border border-border/50">
-                        <AvatarImage
-                          src={`/${tag.user.image}` || "/default-avatar.png"}
-                        />
+                        <AvatarImage src={`/${tag.user.image}` || "/default-avatar.png"} />
                         <AvatarFallback className="bg-muted text-[10px]">
                           {(tag.user.username || "U").slice(0, 2).toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
                       <div className="flex flex-col min-w-0">
-                        <span className="text-sm font-bold truncate leading-tight">
-                          {tag.user.username}
-                        </span>
-                        <span className="text-[11px] text-muted-foreground truncate">
-                          {tag.user.name}
-                        </span>
+                        <span className="text-sm font-bold truncate leading-tight">{tag.user.username}</span>
+                        <span className="text-[11px] text-muted-foreground truncate">{tag.user.name}</span>
                       </div>
                     </Link>
                   ))}
@@ -623,13 +548,8 @@ export function PostDetail({
           <div className="flex items-center space-x-3">
             <Link href={`/${post.user?.username}`}>
               <Avatar className="h-8 w-8 border">
-                <AvatarImage
-                  src={`/${post.user?.image}` || "/default-avatar.png"}
-                  alt={post.user?.username || ""}
-                />
-                <AvatarFallback>
-                  {(post.user?.username || "U").slice(0, 2).toUpperCase()}
-                </AvatarFallback>
+                <AvatarImage src={`/${post.user?.image}` || "/default-avatar.png"} alt={post.user?.username || ""} />
+                <AvatarFallback>{(post.user?.username || "U").slice(0, 2).toUpperCase()}</AvatarFallback>
               </Avatar>
             </Link>
             <div className="flex flex-col">
@@ -646,9 +566,7 @@ export function PostDetail({
                     <button
                       className={cn(
                         "text-xs font-semibold transition-colors",
-                        isFollowing
-                          ? "text-foreground"
-                          : "text-primary hover:text-primary/80",
+                        isFollowing ? "text-foreground" : "text-primary hover:text-primary/80",
                       )}
                       onClick={() => toggleFollow()}
                       disabled={isFollowingPending}
@@ -658,11 +576,7 @@ export function PostDetail({
                   </>
                 )}
               </div>
-              {post.location && (
-                <span className="text-xs text-muted-foreground">
-                  {post.location?.name}
-                </span>
-              )}
+              {post.location && <span className="text-xs text-muted-foreground">{post.location?.name}</span>}
             </div>
           </div>
           <DropdownMenu>
@@ -674,10 +588,7 @@ export function PostDetail({
             <DropdownMenuContent align="end" className="w-48">
               {isOwnPost && (
                 <>
-                  <DropdownMenuItem
-                    className="cursor-pointer"
-                    onClick={() => setIsEditDialogOpen(true)}
-                  >
+                  <DropdownMenuItem className="cursor-pointer" onClick={() => setIsEditDialogOpen(true)}>
                     <Edit className="w-4 h-4 mr-2" />
                     <span>{t("post.editPost")}</span>
                   </DropdownMenuItem>
@@ -686,11 +597,7 @@ export function PostDetail({
                     onClick={() => archivePost(post.id, post.isArchived)}
                   >
                     <Archive className="w-4 h-4 mr-2" />
-                    <span>
-                      {post.isArchived
-                        ? t("post.unarchive")
-                        : t("post.archive")}
-                    </span>
+                    <span>{post.isArchived ? t("post.unarchive") : t("post.archive")}</span>
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     className="cursor-pointer text-destructive focus:text-destructive"
@@ -702,10 +609,7 @@ export function PostDetail({
                   <DropdownMenuSeparator />
                 </>
               )}
-              <DropdownMenuItem
-                className="cursor-pointer"
-                onClick={() => setIsReportDialogOpen(true)}
-              >
+              <DropdownMenuItem className="cursor-pointer" onClick={() => setIsReportDialogOpen(true)}>
                 <Flag className="w-4 h-4 mr-2" />
                 <span>{tReport("itemLabel")}</span>
               </DropdownMenuItem>
@@ -721,10 +625,7 @@ export function PostDetail({
           targetType="post"
         />
 
-        <AlertDialog
-          open={isPostDeleteDialogOpen}
-          onOpenChange={setIsPostDeleteDialogOpen}
-        >
+        <AlertDialog open={isPostDeleteDialogOpen} onOpenChange={setIsPostDeleteDialogOpen}>
           <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle>
@@ -734,15 +635,12 @@ export function PostDetail({
               </AlertDialogTitle>
               <AlertDialogDescription>
                 {t("post.deletePostConfirmDescription", {
-                  defaultValue:
-                    "Are you sure you want to delete this post? This action cannot be undone.",
+                  defaultValue: "Are you sure you want to delete this post? This action cannot be undone.",
                 })}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>
-                {t("post.cancel", { defaultValue: "Cancel" })}
-              </AlertDialogCancel>
+              <AlertDialogCancel>{t("post.cancel", { defaultValue: "Cancel" })}</AlertDialogCancel>
               <AlertDialogAction
                 className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                 onClick={handleDeletePost}
@@ -770,15 +668,9 @@ export function PostDetail({
               <div className="w-full lg:w-1/2 shrink-0 flex items-center justify-center relative aspect-3/4 bg-black overflow-hidden">
                 {hasMultipleMedia ? (
                   <Carousel className="w-full h-full">
-                    <CarouselContent
-                      className="h-full ml-0"
-                      viewportClassName="h-full"
-                    >
+                    <CarouselContent className="h-full ml-0" viewportClassName="h-full">
                       {media.map((item) => (
-                        <CarouselItem
-                          key={item.id}
-                          className="pl-0 h-full relative"
-                        >
+                        <CarouselItem key={item.id} className="pl-0 h-full relative">
                           <MediaRenderer item={item} status={item.status} />
                         </CarouselItem>
                       ))}
@@ -787,16 +679,11 @@ export function PostDetail({
                     <CarouselNext className="right-2 bg-background/50 border-none hover:bg-background/80" />
                   </Carousel>
                 ) : (
-                  media[0] && (
-                    <MediaRenderer item={media[0]} status={media[0].status} />
-                  )
+                  media[0] && <MediaRenderer item={media[0]} status={media[0].status} />
                 )}
-                <div
-                  id="edit-post-tag-people"
-                  className="absolute bottom-4 left-4 z-15"
-                ></div>
+                <div id="edit-post-tag-people" className="absolute bottom-4 left-4 z-15"></div>
               </div>
-              <div className="w-full lg:w-1/2 flex flex-col max-w-xl mx-auto lg:mx-0 overflow-y-auto no-scrollbar h-full">
+              <div className="w-full lg:w-1/2 flex flex-col max-w-xl mx-auto lg:mx-0 no-scrollbar h-full">
                 <CreatePostProvider>
                   <EditPostForm
                     post={post}
@@ -819,24 +706,17 @@ export function PostDetail({
                       src={`/${post.user?.image}` || "/default-avatar.png"}
                       alt={post.user?.username || ""}
                     />
-                    <AvatarFallback>
-                      {(post.user?.username || "U").slice(0, 2).toUpperCase()}
-                    </AvatarFallback>
+                    <AvatarFallback>{(post.user?.username || "U").slice(0, 2).toUpperCase()}</AvatarFallback>
                   </Avatar>
                 </Link>
                 <div className="flex flex-col gap-1">
                   <div className="text-sm leading-snug [&_div]:inline [&_p]:inline">
-                    <Link
-                      href={`/${post.user?.username}`}
-                      className="font-semibold mr-2 hover:underline"
-                    >
+                    <Link href={`/${post.user?.username}`} className="font-semibold mr-2 hover:underline">
                       {post.user?.username}
                     </Link>
                     <CaptionRenderer html={post.caption} />
                   </div>
-                  <span className="text-xs text-muted-foreground">
-                    {formatInstagramDate(post.createdAt, tTime)}
-                  </span>
+                  <span className="text-xs text-muted-foreground">{formatInstagramDate(post.createdAt, tTime)}</span>
                 </div>
               </div>
             )}
@@ -886,9 +766,7 @@ export function PostDetail({
                   <div className="p-4 border border-foreground/20 rounded-full">
                     <MessageCircle className="w-10 h-10" />
                   </div>
-                  <h3 className="text-2xl font-bold">
-                    {t("post.viewNoComments")}
-                  </h3>
+                  <h3 className="text-2xl font-bold">{t("post.viewNoComments")}</h3>
                 </div>
               </div>
             )}
@@ -900,45 +778,23 @@ export function PostDetail({
           <div className="p-4 space-y-3">
             <div className="flex justify-between items-center h-8">
               <div className="flex space-x-4">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={handleLike}
-                  className="h-8 w-8 p-0 hover:bg-transparent"
-                >
+                <Button variant="ghost" size="icon" onClick={handleLike} className="h-8 w-8 p-0 hover:bg-transparent">
                   <Heart
                     className={cn(
                       "h-6! w-6! transition-colors",
-                      optimisticPost.isLiked
-                        ? "fill-red-500 text-red-500"
-                        : "text-foreground",
+                      optimisticPost.isLiked ? "fill-red-500 text-red-500" : "text-foreground",
                     )}
                   />
                 </Button>
                 <Button variant="ghost" size="icon" className="h-8 w-8 p-0">
                   <MessageCircle className="h-6! w-6!" />
                 </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8 p-0"
-                  onClick={handleShare}
-                >
+                <Button variant="ghost" size="icon" className="h-8 w-8 p-0" onClick={handleShare}>
                   <Send className="h-6! w-6!" />
                 </Button>
               </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 p-0"
-                onClick={handleSave}
-              >
-                <Bookmark
-                  className={cn(
-                    "h-6! w-6!",
-                    optimisticPost.isSaved && "fill-current",
-                  )}
-                />
+              <Button variant="ghost" size="icon" className="h-8 w-8 p-0" onClick={handleSave}>
+                <Bookmark className={cn("h-6! w-6!", optimisticPost.isSaved && "fill-current")} />
               </Button>
             </div>
 
@@ -949,8 +805,7 @@ export function PostDetail({
                     ? optimisticPost.likesCount > 0
                       ? t("post.likedByAndOthers", {
                           username:
-                            (optimisticPost.likes?.[0] as any)?.user
-                              ?.username ||
+                            (optimisticPost.likes?.[0] as any)?.user?.username ||
                             (optimisticPost.user as any)?.username,
                         })
                       : null
@@ -983,23 +838,14 @@ export function PostDetail({
             {replyingTo && (
               <div className="absolute bottom-full left-0 right-0 bg-background/95 backdrop-blur-sm border-t px-4 py-2 flex items-center justify-between text-[11px] animate-in slide-in-from-bottom-1 duration-200 z-10">
                 <span className="text-muted-foreground">
-                  Replying to{" "}
-                  <span className="font-semibold text-foreground">
-                    @{replyingTo.user.username}
-                  </span>
+                  Replying to <span className="font-semibold text-foreground">@{replyingTo.user.username}</span>
                 </span>
-                <button
-                  className="text-primary hover:text-primary/80 font-medium"
-                  onClick={() => setReplyingTo(null)}
-                >
+                <button className="text-primary hover:text-primary/80 font-medium" onClick={() => setReplyingTo(null)}>
                   Cancel
                 </button>
               </div>
             )}
-            <form
-              onSubmit={handleSubmitComment}
-              className="flex items-center gap-3"
-            >
+            <form onSubmit={handleSubmitComment} className="flex items-center gap-3">
               <input
                 type="text"
                 placeholder={t("post.addComment")}
@@ -1115,11 +961,7 @@ function PostVideo({ item, status }: { item: any; status: string }) {
       <Video
         ref={videoRef}
         src={videoSrc}
-        poster={
-          item.thumbnailUrl
-            ? getMediaUrl(item.thumbnailUrl, "post", item.mediaType)
-            : ""
-        }
+        poster={item.thumbnailUrl ? getMediaUrl(item.thumbnailUrl, "post", item.mediaType) : ""}
         className="w-full h-full object-cover"
         autoPlay
         loop
@@ -1131,21 +973,13 @@ function PostVideo({ item, status }: { item: any; status: string }) {
         onClick={toggleMute}
         className="absolute bottom-4 right-4 p-2 rounded-full bg-black/60 text-white z-10 hover:bg-black/80 transition-opacity opacity-0 group-hover:opacity-100 sm:opacity-100"
       >
-        {isMuted ? (
-          <VolumeX className="w-4 h-4" />
-        ) : (
-          <Volume2 className="w-4 h-4" />
-        )}
+        {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
       </button>
     </div>
   );
 }
 
-function PostAudio({
-  track,
-}: {
-  track: PostWithRelations["audioTrack"];
-}) {
+function PostAudio({ track }: { track: PostWithRelations["audioTrack"] }) {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [isMuted, setIsMuted] = useState(true);
   const { ref: inViewRef, inView } = useInView({
@@ -1173,24 +1007,14 @@ function PostAudio({
 
   return (
     <div ref={inViewRef} className="absolute inset-0 pointer-events-none z-10">
-      <audio
-        ref={audioRef}
-        src={getMediaUrl(track.audioUrl, "post", "video/mp4")}
-        loop
-        muted={isMuted}
-      />
+      <audio ref={audioRef} src={getMediaUrl(track.audioUrl, "post", "video/mp4")} loop muted={isMuted} />
       <button
         onClick={toggleMute}
         className="absolute bottom-4 right-4 p-2 rounded-full bg-black/60 text-white pointer-events-auto transition-opacity opacity-0 group-hover:opacity-100 sm:opacity-100 flex items-center justify-center cursor-pointer hover:bg-black/80"
         aria-label={isMuted ? "Unmute" : "Mute"}
       >
-        {isMuted ? (
-          <VolumeX className="w-4 h-4" />
-        ) : (
-          <Volume2 className="w-4 h-4" />
-        )}
+        {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
       </button>
     </div>
   );
 }
-

@@ -79,17 +79,29 @@ export const SystemWideErrorMessages = {
 
   // UPLOAD ERROR MESSAGES
   [SystemWideErrorCodes.UPLOAD_FILE_FAILED]: "Failed to upload file.",
-  [SystemWideErrorCodes.UPLOAD_UNSUPPORTED_FILE_TYPE]: `The current file type is not supported. Supported types are: ${process.env.DEFAULT_FILE_TYPE_REGEX}.`,
+  get [SystemWideErrorCodes.UPLOAD_UNSUPPORTED_FILE_TYPE]() {
+    return `The current file type is not supported. Supported types are: ${process.env.DEFAULT_FILE_TYPE_REGEX || '(jpeg|jpg|png|webp|mp4|avi)'}.`;
+  },
   [SystemWideErrorCodes.UPLOAD_PROCESSING_FILE_FAILED]:
     "Failed to process file.",
   [SystemWideErrorCodes.UPLOAD_POST_VIDEOS_TOO_LONG_IN_DURATION]: `One or more videos were too long to be uploaded.`,
   [SystemWideErrorCodes.UPLOAD_MAX_FILE_SIZE_EXCEEDED]: (...args) =>
     `Current file size is ${args[0]} bytes, which exceeds the maximum allowed size of ${args[1]} bytes.`,
-  [SystemWideErrorCodes.UPLOAD_POST_VIDEO_DURATION_EXCEEDED]: `One or more videos exceed the maximum allowed duration of ${process.env.DEFAULT_POST_MAX_VIDEO_DURATION} seconds for posts.`,
-  [SystemWideErrorCodes.UPLOAD_REEL_VIDEO_DURATION_EXCEEDED]: `One or more videos exceed the maximum allowed duration of ${process.env.DEFAULT_REEL_MAX_VIDEO_DURATION} seconds for reels.`,
-  [SystemWideErrorCodes.UPLOAD_STORY_VIDEO_DURATION_EXCEEDED]: `One or more videos exceed the maximum allowed duration of ${process.env.DEFAULT_STORY_MAX_VIDEO_DURATION} seconds for stories.`,
-  [SystemWideErrorCodes.UPLOAD_POST_MAX_MULTI_VIDEOS_DURATION]: `If any videos are longer than ${process.env.DEFAULT_POST_MAX_MULTI_VIDEOS_DURATION} seconds, you can only post one video at a time.`,
-  [SystemWideErrorCodes.UPLOAD_VIDEO_DURATION_TOO_SHORT]: `The video is too short to be uploaded. The minimum duration is ${process.env.DEFAULT_LEAST_VIDEO_DURATION} seconds.`,
+  get [SystemWideErrorCodes.UPLOAD_POST_VIDEO_DURATION_EXCEEDED]() {
+    return `One or more videos exceed the maximum allowed duration of ${process.env.DEFAULT_POST_MAX_VIDEO_DURATION || '90'} seconds for posts.`;
+  },
+  get [SystemWideErrorCodes.UPLOAD_REEL_VIDEO_DURATION_EXCEEDED]() {
+    return `One or more videos exceed the maximum allowed duration of ${process.env.DEFAULT_REEL_MAX_VIDEO_DURATION || '180'} seconds for reels.`;
+  },
+  get [SystemWideErrorCodes.UPLOAD_STORY_VIDEO_DURATION_EXCEEDED]() {
+    return `One or more videos exceed the maximum allowed duration of ${process.env.DEFAULT_STORY_MAX_VIDEO_DURATION || '60'} seconds for stories.`;
+  },
+  get [SystemWideErrorCodes.UPLOAD_POST_MAX_MULTI_VIDEOS_DURATION]() {
+    return `If any videos are longer than ${process.env.DEFAULT_POST_MAX_MULTI_VIDEOS_DURATION || '60'} seconds, you can only post one video at a time.`;
+  },
+  get [SystemWideErrorCodes.UPLOAD_VIDEO_DURATION_TOO_SHORT]() {
+    return `The video is too short to be uploaded. The minimum duration is ${process.env.DEFAULT_LEAST_VIDEO_DURATION || '5'} seconds.`;
+  },
 } satisfies Record<
   SystemWideErrorCodes,
   string | (<T>(...args: T[]) => string)
