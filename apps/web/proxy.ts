@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { authClient } from "@/lib/auth/auth-client";
 import { API_AUTH_PREFIX, AUTH_ROUTES, DEFAULT_LOGIN_REDIRECT, PUBLIC_API_PREFIXES } from "@/constants/routes";
+import { cookies } from "next/headers";
 
 export async function proxy(req: NextRequest) {
   const { nextUrl } = req;
@@ -14,14 +15,18 @@ export async function proxy(req: NextRequest) {
   });
   const isAuthRoute = AUTH_ROUTES.some((route) => nextUrl.pathname.startsWith(route));
 
-  console.log(session);
-
   if (isAuthRoute) {
     if (session.data) return NextResponse.redirect(new URL(DEFAULT_LOGIN_REDIRECT, nextUrl.origin));
     return NextResponse.next();
   }
 
-  if (!session.data) {
+  if (!session.data && session.error?.status === 429) {
+    const cookieStore = await cookies();
+    const baCookie = cookieStore.get("better-auth.session_token");
+    if (baCookie) return NextResponse.next();
+  }
+
+  if (!session.data && session.error?.status !== 429) {
     let callBackUrl = nextUrl.pathname;
     if (nextUrl.search) {
       callBackUrl += nextUrl.search;
