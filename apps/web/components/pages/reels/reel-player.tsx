@@ -44,7 +44,7 @@ export function ReelPlayer({ post, isActive }: ReelPlayerProps) {
   ]);
   const tReport = useTranslations("Report");
   const { socket } = useSocket();
-  const [isMuted, setIsMuted] = useState(true);
+  const [isMuted, setIsMuted] = useState(false);
   const [showFullCaption, setShowFullCaption] = useState(false);
   const [isReportDialogOpen, setIsReportDialogOpen] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -88,19 +88,37 @@ export function ReelPlayer({ post, isActive }: ReelPlayerProps) {
   const firstVideo =
     post.postMedia.find((m) => m.mediaType?.includes("video")) ||
     post.postMedia[0];
+  const isFlagged = firstVideo?.moderationStatus === "flagged";
 
   useEffect(() => {
     if (inView && isActive) {
+      if (isFlagged) {
+        setIsMuted(true);
+        if (videoRef.current) {
+          videoRef.current.muted = true;
+        }
+        videoRef.current?.play().catch(() => {});
+        return;
+      }
+
+      // Ensure the video is unmuted when entering view
+      setIsMuted(false);
+      if (videoRef.current) {
+        videoRef.current.muted = false;
+      }
+
       videoRef.current?.play().catch(() => {
+        // Fallback to muted playback if blocked by browser autoplay policy
         if (videoRef.current) {
           setIsMuted(true);
+          videoRef.current.muted = true;
           videoRef.current.play().catch(() => {});
         }
       });
     } else {
       videoRef.current?.pause();
     }
-  }, [inView, isActive]);
+  }, [inView, isActive, isFlagged]);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -124,6 +142,7 @@ export function ReelPlayer({ post, isActive }: ReelPlayerProps) {
   const toggleMute = (e: React.MouseEvent) => {
     e.stopPropagation();
     e.preventDefault();
+    if (isFlagged) return;
     setIsMuted((prev) => !prev);
   };
 
@@ -359,9 +378,10 @@ export function ReelPlayer({ post, isActive }: ReelPlayerProps) {
             variant="ghost"
             size="icon"
             onClick={toggleMute}
-            className="absolute top-4 right-4 p-2 rounded-full bg-black/40 backdrop-blur-md text-foreground z-30 pointer-events-auto hover:bg-black/60 transition shadow-lg h-auto w-auto"
+            disabled={isFlagged}
+            className="absolute top-4 right-4 p-2 rounded-full bg-black/40 backdrop-blur-md text-foreground z-30 pointer-events-auto hover:bg-black/60 transition shadow-lg h-auto w-auto disabled:opacity-50 disabled:pointer-events-none"
           >
-            {isMuted ? (
+            {isMuted || isFlagged ? (
               <VolumeX className="w-4 h-4 md:w-5 md:h-5" />
             ) : (
               <Volume2 className="w-4 h-4 md:w-5 md:h-5" />
